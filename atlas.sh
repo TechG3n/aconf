@@ -1,8 +1,8 @@
 #!/system/bin/sh
-# version 0.1
+# version 0.2
 
 #Version checks
-Ver55atlas="0.1"
+Ver55atlas="0.2"
 ### add webhook sender?
 
 #Create logfile

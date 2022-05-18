@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.1
+# version 0.2
 
 #Create logfile
 if [ ! -e /sdcard/aconf.log ] ;then
