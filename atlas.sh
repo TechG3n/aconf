@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.7
+# version 0.8
 
 #Version checks
 Ver55atlas="0.3"
@@ -73,7 +73,7 @@ mount -o remount,ro /system
 echo "`date +%Y-%m-%d_%T` 55atlas installed" >> $logfile
 
 # get version
-aversion=$(head -2 /data/local/tmp/aconf_versions | grep 'atlas' | awk '{ print $NF }')
+aversion=$(head -2 /data/local/tmp/aconf_versions | grep 'atlas' | awk -F "=" '{ print $NF }')
 
 # download atlas
 #### atlas version !!!!!!
@@ -155,7 +155,7 @@ if [[ $(basename $0) != "atlas_new.sh" ]] ;then
   mount -o remount,rw /system
   oldsh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
 
-  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_new.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas_new.sh || { echo "`date +%Y-%m-%d_%T` Download atlas.sh failed, exit script" >> $logfile ; exit 1; } ;do
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_new.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas.sh || { echo "`date +%Y-%m-%d_%T` Download atlas.sh failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/atlas_new.sh
