@@ -60,7 +60,18 @@ done
 }
 
 install_atlas(){
-echo "`date +%Y-%m-%d_%T` we should have installed atlas :)" >> $logfile
+
+# install 55atlas
+mount -o remount,rw /system
+until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/master/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
+  sleep 2
+done
+chmod +x /system/etc/init.d/55atlas
+mount -o remount,ro /system
+echo "`date +%Y-%m-%d_%T` 55atlas installed" >> $logfile
+
+
+echo "`date +%Y-%m-%d_%T` we should have installed atlas now :)" >> $logfile
 {
 
 update_all(){
@@ -106,9 +117,18 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
       sleep 2
     done
     chmod +x /system/etc/init.d/55atlas
+    mount -o remount,ro /system
     new55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
-    echo "`date +%Y-%m-%d_%T` 55vmapper $old55=>$new55" >> $logfile
+    echo "`date +%Y-%m-%d_%T` 55atlas $old55=>$new55" >> $logfile
   fi
+fi
+
+### verify dowload folder ??
+
+# prevent amconf causing reboot loop. Add bypass ??
+if [ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ] ;then
+  echo "`date +%Y-%m-%d_%T` Device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"  >> $logfile
+  exit 1
 fi
 
 
