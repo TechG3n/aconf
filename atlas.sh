@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.5
+# version 0.7
 
 #Version checks
 Ver55atlas="0.3"
@@ -72,9 +72,13 @@ chmod +x /system/etc/init.d/55atlas
 mount -o remount,ro /system
 echo "`date +%Y-%m-%d_%T` 55atlas installed" >> $logfile
 
+# get version
+aversion=$(head -2 /data/local/tmp/aconf_versions | grep 'atlas' | awk '{ print $NF }')
+
 # download atlas
+#### atlas version !!!!!!
 /system/bin/rm -f /sdcard/Download/atlas.apk
-until /system/bin/curl -k -s -L --fail --show-error -o /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas*.apk || { echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
+until /system/bin/curl -k -s -L --fail --show-error -o /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk || { echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
   sleep 2
 done
 
@@ -113,6 +117,8 @@ done
 rgc_origin=$(grep -w 'websocket_origin' $rgcconf | sed -e 's/    <string name="websocket_origin">\(.*\)<\/string>/\1/')
 sed - i 's/dummy/$rgc_origin/g' /data/local/tmp/atlas_config.json
 
+# check pogo version else remove+install
+### to be added
 
 # disable rgc pray everything is correct as we now loose websocket to madmin 
 #if [ -f "$rgcconf" ] ;then
