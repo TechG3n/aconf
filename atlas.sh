@@ -95,7 +95,7 @@ if [[ $(basename $0) != "atlas_new.sh" ]] ;then
   until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_new.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas.sh || { echo "`date +%Y-%m-%d_%T` Download atlas.sh failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
-  chmod +x /system/bin/vmapper_new.sh
+  chmod +x /system/bin/atlas_new.sh
 
   newsh=$(head -2 /system/bin/atlas_new.sh | grep '# version' | awk '{ print $NF }')
   if [[ $oldsh != $newsh ]] ;then
