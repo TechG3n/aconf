@@ -72,11 +72,11 @@ echo "`date +%Y-%m-%d_%T` 55atlas installed" >> $logfile
 
 
 echo "`date +%Y-%m-%d_%T` we should have installed atlas now :)" >> $logfile
-{
+}
 
 update_all(){
 echo "`date +%Y-%m-%d_%T` download version file to data/local/temp, check for change and update pogo and/or atlas if needed" >> $logfile
-{
+}
 
 
 ########## Execution
