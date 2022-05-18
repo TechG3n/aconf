@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.8
+# version 0.9
 
 #Version checks
 Ver55atlas="0.3"
@@ -76,7 +76,6 @@ echo "`date +%Y-%m-%d_%T` 55atlas installed" >> $logfile
 aversion=$(head -2 /data/local/tmp/aconf_versions | grep 'atlas' | awk -F "=" '{ print $NF }')
 
 # download atlas
-#### atlas version !!!!!!
 /system/bin/rm -f /sdcard/Download/atlas.apk
 until /system/bin/curl -k -s -L --fail --show-error -o /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk || { echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
   sleep 2
@@ -115,23 +114,35 @@ until /system/bin/curl -s -k -L --fail --show-error -o /data/local/tmp/atlas_con
   sleep 2
 done
 rgc_origin=$(grep -w 'websocket_origin' $rgcconf | sed -e 's/    <string name="websocket_origin">\(.*\)<\/string>/\1/')
-sed - i 's/dummy/$rgc_origin/g' /data/local/tmp/atlas_config.json
+sed - i 's/dummy/'$rgc_origin'/g' /data/local/tmp/atlas_config.json
 
 # check pogo version else remove+install
-### to be added
+pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
+pversions=$(head -2 /data/local/tmp/aconf_versions | grep 'pogo' | awk -F "=" '{ print $NF }')
+if [ $pinstalled != $pversions ] ;then
+  until /system/bin/curl -s -k -L --fail --show-error -o /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch_$pversions || { echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
+    sleep 2
+  done
+  /system/bin/pm uninstall com.nianticlabs.pokemongo
+  /system/bin/pm install -r /sdcard/Download/pogo.apk
+  /system/bin/rm -f /sdcard/Download/pogo.apk
+  echo "`date +%Y-%m-%d_%T` PoGo removed and installed, now $pversions" >> $logfile
+else
+  echo "`date +%Y-%m-%d_%T` pogo version correct, proceed" >> $logfile
+fi
 
 # disable rgc pray everything is correct as we now loose websocket to madmin 
-#if [ -f "$rgcconf" ] ;then
-#  sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
-#  sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
-#  chmod 660 $rgcconf
-#  chown $ruser:$ruser $rgcconf
-#  # disable rgc autoupdate
-#  touch /sdcard/disableautorgcupdate
-#  # kill rgc
-#  am force-stop de.grennith.rgc.remotegpscontroller
-#  echo "`date +%Y-%m-%d_%T` rgc disabled" >> $logfile
-#fi
+if [ -f "$rgcconf" ] ;then
+  sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
+  sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
+  chmod 660 $rgcconf
+  chown $ruser:$ruser $rgcconf
+  # disable rgc autoupdate
+  touch /sdcard/disableautorgcupdate
+  # kill rgc
+  am force-stop de.grennith.rgc.remotegpscontroller
+  echo "`date +%Y-%m-%d_%T` rgc disabled" >> $logfile
+fi
 
 ### Set for reboot device
 #reboot=1
