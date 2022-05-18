@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.9
+# version 0.10
 
 #Version checks
 Ver55atlas="0.3"
@@ -35,7 +35,7 @@ sleep 2
 }
 
 case "$(uname -m)" in
- aarch64) arch="arm64_v8a";;
+ aarch64) arch="arm64-v8a";;
  armv8l)  arch="armeabi-v7a";;
 esac
 
@@ -114,13 +114,13 @@ until /system/bin/curl -s -k -L --fail --show-error -o /data/local/tmp/atlas_con
   sleep 2
 done
 rgc_origin=$(grep -w 'websocket_origin' $rgcconf | sed -e 's/    <string name="websocket_origin">\(.*\)<\/string>/\1/')
-sed - i 's/dummy/'$rgc_origin'/g' /data/local/tmp/atlas_config.json
+sed -i 's,dummy,'$rgc_origin',g' /data/local/tmp/atlas_config.json
 
 # check pogo version else remove+install
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
 pversions=$(head -2 /data/local/tmp/aconf_versions | grep 'pogo' | awk -F "=" '{ print $NF }')
 if [ $pinstalled != $pversions ] ;then
-  until /system/bin/curl -s -k -L --fail --show-error -o /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch_$pversions || { echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
+  until /system/bin/curl -s -k -L --fail --show-error -o /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions || { echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   /system/bin/pm uninstall com.nianticlabs.pokemongo
@@ -131,7 +131,7 @@ else
   echo "`date +%Y-%m-%d_%T` pogo version correct, proceed" >> $logfile
 fi
 
-# disable rgc pray everything is correct as we now loose websocket to madmin 
+# disable rgc pray everything is correct, bye bye websocket to madmin 
 if [ -f "$rgcconf" ] ;then
   sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
   sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
