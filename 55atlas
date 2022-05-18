@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.2
+# version 0.3
 
 #Create logfile
 if [ ! -e /sdcard/aconf.log ] ;then
@@ -9,4 +9,4 @@ echo "" >> /sdcard/aconf.log
 echo "`date +%Y-%m-%d_%T` Device rebooted" >> /sdcard/aconf.log
 
 # execute atlas.sh
-sh -x /system/bin/atlas.sh -uanr
+sh -x /system/bin/atlas.sh -ua
