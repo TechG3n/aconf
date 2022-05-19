@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.15
+# version 0.16
 
 #Version checks
 Ver55atlas="0.3"
@@ -168,7 +168,7 @@ check_rgc(){
 if [ -f "$rgcconf" ] ;then
   rgccheck=$(head -2 /data/local/tmp/aconf_versions | grep 'rgc' | awk -F "=" '{ print $NF }')
   rgcstatus=$(grep -w 'boot_startup' $rgcconf | awk -F "\"" '{print tolower($4)}')
-  if [ $rgccheck == "off" ] && [ $rgcstatus == "true" ] ;then
+  if [[ $rgccheck == "off" ]] && [[ $rgcstatus == "true" ]] ;then
     # disable rgc
     sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
     sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
@@ -180,7 +180,7 @@ if [ -f "$rgcconf" ] ;then
     am force-stop de.grennith.rgc.remotegpscontroller
     echo "`date +%Y-%m-%d_%T` rgc disabled" >> $logfile
   fi
-  if [ $rgccheck == "on" ] && [ $rgcstatus == "false" ] ;then
+  if [[ $rgccheck == "on" ]] && [[ $rgcstatus == "false" ]] ;then
     # enable rgc
     sed -i 's,\"autostart_services\" value=\"false\",\"autostart_services\" value=\"true\",g' $rgcconf
     sed -i 's,\"boot_startup\" value=\"false\",\"boot_startup\" value=\"true\",g' $rgcconf
