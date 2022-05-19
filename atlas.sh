@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.18
+# version 0.19
 
 #Version checks
 Ver55atlas="0.3"
@@ -46,12 +46,20 @@ install_atlas(){
 
 # install 55atlas
 mount -o remount,rw /system
-until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/master/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
-  sleep 2
-done
-chmod +x /system/etc/init.d/55atlas
+if [ -f /sdcard/useAconfDevelop ] ;then
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/develop/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
+    sleep 2
+  done
+  chmod +x /system/etc/init.d/55atlas
+  echo "`date +%Y-%m-%d_%T` 55atlas installed, from develop" >> $logfile
+else
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/master/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
+    sleep 2
+  done
+  chmod +x /system/etc/init.d/55atlas
+  echo "`date +%Y-%m-%d_%T` 55atlas installed, from master" >> $logfile
+fi
 mount -o remount,ro /system
-echo "`date +%Y-%m-%d_%T` 55atlas installed" >> $logfile
 
 # get version
 aversion=$(head -2 /data/local/tmp/aconf_versions | grep 'atlas' | awk -F "=" '{ print $NF }')
@@ -220,16 +228,22 @@ until ping -c1 8.8.8.8 >/dev/null 2>/dev/null || ping -c1 1.1.1.1 >/dev/null 2>/
 done
 echo "`date +%Y-%m-%d_%T` Internet connection available" >> $logfile
 
+
 #download latest atlas.sh
 if [[ $(basename $0) != "atlas_new.sh" ]] ;then
   mount -o remount,rw /system
   oldsh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
-
-  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_new.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas.sh || { echo "`date +%Y-%m-%d_%T` Download atlas.sh failed, exit script" >> $logfile ; exit 1; } ;do
-    sleep 2
-  done
-  chmod +x /system/bin/atlas_new.sh
-
+  if [ -f /sdcard/useAconfDevelop ] ;then
+    until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_new.sh https://raw.githubusercontent.com/dkmur/aconf/develop/atlas.sh || { echo "`date +%Y-%m-%d_%T` Download atlas.sh failed, exit script" >> $logfile ; exit 1; } ;do
+      sleep 2
+    done
+    chmod +x /system/bin/atlas_new.sh
+  else
+    until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_new.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas.sh || { echo "`date +%Y-%m-%d_%T` Download atlas.sh failed, exit script" >> $logfile ; exit 1; } ;do
+      sleep 2
+    done
+    chmod +x /system/bin/atlas_new.sh
+  fi
   newsh=$(head -2 /system/bin/atlas_new.sh | grep '# version' | awk '{ print $NF }')
   if [[ $oldsh != $newsh ]] ;then
     echo "`date +%Y-%m-%d_%T` atlas.sh $oldsh=>$newsh, restarting script" >> $logfile
@@ -241,15 +255,23 @@ if [[ $(basename $0) != "atlas_new.sh" ]] ;then
   fi
 fi
 
+
 #update 55atlas if needed
 if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   old55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
   if [ $Ver55atlas != $old55 ] ;then
     mount -o remount,rw /system
-    until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/master/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
-      sleep 2
-    done
-    chmod +x /system/etc/init.d/55atlas
+    if [ -f /sdcard/useAconfDevelop ] ;then
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/develop/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
+        sleep 2
+      done
+      chmod +x /system/etc/init.d/55atlas
+    else
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/master/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
+        sleep 2
+      done
+      chmod +x /system/etc/init.d/55atlas
+    fi
     mount -o remount,ro /system
     new55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
     echo "`date +%Y-%m-%d_%T` 55atlas $old55=>$new55" >> $logfile
