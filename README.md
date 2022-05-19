@@ -54,7 +54,7 @@ Here is the content of the `atlas_config.json` file :
         "deviceAuthToken":"YOUR_ATLAS_AUTH_TOKEN",
         "deviceName":"dummy",
         "email":"YOUR_ATLAS_REGISTRATION_EMAIL",
-        "rdmUrl":"YOUR_RDM_URL_AND_PORT",
+        "rdmUrl":"http(s)://YOUR_RDM_URL:9001",
         "runOnBoot":true
 }
 ```
