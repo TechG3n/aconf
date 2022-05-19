@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.10
+# version 0.11
 
 #Version checks
 Ver55atlas="0.3"
@@ -38,26 +38,6 @@ case "$(uname -m)" in
  aarch64) arch="arm64-v8a";;
  armv8l)  arch="armeabi-v7a";;
 esac
-
-checkupdate(){
-# $1 = new version
-# $2 = installed version
-! [[ "$2" ]] && return 0 # for first installs
-i=1
-#we start at 1 and go until number of . so we can use our counter as awk position
-places=$(awk -F. '{print NF+1}' <<< "$1")
-while (( "$i" < "$places" )) ;do
- npos=$(awk -v pos=$i -F. '{print $pos}' <<< "$1")
- ipos=$(awk -v pos=$i -F. '{print $pos}' <<< "$2")
- case "$(( $npos - $ipos ))" in
-  -*) return 1 ;;
-   0) ;;
-   *) return 0 ;;
- esac
- i=$((i+1))
- false
-done
-}
 
 install_atlas(){
 
@@ -120,7 +100,7 @@ sed -i 's,dummy,'$rgc_origin',g' /data/local/tmp/atlas_config.json
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
 pversions=$(head -2 /data/local/tmp/aconf_versions | grep 'pogo' | awk -F "=" '{ print $NF }')
 if [ $pinstalled != $pversions ] ;then
-  until /system/bin/curl -s -k -L --fail --show-error -o /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions || { echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
+  until /system/bin/curl -s -k -L --fail --show-error -o /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   /system/bin/pm uninstall com.nianticlabs.pokemongo
@@ -144,8 +124,8 @@ if [ -f "$rgcconf" ] ;then
   echo "`date +%Y-%m-%d_%T` rgc disabled" >> $logfile
 fi
 
-### Set for reboot device
-#reboot=1
+# Set for reboot device
+reboot=1
 }
 
 update_all(){
