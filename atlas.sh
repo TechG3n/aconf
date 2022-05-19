@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.11
+# version 0.12
 
 #Version checks
 Ver55atlas="0.3"
@@ -123,6 +123,10 @@ if [ -f "$rgcconf" ] ;then
   am force-stop de.grennith.rgc.remotegpscontroller
   echo "`date +%Y-%m-%d_%T` rgc disabled" >> $logfile
 fi
+
+# start atlas
+am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+sleep 5
 
 # Set for reboot device
 reboot=1
