@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.16
+# version 0.17
 
 #Version checks
 Ver55atlas="0.3"
@@ -16,7 +16,7 @@ pdconf="/data/data/com.mad.pogodroid/shared_prefs/com.mad.pogodroid_preferences.
 [[ -d /data/data/de.grennith.rgc.remotegpscontroller ]] && ruser=$(ls -la /data/data/de.grennith.rgc.remotegpscontroller/ |head -n2 | tail -n1 | awk '{print $3}')
 rgcconf="/data/data/de.grennith.rgc.remotegpscontroller/shared_prefs/de.grennith.rgc.remotegpscontroller_preferences.xml"
 aconf="/data/local/tmp/atlas_config.json"
-[[ -f /data/local/tmp/aconf_download ]] && aconf_download=$(cat /data/local/tmp/aconf_download | head -n1 ) && echo "`date +%Y-%m-%d_%T` download folder set to $aconf_download" >> $logfile
+[[ -f /data/local/tmp/aconf_download ]] && aconf_download=$(cat /data/local/tmp/aconf_download | head -n1 )
 
 # stderr to logfile
 exec 2>> $logfile
@@ -24,6 +24,7 @@ exec 2>> $logfile
 # add atlas.sh command to log
 echo "" >> $logfile
 echo "`date +%Y-%m-%d_%T` ## Executing $(basename $0) $@" >> $logfile
+echo "`date +%Y-%m-%d_%T` download folder set to $aconf_download" >> $logfile
 
 
 ########## Functions
