@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.13
+# version 0.14
 
 #Version checks
 Ver55atlas="0.3"
@@ -157,14 +157,14 @@ if [ ! -z "$atlas_install" ] && [ ! -z "$pogo_install" ] ;then
   if [ "$atlas_install" = "install" ] ;then
     echo "`date +%Y-%m-%d_%T` Updating atlas" >> $logfile
     # install atlas
-    /system/bin/pm install -r /sdcard/Download/atlas.apk
+    /system/bin/pm install -r /sdcard/Download/atlas.apk || { echo "`date +%Y-%m-%d_%T` Install  atlas failed, downgrade perhaps?" >> $logfile ; exit 1; }
     /system/bin/rm -f /sdcard/Download/atlas.apk
     reboot=1
   fi
   if [ "$pogo_install" = "install" ] ;then
     echo "`date +%Y-%m-%d_%T` Updating pogo" >> $logfile
     # install pogo
-    /system/bin/pm install -r /sdcard/Download/pogo.apk
+    /system/bin/pm install -r /sdcard/Download/pogo.apk || { echo "`date +%Y-%m-%d_%T` Install pogo failed, downgrade perhaps?" >> $logfile ; exit 1; }
     /system/bin/rm -f /sdcard/Download/pogo.apk
     reboot=1
   fi
