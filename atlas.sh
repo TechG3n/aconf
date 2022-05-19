@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.12
+# version 0.13
 
 #Version checks
 Ver55atlas="0.3"
@@ -97,6 +97,84 @@ rgc_origin=$(grep -w 'websocket_origin' $rgcconf | sed -e 's/    <string name="w
 sed -i 's,dummy,'$rgc_origin',g' /data/local/tmp/atlas_config.json
 
 # check pogo version else remove+install
+downgrade_pogo
+
+# disable rgc pray everything is correct, bye bye websocket to madmin 
+# if [ -f "$rgcconf" ] ;then
+#   sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
+#   sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
+#   chmod 660 $rgcconf
+#   chown $ruser:$ruser $rgcconf
+#   # disable rgc autoupdate
+#   touch /sdcard/disableautorgcupdate
+#   # kill rgc
+#   am force-stop de.grennith.rgc.remotegpscontroller
+#   echo "`date +%Y-%m-%d_%T` rgc disabled" >> $logfile
+# fi
+
+# start atlas
+am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+sleep 5
+
+# Set for reboot device
+reboot=1
+}
+
+update_all(){
+pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
+pversions=$(head -2 /data/local/tmp/aconf_versions | grep 'pogo' | awk -F "=" '{ print $NF }')
+ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
+aversions=$(head -2 /data/local/tmp/aconf_versions | grep 'atlas' | awk -F "=" '{ print $NF }' | awk '{print substr($1,2); }')
+
+if [ $pinstalled != $pversions ] ;then
+  echo "`date +%Y-%m-%d_%T` New pogo version detected, $pinstalled=>$pversions" >> $logfile
+  /system/bin/rm -f /sdcard/Download/pogo.apk
+  until /system/bin/curl -s -k -L --fail --show-error -o /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
+    sleep 2
+  done
+  # set pogo to be installed
+  pogo_install="install"
+else
+ pogo_install="skip"
+ echo "`date +%Y-%m-%d_%T` PoGo already on correct version" >> $logfile
+fi
+
+if [ $ainstalled != $aversions ] ;then
+  echo "`date +%Y-%m-%d_%T` New atlas version detected, $ainstalled=>$aversions" >> $logfile
+  /system/bin/rm -f /sdcard/Download/atlas.apk
+  until /system/bin/curl -k -s -L --fail --show-error -o /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk || { echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
+    sleep 2
+  done
+  # set atlas to be installed
+  atlas_install="install"
+else
+ atlas_install="skip"
+ echo "`date +%Y-%m-%d_%T` atlas already on correct version" >> $logfile
+fi
+
+if [ ! -z "$atlas_install" ] && [ ! -z "$pogo_install" ] ;then
+  echo "`date +%Y-%m-%d_%T` All updates checked and downloaded if needed" >> $logfile
+  if [ "$atlas_install" = "install" ] ;then
+    echo "`date +%Y-%m-%d_%T` Updating atlas" >> $logfile
+    # install atlas
+    /system/bin/pm install -r /sdcard/Download/atlas.apk
+    /system/bin/rm -f /sdcard/Download/atlas.apk
+    reboot=1
+  fi
+  if [ "$pogo_install" = "install" ] ;then
+    echo "`date +%Y-%m-%d_%T` Updating pogo" >> $logfile
+    # install pogo
+    /system/bin/pm install -r /sdcard/Download/pogo.apk
+    /system/bin/rm -f /sdcard/Download/pogo.apk
+    reboot=1
+  fi
+  if [ "$atlas_install" != "install" ] && [ "$pogo_install" != "install" ] ; then
+    echo "`date +%Y-%m-%d_%T` Updates checked, nothing to install" >> $logfile
+  fi
+fi
+}
+
+downgrade_pogo(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
 pversions=$(head -2 /data/local/tmp/aconf_versions | grep 'pogo' | awk -F "=" '{ print $NF }')
 if [ $pinstalled != $pversions ] ;then
@@ -110,32 +188,7 @@ if [ $pinstalled != $pversions ] ;then
 else
   echo "`date +%Y-%m-%d_%T` pogo version correct, proceed" >> $logfile
 fi
-
-# disable rgc pray everything is correct, bye bye websocket to madmin 
-if [ -f "$rgcconf" ] ;then
-  sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
-  sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
-  chmod 660 $rgcconf
-  chown $ruser:$ruser $rgcconf
-  # disable rgc autoupdate
-  touch /sdcard/disableautorgcupdate
-  # kill rgc
-  am force-stop de.grennith.rgc.remotegpscontroller
-  echo "`date +%Y-%m-%d_%T` rgc disabled" >> $logfile
-fi
-
-# start atlas
-am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
-sleep 5
-
-# Set for reboot device
-reboot=1
 }
-
-update_all(){
-echo "`date +%Y-%m-%d_%T` download version file to data/local/temp, check for change and update pogo and/or atlas if needed" >> $logfile
-}
-
 
 ########## Execution
 
@@ -199,6 +252,7 @@ for i in "$@" ;do
  case "$i" in
  -ia) install_atlas ;;
  -ua) update_all ;;
+ -dp) downgrade_pogo;;
 # consider adding: downgrade pogo, downgrade atlas, update atlas config file, update donwload link
  esac
 done
