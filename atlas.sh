@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.14
+# version 0.15
 
 #Version checks
 Ver55atlas="0.3"
@@ -99,18 +99,8 @@ sed -i 's,dummy,'$rgc_origin',g' /data/local/tmp/atlas_config.json
 # check pogo version else remove+install
 downgrade_pogo
 
-# disable rgc pray everything is correct, bye bye websocket to madmin 
-# if [ -f "$rgcconf" ] ;then
-#   sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
-#   sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
-#   chmod 660 $rgcconf
-#   chown $ruser:$ruser $rgcconf
-#   # disable rgc autoupdate
-#   touch /sdcard/disableautorgcupdate
-#   # kill rgc
-#   am force-stop de.grennith.rgc.remotegpscontroller
-#   echo "`date +%Y-%m-%d_%T` rgc disabled" >> $logfile
-# fi
+# check if rgc is to be enabled or disabled
+check_rgc
 
 # start atlas
 am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
@@ -157,14 +147,14 @@ if [ ! -z "$atlas_install" ] && [ ! -z "$pogo_install" ] ;then
   if [ "$atlas_install" = "install" ] ;then
     echo "`date +%Y-%m-%d_%T` Updating atlas" >> $logfile
     # install atlas
-    /system/bin/pm install -r /sdcard/Download/atlas.apk || { echo "`date +%Y-%m-%d_%T` Install  atlas failed, downgrade perhaps?" >> $logfile ; exit 1; }
+    /system/bin/pm install -r /sdcard/Download/atlas.apk || { echo "`date +%Y-%m-%d_%T` Install  atlas failed, downgrade perhaps? Exit script" >> $logfile ; exit 1; }
     /system/bin/rm -f /sdcard/Download/atlas.apk
     reboot=1
   fi
   if [ "$pogo_install" = "install" ] ;then
     echo "`date +%Y-%m-%d_%T` Updating pogo" >> $logfile
     # install pogo
-    /system/bin/pm install -r /sdcard/Download/pogo.apk || { echo "`date +%Y-%m-%d_%T` Install pogo failed, downgrade perhaps?" >> $logfile ; exit 1; }
+    /system/bin/pm install -r /sdcard/Download/pogo.apk || { echo "`date +%Y-%m-%d_%T` Install pogo failed, downgrade perhaps? Exit script" >> $logfile ; exit 1; }
     /system/bin/rm -f /sdcard/Download/pogo.apk
     reboot=1
   fi
@@ -172,6 +162,37 @@ if [ ! -z "$atlas_install" ] && [ ! -z "$pogo_install" ] ;then
     echo "`date +%Y-%m-%d_%T` Updates checked, nothing to install" >> $logfile
   fi
 fi
+}
+
+check_rgc(){
+if [ -f "$rgcconf" ] ;then
+  rgccheck=$(head -2 /data/local/tmp/aconf_versions | grep 'rgc' | awk -F "=" '{ print $NF }')
+  rgcstatus=$(grep -w 'boot_startup' $rgcconf | awk -F "\"" '{print tolower($4)}')
+  if [ $rgccheck == "off" ] && [ $rgcstatus == "true" ] ;then
+    # disable rgc
+    sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
+    sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
+    chmod 660 $rgcconf
+    chown $ruser:$ruser $rgcconf
+    # disable rgc autoupdate
+    touch /sdcard/disableautorgcupdate
+    # kill rgc
+    am force-stop de.grennith.rgc.remotegpscontroller
+    echo "`date +%Y-%m-%d_%T` rgc disabled" >> $logfile
+  fi
+  if [ $rgccheck == "on" ] && [ $rgcstatus == "false" ] ;then
+    # enable rgc
+    sed -i 's,\"autostart_services\" value=\"false\",\"autostart_services\" value=\"true\",g' $rgcconf
+    sed -i 's,\"boot_startup\" value=\"false\",\"boot_startup\" value=\"true\",g' $rgcconf
+    chmod 660 $rgcconf
+    chown $ruser:$ruser $rgcconf
+    # start rgc
+    monkey -p de.grennith.rgc.remotegpscontroller 1
+    echo "`date +%Y-%m-%d_%T` rgc enabled and started" >> $logfile
+  fi
+fi
+
+
 }
 
 downgrade_pogo(){
@@ -247,6 +268,8 @@ until /system/bin/curl -s -k -L --fail --show-error -o /data/local/tmp/aconf_ver
   sleep 2
 done
 
+# check rgc enable/disable
+check_rgc
 
 for i in "$@" ;do
  case "$i" in
