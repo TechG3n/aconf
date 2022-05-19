@@ -181,7 +181,7 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   fi
 fi
 
-### verify dowload folder ??
+### verify download folder ??
 
 # prevent amconf causing reboot loop. Add bypass ??
 if [ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ] ;then
