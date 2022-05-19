@@ -73,8 +73,8 @@ if [ -f "$pdconf" ] ;then
 fi
 
 # let us kill pogo as well and clear data
-pm clear com.nianticlabs.pokemongo
 am force-stop com.nianticlabs.pokemongo
+pm clear com.nianticlabs.pokemongo
 
 # Install atlas
 /system/bin/pm install -r /sdcard/Download/atlas.apk
