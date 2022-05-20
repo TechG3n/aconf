@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0
+# version 1.0.1
 
 #Version checks
 Ver55atlas="1.0"
@@ -36,7 +36,7 @@ exec 2>> $logfile
 
 # add atlas.sh command to log
 echo "" >> $logfile
-echo "`date +%Y-%m-%d_%T` ## Executing $(basename $0) $@" >> $logfile0
+echo "`date +%Y-%m-%d_%T` ## Executing $(basename $0) $@" >> $logfile
 # echo "`date +%Y-%m-%d_%T` download folder set to $aconf_download, user is $aconf_user with pass $aconf_pass" >> $logfile
 
 
