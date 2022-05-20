@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.23
+# version 0.24
 
 #Version checks
 Ver55atlas="0.3"
@@ -42,14 +42,6 @@ case "$(uname -m)" in
  aarch64) arch="arm64-v8a";;
  armv8l)  arch="armeabi-v7a";;
 esac
-
-download(){
-if [[ $authUser == "" ]] ;then
-  download="/system/bin/curl -s -k -L --fail --show-error -o"
-else
-  download="/system/bin/curl -s -k -L --fail --show-error --user $aconf_user:$aconf_pass -o"
-fi
-}
 
 install_atlas(){
 
@@ -287,8 +279,16 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   fi
 fi
 
-# verify download credential file exists
-[[ ! -f /data/local/aconf_download ]] && echo "`date +%Y-%m-%d_%T` File /data/local/aconf_download not found, exit script" >> $logfile && exit 1
+# verify download credential file and set download
+if [[ ! -f /data/local/aconf_download ]] ;then
+  echo "`date +%Y-%m-%d_%T` File /data/local/aconf_download not found, exit script" >> $logfile && exit 1
+else
+  if [[ $authUser == "" ]] ;then
+    download="/system/bin/curl -s -k -L --fail --show-error -o"
+  else
+    download="/system/bin/curl -s -k -L --fail --show-error --user $aconf_user:$aconf_pass -o"
+  fi
+fi
 
 # prevent amconf causing reboot loop. Add bypass ??
 if [ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ] ;then
@@ -297,9 +297,10 @@ if [ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -g
 fi
 
 # download latest version file
-until $download $aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` Download atlas version file failed, exit script" >> $logfile ; exit 1; } ;do
+until $download $aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` Download atlas versions file failed, exit script" >> $logfile ; exit 1; } ;do
   sleep 2
 done
+echo "`date +%Y-%m-%d_%T` Downloaded latest versions file"  >> $logfile
 
 # check rgc enable/disable
 check_rgc
