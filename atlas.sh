@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.25
+# version 0.27
 
 #Version checks
 Ver55atlas="0.3"
@@ -90,6 +90,9 @@ if [ -f "$pdconf" ] ;then
   # disable pd autoupdate
   touch /sdcard/disableautopogodroidupdate
 fi
+
+#disable pogo update by 42mad
+touch /sdcard/disableautopogoupdate
 
 # let us kill pogo as well and clear data
 am force-stop com.nianticlabs.pokemongo
