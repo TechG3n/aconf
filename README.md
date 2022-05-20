@@ -71,5 +71,5 @@ The script will automatically check those versions on every reboot of an ATV. If
 - Your MAD instances have been restart in config only mode (using -cm).
 - You have removed 32bits and 64bits APKs from your Madmin Packages.
 
-
-
+Logging and any failure while executing script is logged to /sdcard/aconf.log
+In case of issues always check there first
