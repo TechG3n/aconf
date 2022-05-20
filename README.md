@@ -14,9 +14,14 @@ An example job is provided in the code. Please update it to the URL of your dire
 
 Don't worry if the job is reporting a failure, it's only because it includes a reboot and is taking too much time, but it does run successfully.
 
-***IMPORTANT NOTE : The directory set in this job needs to be public. There is no security on it at the moment, so please be cautious to keep this URL private as it will contain important informations about your RDM and Atlas accounts***
+***OPTIONAL BUT HIGHLY RECOMMANDED :***
+The Job allows you to add an `authUser` and `authPass`. 
+Those user and passwords will be used if basic auth has been enabled on your directory.
+Please remember this directory contains important information such as your Atlas token or RDM auth.
+Refer to this documentation on how to enable basic auth for nginx : https://ubiq.co/tech-blog/how-to-password-protect-directory-in-nginx/
 
-This directory should contain the following files :
+
+The directory should contain the following files :
 
 - The APK of the latest version of Atlas
 - The APK of the 32bits version of PoGo matching your version of Atlas
