@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.21
+# version 0.23
 
 #Version checks
 Ver55atlas="0.3"
@@ -48,6 +48,7 @@ if [[ $authUser == "" ]] ;then
   download="/system/bin/curl -s -k -L --fail --show-error -o"
 else
   download="/system/bin/curl -s -k -L --fail --show-error --user $aconf_user:$aconf_pass -o"
+fi
 }
 
 install_atlas(){
