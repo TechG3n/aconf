@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.24
+# version 0.25
 
 #Version checks
 Ver55atlas="0.3"
@@ -20,6 +20,15 @@ aconf_versions="/data/local/aconf_versions"
 [[ -f /data/local/aconf_download ]] && aconf_download=$(grep url /data/local/aconf_download | awk -F "=" '{ print $NF }')
 [[ -f /data/local/aconf_download ]] && aconf_user=$(grep authUser /data/local/aconf_download | awk -F "=" '{ print $NF }')
 [[ -f /data/local/aconf_download ]] && aconf_pass=$(grep authPass /data/local/aconf_download | awk -F "=" '{ print $NF }')
+if [[ -f /data/local/tmp/atlas_config.json ]] ;then
+  origin=$(grep -w 'deviceName' $aconf | awk -F "\"" '{ print $4 }')
+else
+  if [[ -f /data/data/de.grennith.rgc.remotegpscontroller/shared_prefs/de.grennith.rgc.remotegpscontroller_preferences.xml ]] ;then
+    origin=$(grep -w 'websocket_origin' $rgcconf | sed -e 's/    <string name="websocket_origin">\(.*\)<\/string>/\1/')
+  else
+    echo "`date +%Y-%m-%d_%T` Cannot find origin, that can't be right" >> $logfile
+  fi
+fi
 
 # stderr to logfile
 exec 2>> $logfile
@@ -100,11 +109,10 @@ pm grant com.pokemod.atlas android.permission.WRITE_EXTERNAL_STORAGE
 echo "`date +%Y-%m-%d_%T` atlas granted su and settings set" >> $logfile
 
 # download atlas config file and adjust orgin to rgc setting
-until $download /data/local/atlas_config.json $aconf_download/atlas_config.json || { echo "`date +%Y-%m-%d_%T` Download atlas config file failed, exit script" >> $logfile ; exit 1; } ;do
+until $download /data/local/tmp/atlas_config.json $aconf_download/atlas_config.json || { echo "`date +%Y-%m-%d_%T` Download atlas config file failed, exit script" >> $logfile ; exit 1; } ;do
   sleep 2
 done
-rgc_origin=$(grep -w 'websocket_origin' $rgcconf | sed -e 's/    <string name="websocket_origin">\(.*\)<\/string>/\1/')
-sed -i 's,dummy,'$rgc_origin',g' $aconf
+sed -i 's,dummy,'$origin',g' $aconf
 
 # check pogo version else remove+install
 downgrade_pogo
@@ -201,8 +209,6 @@ if [ -f "$rgcconf" ] ;then
     echo "`date +%Y-%m-%d_%T` rgc enabled and started" >> $logfile
   fi
 fi
-
-
 }
 
 downgrade_pogo(){
@@ -283,7 +289,7 @@ fi
 if [[ ! -f /data/local/aconf_download ]] ;then
   echo "`date +%Y-%m-%d_%T` File /data/local/aconf_download not found, exit script" >> $logfile && exit 1
 else
-  if [[ $authUser == "" ]] ;then
+  if [[ $aconf_user == "" ]] ;then
     download="/system/bin/curl -s -k -L --fail --show-error -o"
   else
     download="/system/bin/curl -s -k -L --fail --show-error --user $aconf_user:$aconf_pass -o"
@@ -294,6 +300,24 @@ fi
 if [ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ] ;then
   echo "`date +%Y-%m-%d_%T` Device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"  >> $logfile
   exit 1
+fi
+
+# set hostname = origin, wait till next reboot for it to take effect
+if [[ $origin != "" ]] ;then
+  if [ $(cat /system/build.prop | grep net.hostname | wc -l) = 0 ]; then
+    mount -o remount,rw /system
+    echo "`date +%Y-%m-%d_%T` No hostname set, setting it to $origin" >> $logfile
+    echo "net.hostname=$origin" >> /system/build.prop
+    mount -o remount,ro /system
+  else
+    hostname=$(grep net.hostname /system/build.prop | awk 'BEGIN { FS = "=" } ; { print $2 }')
+    if [[ $hostname != $origin ]] ;then
+      mount -o remount,rw /system
+      echo "`date +%Y-%m-%d_%T` Changing hostname, from $hostname to $origin" >> $logfile
+      sed -i -e "s/^net.hostname=.*/net.hostname=$origin/g" /system/build.prop
+      mount -o remount,ro /system
+    fi
+  fi
 fi
 
 # download latest version file
