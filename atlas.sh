@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.27
+# version 0.29
 
 #Version checks
 Ver55atlas="0.3"
@@ -21,7 +21,8 @@ aconf_versions="/data/local/aconf_versions"
 [[ -f /data/local/aconf_download ]] && aconf_user=$(grep authUser /data/local/aconf_download | awk -F "=" '{ print $NF }')
 [[ -f /data/local/aconf_download ]] && aconf_pass=$(grep authPass /data/local/aconf_download | awk -F "=" '{ print $NF }')
 if [[ -f /data/local/tmp/atlas_config.json ]] ;then
-  origin=$(grep -w 'deviceName' $aconf | awk -F "\"" '{ print $4 }')
+#  origin=$(grep -w 'deviceName' $aconf | awk -F "\"" '{ print $4 }')
+  origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
 else
   if [[ -f /data/data/de.grennith.rgc.remotegpscontroller/shared_prefs/de.grennith.rgc.remotegpscontroller_preferences.xml ]] ;then
     origin=$(grep -w 'websocket_origin' $rgcconf | sed -e 's/    <string name="websocket_origin">\(.*\)<\/string>/\1/')
