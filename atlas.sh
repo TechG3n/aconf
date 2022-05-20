@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0.1
+# version 1.0.2
 
 #Version checks
 Ver55atlas="1.0"
@@ -126,7 +126,7 @@ check_rgc
 
 # start atlas
 am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
-sleep 5
+sleep 15
 
 # Set for reboot device
 reboot=1
