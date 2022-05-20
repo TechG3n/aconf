@@ -59,7 +59,7 @@ Here is the content of the `atlas_config.json` file :
 }
 ```
 
-Please note that `"deviceName":"dummy"` should not be changed. The script will automatically replace this dummy value with the origin defined in pogodroid.
+Please note that `"deviceName":"dummy"` should not be changed. The script will automatically replace this dummy value with the origin defined in rgc.
 
 Here is the content of the `versions` file :
 
