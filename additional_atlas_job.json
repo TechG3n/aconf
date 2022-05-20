@@ -19,5 +19,19 @@
         {
         "TYPE": "jobType.PASSTHROUGH",
         "SYNTAX": "su -c '/system/bin/atlas.sh -ua'"        }
+    ],
+
+    "atlas: downgrade pogo":
+    [
+        {
+        "TYPE": "jobType.PASSTHROUGH",
+        "SYNTAX": "su -c '/system/bin/atlas.sh -dp'"        }
+    ],
+
+    "atlas: update rgc settings":
+    [
+        {
+        "TYPE": "jobType.PASSTHROUGH",
+        "SYNTAX": "su -c '/system/bin/atlas.sh -cr'"        }
     ]
 }
