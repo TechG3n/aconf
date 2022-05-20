@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.19
+# version 0.20
 
 #Version checks
 Ver55atlas="0.3"
@@ -16,7 +16,8 @@ pdconf="/data/data/com.mad.pogodroid/shared_prefs/com.mad.pogodroid_preferences.
 [[ -d /data/data/de.grennith.rgc.remotegpscontroller ]] && ruser=$(ls -la /data/data/de.grennith.rgc.remotegpscontroller/ |head -n2 | tail -n1 | awk '{print $3}')
 rgcconf="/data/data/de.grennith.rgc.remotegpscontroller/shared_prefs/de.grennith.rgc.remotegpscontroller_preferences.xml"
 aconf="/data/local/tmp/atlas_config.json"
-[[ -f /data/local/tmp/aconf_download ]] && aconf_download=$(cat /data/local/tmp/aconf_download | head -n1 )
+aconf_versions="/data/local/aconf_versions"
+[[ -f /data/local/aconf_download ]] && aconf_download=$(cat /data/local/aconf_download | head -n1 )
 
 # stderr to logfile
 exec 2>> $logfile
@@ -42,7 +43,7 @@ esac
 
 install_atlas(){
 
-[[ -f /data/local/tmp/aconf_download ]] && aconf_download=$(cat /data/local/tmp/aconf_download | head -n1 ) && echo "`date +%Y-%m-%d_%T` download folder set to $aconf_download" >> $logfile
+[[ -f /data/local/aconf_download ]] && aconf_download=$(cat /data/local/aconf_download | head -n1 ) && echo "`date +%Y-%m-%d_%T` download folder set to $aconf_download" >> $logfile
 
 # install 55atlas
 mount -o remount,rw /system
@@ -62,7 +63,7 @@ fi
 mount -o remount,ro /system
 
 # get version
-aversion=$(head -2 /data/local/tmp/aconf_versions | grep 'atlas' | awk -F "=" '{ print $NF }')
+aversion=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }')
 
 # download atlas
 /system/bin/rm -f /sdcard/Download/atlas.apk
@@ -99,11 +100,11 @@ pm grant com.pokemod.atlas android.permission.WRITE_EXTERNAL_STORAGE
 echo "`date +%Y-%m-%d_%T` atlas granted su and settings set" >> $logfile
 
 # download atlas config file and adjust orgin to rgc setting
-until /system/bin/curl -s -k -L --fail --show-error -o /data/local/tmp/atlas_config.json $aconf_download/atlas_config.json || { echo "`date +%Y-%m-%d_%T` Download atlas config file failed, exit script" >> $logfile ; exit 1; } ;do
+until /system/bin/curl -s -k -L --fail --show-error -o /data/local/atlas_config.json $aconf_download/atlas_config.json || { echo "`date +%Y-%m-%d_%T` Download atlas config file failed, exit script" >> $logfile ; exit 1; } ;do
   sleep 2
 done
 rgc_origin=$(grep -w 'websocket_origin' $rgcconf | sed -e 's/    <string name="websocket_origin">\(.*\)<\/string>/\1/')
-sed -i 's,dummy,'$rgc_origin',g' /data/local/tmp/atlas_config.json
+sed -i 's,dummy,'$rgc_origin',g' $aconf
 
 # check pogo version else remove+install
 downgrade_pogo
@@ -121,9 +122,9 @@ reboot=1
 
 update_all(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-pversions=$(head -2 /data/local/tmp/aconf_versions | grep 'pogo' | awk -F "=" '{ print $NF }')
+pversions=$(grep 'pogo' $aconf_versions | awk -F "=" '{ print $NF }')
 ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
-aversions=$(head -2 /data/local/tmp/aconf_versions | grep 'atlas' | awk -F "=" '{ print $NF }' | awk '{print substr($1,2); }')
+aversions=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }' | awk '{print substr($1,2); }')
 
 if [ $pinstalled != $pversions ] ;then
   echo "`date +%Y-%m-%d_%T` New pogo version detected, $pinstalled=>$pversions" >> $logfile
@@ -175,7 +176,7 @@ fi
 
 check_rgc(){
 if [ -f "$rgcconf" ] ;then
-  rgccheck=$(head -2 /data/local/tmp/aconf_versions | grep 'rgc' | awk -F "=" '{ print $NF }')
+  rgccheck=$(grep 'rgc' $aconf_versions | awk -F "=" '{ print $NF }')
   rgcstatus=$(grep -w 'boot_startup' $rgcconf | awk -F "\"" '{print tolower($4)}')
   if [[ $rgccheck == "off" ]] && [[ $rgcstatus == "true" ]] ;then
     # disable rgc
@@ -206,7 +207,7 @@ fi
 
 downgrade_pogo(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-pversions=$(head -2 /data/local/tmp/aconf_versions | grep 'pogo' | awk -F "=" '{ print $NF }')
+pversions=$(grep 'pogo' $aconf_versions | awk -F "=" '{ print $NF }')
 if [ $pinstalled != $pversions ] ;then
   until /system/bin/curl -s -k -L --fail --show-error -o /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
@@ -287,7 +288,7 @@ if [ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -g
 fi
 
 # download latest version file
-until /system/bin/curl -s -k -L --fail --show-error -o /data/local/tmp/aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` Download atlas version file failed, exit script" >> $logfile ; exit 1; } ;do
+until /system/bin/curl -s -k -L --fail --show-error -o $aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` Download atlas version file failed, exit script" >> $logfile ; exit 1; } ;do
   sleep 2
 done
 
