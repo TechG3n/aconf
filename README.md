@@ -10,19 +10,9 @@ To start with it, you first need to create an madmin job that you will push to y
 
 This job needs to contain a path to a directory, freely reachable from the web, and into which you will add all necessary configuration files and APKs.
 
-Here is an example job:
+An example job is provided in the code. Please update it to the URL of your directory.
 
-```
-{
-    "install atlas":
-    [
-        {
-        "TYPE": "jobType.PASSTHROUGH",
-        "SYNTAX": "su -c 'touch /data/local/tmp/aconf_download && echo https://youserverip.com/YOUR_DIR/ > /data/local/tmp/aconf_download  && mount -o remount,rw /system && /system/bin/curl -L -o /system/bin/atlas.sh -k -s https://raw.githubusercontent.com/dkmur/aconf/master/atlas.sh && chmod +x /system/bin/atlas.sh && /system/bin/atlas.sh -ia'"
-        }
-    ]
-}
-```
+Don't worry if the job is reporting a failure, it's only because it includes a reboot and is taking too much time, but it does run successfully.
 
 ***IMPORTANT NOTE : The directory set in this job needs to be public. There is no security on it at the moment, so please be cautious to keep this URL private as it will contain important informations about your RDM and Atlas accounts***
 
