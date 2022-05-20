@@ -1,0 +1,37 @@
+{
+    "atlas: move to aconf develop":
+    [
+        {
+        "TYPE": "jobType.PASSTHROUGH",
+        "SYNTAX": "su -c 'touch /sdcard/useAconfDevelop && /system/bin/atlas.sh'"
+        }
+    ],
+
+    "atlas: revert to aconf master":
+    [
+        {
+        "TYPE": "jobType.PASSTHROUGH",
+        "SYNTAX": "su -c 'rm -f /sdcard/useAconfDevelop && /system/bin/atlas.sh'"        }
+    ],
+
+    "atlas: update all apps":
+    [
+        {
+        "TYPE": "jobType.PASSTHROUGH",
+        "SYNTAX": "su -c '/system/bin/atlas.sh -ua'"        }
+    ],
+
+    "atlas: downgrade pogo":
+    [
+        {
+        "TYPE": "jobType.PASSTHROUGH",
+        "SYNTAX": "su -c '/system/bin/atlas.sh -dp'"        }
+    ],
+
+    "atlas: update rgc settings":
+    [
+        {
+        "TYPE": "jobType.PASSTHROUGH",
+        "SYNTAX": "su -c '/system/bin/atlas.sh -cr'"        }
+    ]
+}
