@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0.4
+# version 1.0.5
 
 #Version checks
 Ver55atlas="1.0"
@@ -333,6 +333,7 @@ fi
 until $download $aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` $download $aconf_versions $aconf_download/versions" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas versions file failed, exit script" >> $logfile ; exit 1; } ;do
   sleep 2
 done
+dos2unix $aconf_versions
 echo "`date +%Y-%m-%d_%T` Downloaded latest versions file"  >> $logfile
 
 # check rgc enable/disable
