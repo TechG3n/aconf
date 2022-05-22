@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0.2
+# version 1.0.5
 
 #Version checks
 Ver55atlas="1.0"
@@ -77,7 +77,7 @@ aversion=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }')
 
 # download atlas
 /system/bin/rm -f /sdcard/Download/atlas.apk
-until $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk || { echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
+until $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
   sleep 2
 done
 
@@ -113,10 +113,7 @@ pm grant com.pokemod.atlas android.permission.WRITE_EXTERNAL_STORAGE
 echo "`date +%Y-%m-%d_%T` atlas granted su and settings set" >> $logfile
 
 # download atlas config file and adjust orgin to rgc setting
-until $download /data/local/tmp/atlas_config.json $aconf_download/atlas_config.json || { echo "`date +%Y-%m-%d_%T` Download atlas config file failed, exit script" >> $logfile ; exit 1; } ;do
-  sleep 2
-done
-sed -i 's,dummy,'$origin',g' $aconf
+install_config
 
 # check pogo version else remove+install
 downgrade_pogo
@@ -132,6 +129,14 @@ sleep 15
 reboot=1
 }
 
+install_config(){
+until $download /data/local/tmp/atlas_config.json $aconf_download/atlas_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/atlas_config.json $aconf_download/atlas_config.json" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas config file failed, exit script" >> $logfile ; exit 1; } ;do
+  sleep 2
+done
+sed -i 's,dummy,'$origin',g' $aconf
+echo "`date +%Y-%m-%d_%T` atlas config installed, deviceName $origin"  >> $logfile
+}
+
 update_all(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
 pversions=$(grep 'pogo' $aconf_versions | awk -F "=" '{ print $NF }')
@@ -141,7 +146,7 @@ aversions=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }' | awk '{pr
 if [ $pinstalled != $pversions ] ;then
   echo "`date +%Y-%m-%d_%T` New pogo version detected, $pinstalled=>$pversions" >> $logfile
   /system/bin/rm -f /sdcard/Download/pogo.apk
-  until $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
+  until $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   # set pogo to be installed
@@ -154,7 +159,7 @@ fi
 if [ $ainstalled != $aversions ] ;then
   echo "`date +%Y-%m-%d_%T` New atlas version detected, $ainstalled=>$aversions" >> $logfile
   /system/bin/rm -f /sdcard/Download/atlas.apk
-  until $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk || { echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
+  until $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   # set atlas to be installed
@@ -169,7 +174,7 @@ if [ ! -z "$atlas_install" ] && [ ! -z "$pogo_install" ] ;then
   if [ "$atlas_install" = "install" ] ;then
     echo "`date +%Y-%m-%d_%T` Updating atlas" >> $logfile
     # install atlas
-    /system/bin/pm install -r /sdcard/Download/atlas.apk || { echo "`date +%Y-%m-%d_%T` Install  atlas failed, downgrade perhaps? Exit script" >> $logfile ; exit 1; }
+    /system/bin/pm install -r /sdcard/Download/atlas.apk || { echo "`date +%Y-%m-%d_%T` Install atlas failed, downgrade perhaps? Exit script" >> $logfile ; exit 1; }
     /system/bin/rm -f /sdcard/Download/atlas.apk
     reboot=1
   fi
@@ -219,7 +224,7 @@ downgrade_pogo(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
 pversions=$(grep 'pogo' $aconf_versions | awk -F "=" '{ print $NF }')
 if [ $pinstalled != $pversions ] ;then
-  until $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
+  until $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   /system/bin/pm uninstall com.nianticlabs.pokemongo
@@ -325,17 +330,26 @@ if [[ $origin != "" ]] ;then
 fi
 
 # download latest version file
-until $download $aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` Download atlas versions file failed, exit script" >> $logfile ; exit 1; } ;do
+until $download $aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` $download $aconf_versions $aconf_download/versions" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas versions file failed, exit script" >> $logfile ; exit 1; } ;do
   sleep 2
 done
+dos2unix $aconf_versions
 echo "`date +%Y-%m-%d_%T` Downloaded latest versions file"  >> $logfile
 
 # check rgc enable/disable
 check_rgc
 
+# check atlas config file exists
+if [[ -d /data/data/com.pokemod.atlas ]] && [[ ! -s $aconf ]] ;then
+install_config
+am force-stop com.pokemod.atlas
+am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+fi
+
 for i in "$@" ;do
  case "$i" in
  -ia) install_atlas ;;
+ -ic) install_config ;;
  -ua) update_all ;;
  -dp) downgrade_pogo;;
  -cr) check_rgc;;
