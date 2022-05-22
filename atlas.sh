@@ -348,7 +348,7 @@ fi
 for i in "$@" ;do
  case "$i" in
  -ia) install_atlas ;;
- -ic install_config ;;
+ -ic) install_config ;;
  -ua) update_all ;;
  -dp) downgrade_pogo;;
  -cr) check_rgc;;
