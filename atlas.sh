@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0.2
+# version 1.0.3
 
 #Version checks
 Ver55atlas="1.0"
@@ -113,10 +113,7 @@ pm grant com.pokemod.atlas android.permission.WRITE_EXTERNAL_STORAGE
 echo "`date +%Y-%m-%d_%T` atlas granted su and settings set" >> $logfile
 
 # download atlas config file and adjust orgin to rgc setting
-until $download /data/local/tmp/atlas_config.json $aconf_download/atlas_config.json || { echo "`date +%Y-%m-%d_%T` Download atlas config file failed, exit script" >> $logfile ; exit 1; } ;do
-  sleep 2
-done
-sed -i 's,dummy,'$origin',g' $aconf
+install_config
 
 # check pogo version else remove+install
 downgrade_pogo
@@ -130,6 +127,14 @@ sleep 15
 
 # Set for reboot device
 reboot=1
+}
+
+install_config(){
+until $download /data/local/tmp/atlas_config.json $aconf_download/atlas_config.json || { echo "`date +%Y-%m-%d_%T` Download atlas config file failed, exit script" >> $logfile ; exit 1; } ;do
+  sleep 2
+done
+sed -i 's,dummy,'$origin',g' $aconf
+echo "`date +%Y-%m-%d_%T` atlas config installed, deviceName $origin"  >> $logfile
 }
 
 update_all(){
@@ -333,9 +338,17 @@ echo "`date +%Y-%m-%d_%T` Downloaded latest versions file"  >> $logfile
 # check rgc enable/disable
 check_rgc
 
+# check atlas config file exists
+if [[ -d /data/data/com.pokemod.atlas ]] && [[ ! -f $aconf ]] ;then
+install_config
+am force-stop com.pokemod.atlas
+am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+fi
+
 for i in "$@" ;do
  case "$i" in
  -ia) install_atlas ;;
+ -ic install_config ;;
  -ua) update_all ;;
  -dp) downgrade_pogo;;
  -cr) check_rgc;;
