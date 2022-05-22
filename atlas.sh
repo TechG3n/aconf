@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0.3
+# version 1.0.4
 
 #Version checks
 Ver55atlas="1.0"
@@ -339,7 +339,7 @@ echo "`date +%Y-%m-%d_%T` Downloaded latest versions file"  >> $logfile
 check_rgc
 
 # check atlas config file exists
-if [[ -d /data/data/com.pokemod.atlas ]] && [[ ! -f $aconf ]] ;then
+if [[ -d /data/data/com.pokemod.atlas ]] && [[ ! -s $aconf ]] ;then
 install_config
 am force-stop com.pokemod.atlas
 am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
