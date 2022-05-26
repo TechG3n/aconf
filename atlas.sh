@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0.9
+# version 1.1.0
 
 #Version checks
 Ver55atlas="1.0"
@@ -141,7 +141,7 @@ update_all(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
 pversions=$(grep 'pogo' $aconf_versions | awk -F "=" '{ print $NF }')
 ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
-aversions=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }')
+aversions=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }' | awk '{print substr($1,2); }')
 
 if [ $pinstalled != $pversions ] ;then
   echo "`date +%Y-%m-%d_%T` New pogo version detected, $pinstalled=>$pversions" >> $logfile
