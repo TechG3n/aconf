@@ -156,7 +156,7 @@ else
  echo "`date +%Y-%m-%d_%T` PoGo already on correct version" >> $logfile
 fi
 
-if [ $ainstalled != $aversions ] ;then
+if [ v$ainstalled != $aversions ] ;then
   echo "`date +%Y-%m-%d_%T` New atlas version detected, $ainstalled=>$aversions" >> $logfile
   /system/bin/rm -f /sdcard/Download/atlas.apk
   until $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversions.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
