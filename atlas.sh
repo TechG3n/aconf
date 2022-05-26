@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0.6
+# version 1.0.7
 
 #Version checks
 Ver55atlas="1.0"
@@ -159,7 +159,7 @@ fi
 if [ $ainstalled != $aversions ] ;then
   echo "`date +%Y-%m-%d_%T` New atlas version detected, $ainstalled=>$aversions" >> $logfile
   /system/bin/rm -f /sdcard/Download/atlas.apk
-  until $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
+  until $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversions.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   # set atlas to be installed
