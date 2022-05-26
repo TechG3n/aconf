@@ -1,7 +1,5 @@
 # Atlas Configuration Tool
 
-## Work in Progress !! Still under testing. Don't use for now !!
-
 This tool is meant to let you easily convert MAD ATVs (both 32bits and 64bits) to RDM+Atlas devices.
 
 It will also take care of automatically keeping your devices up to date when a new version of Atlas and/or PoGo is required in the future.

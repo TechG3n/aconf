@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0.8
+# version 1.0.9
 
 #Version checks
 Ver55atlas="1.0"
