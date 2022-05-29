@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.2.0
+# version 1.2.1
 
 #Version checks
 Ver55atlas="1.0"
@@ -237,16 +237,18 @@ fi
 }
 
 send_logs(){
-if [[ $2 == "YOUR_DISCORD_WEBHOOK" ]] ;then
+if [[ -z $webhook ]] ;then
   echo "`date +%Y-%m-%d_%T` No webhook set in job" >> $logfile
 else
   # aconf log
-  curl -s -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"aconf.log for $origin\"}" -F "file1=@$logfile" $webhook &>/dev/null
+  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"aconf.log for $origin\"}" -F "file1=@$logfile" $webhook &>/dev/null
   # atlas log
-  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"atlas.log for $origin\"}" -F "file1=@/data/local/tmp/atlas.log" $webhook &>/dev/null
+  cp /data/local/tmp/atlas.log /sdcard/atlas.log
+  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"atlas.log for $origin\"}" -F "file1=@/sdcard/atlas.log" $webhook &>/dev/null
+  rm /sdcard/atlas.log
   #logcat
   logcat -d > /sdcard/logcat.txt
-  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"logcat for $origin\"}" -F "file1=@/sdcard/logcat.txt" $webhook &>/dev/null
+  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"logcat.txt for $origin\"}" -F "file1=@/sdcard/logcat.txt" $webhook &>/dev/null
   rm -f /sdcard/logcat.txt
   echo "`date +%Y-%m-%d_%T` Sending logs to discord" >> $logfile
 fi
@@ -360,6 +362,11 @@ if [[ -d /data/data/com.pokemod.atlas ]] && [[ ! -s $aconf ]] ;then
 install_config
 am force-stop com.pokemod.atlas
 am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+fi
+
+# check for webhook
+if [[ $2 == https://* ]] ;then
+  webhook=$2
 fi
 
 for i in "$@" ;do
