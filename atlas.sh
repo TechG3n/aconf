@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.1.1
+# version 1.2.2
 
 #Version checks
 Ver55atlas="1.0"
@@ -73,11 +73,11 @@ fi
 mount -o remount,ro /system
 
 # get version
-aversion=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }')
+aversions=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }')
 
 # download atlas
 /system/bin/rm -f /sdcard/Download/atlas.apk
-until $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversion.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
+until $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $aconf_download/PokemodAtlas-Public-$aversions.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas failed, exit script" >> $logfile ; exit 1; } ;do
   sleep 2
 done
 
@@ -143,7 +143,7 @@ pversions=$(grep 'pogo' $aconf_versions | awk -F "=" '{ print $NF }')
 ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
 aversions=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }')
 
-if [ $pinstalled != $pversions ] ;then
+if [[ $pinstalled != $pversions ]] ;then
   echo "`date +%Y-%m-%d_%T` New pogo version detected, $pinstalled=>$pversions" >> $logfile
   /system/bin/rm -f /sdcard/Download/pogo.apk
   until $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
@@ -223,7 +223,7 @@ fi
 downgrade_pogo(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
 pversions=$(grep 'pogo' $aconf_versions | awk -F "=" '{ print $NF }')
-if [ $pinstalled != $pversions ] ;then
+if [[ $pinstalled != $pversions ]] ;then
   until $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
@@ -233,6 +233,24 @@ if [ $pinstalled != $pversions ] ;then
   echo "`date +%Y-%m-%d_%T` PoGo removed and installed, now $pversions" >> $logfile
 else
   echo "`date +%Y-%m-%d_%T` pogo version correct, proceed" >> $logfile
+fi
+}
+
+send_logs(){
+if [[ -z $webhook ]] ;then
+  echo "`date +%Y-%m-%d_%T` No webhook set in job" >> $logfile
+else
+  # aconf log
+  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"aconf.log for $origin\"}" -F "file1=@$logfile" $webhook &>/dev/null
+  # atlas log
+  cp /data/local/tmp/atlas.log /sdcard/atlas.log
+  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"atlas.log for $origin\"}" -F "file1=@/sdcard/atlas.log" $webhook &>/dev/null
+  rm /sdcard/atlas.log
+  #logcat
+  logcat -d > /sdcard/logcat.txt
+  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"logcat.txt for $origin\"}" -F "file1=@/sdcard/logcat.txt" $webhook &>/dev/null
+  rm -f /sdcard/logcat.txt
+  echo "`date +%Y-%m-%d_%T` Sending logs to discord" >> $logfile
 fi
 }
 
@@ -346,6 +364,11 @@ am force-stop com.pokemod.atlas
 am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
 fi
 
+# check for webhook
+if [[ $2 == https://* ]] ;then
+  webhook=$2
+fi
+
 for i in "$@" ;do
  case "$i" in
  -ia) install_atlas ;;
@@ -353,6 +376,7 @@ for i in "$@" ;do
  -ua) update_all ;;
  -dp) downgrade_pogo;;
  -cr) check_rgc;;
+ -sl) send_logs;;
 # consider adding: downgrade atlas, update atlas config file, update donwload link
  esac
 done

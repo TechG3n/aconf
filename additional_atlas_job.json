@@ -11,34 +11,47 @@
     [
         {
         "TYPE": "jobType.PASSTHROUGH",
-        "SYNTAX": "su -c 'rm -f /sdcard/useAconfDevelop && /system/bin/atlas.sh'"        }
+        "SYNTAX": "su -c 'rm -f /sdcard/useAconfDevelop && /system/bin/atlas.sh'"
+        }
     ],
 
     "atlas: update all apps":
     [
         {
         "TYPE": "jobType.PASSTHROUGH",
-        "SYNTAX": "su -c '/system/bin/atlas.sh -ua'"        }
+        "SYNTAX": "su -c '/system/bin/atlas.sh -ua'"
+        }
     ],
 
     "atlas: downgrade pogo":
     [
         {
         "TYPE": "jobType.PASSTHROUGH",
-        "SYNTAX": "su -c '/system/bin/atlas.sh -dp'"        }
+        "SYNTAX": "su -c '/system/bin/atlas.sh -dp'"
+        }
     ],
 
     "atlas: update rgc settings":
     [
         {
         "TYPE": "jobType.PASSTHROUGH",
-        "SYNTAX": "su -c '/system/bin/atlas.sh -cr'"        }
+        "SYNTAX": "su -c '/system/bin/atlas.sh -cr'"
+        }
     ],
 
     "atlas: install atlas config":
     [
         {
         "TYPE": "jobType.PASSTHROUGH",
-        "SYNTAX": "su -c '/system/bin/atlas.sh -ic'"        }
+        "SYNTAX": "su -c '/system/bin/atlas.sh -ic'"
+        }
+    ],
+
+    "atlas: send logs to discord channel":
+    [
+        {
+        "TYPE": "jobType.PASSTHROUGH",
+        "SYNTAX": "su -c '/system/bin/atlas.sh -sl YOUR_DISCORD_WEBHOOK'"
+        }
     ]
 }
