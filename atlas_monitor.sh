@@ -1,16 +1,16 @@
 #!/system/bin/sh
 #Monitor by Oldmole Version:3
-logfile="/sdcard/monitor.log"
+logfile="/sdcard/atlas_monitor.log"
 atlasdead=0
 pogodead=0
 deviceonline="0"
 emptycheck=9
-source /sdcard/monitor.config
+source /sdcard/atlas_monitor.config
 export myauthBearer mydeviceAuthToken myemail myrdmUrl blankcheck loopspeed
 
 #Create logfile, stolen from atlas.sh
-if [ ! -e /sdcard/monitor.log ] ;then
-	touch /sdcard/monitor.log
+if [ ! -e /sdcard/atlas_monitor.log ] ;then
+	touch /sdcard/atlas_monitor.log
 fi
 
 create_atlas_config () {
