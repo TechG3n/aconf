@@ -1,0 +1,6 @@
+myauthBearer=""
+mydeviceAuthToken=""
+myemail=""
+myrdmUrl=""
+blankcheck="https" # Use the first 5 chars of the rdmurl, example https://rdm.domain.com use https  if 192.168.0.1  use 192.1
+loopspeed=600
