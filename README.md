@@ -60,6 +60,11 @@ Here is the content of the `versions` file :
 pogo=0.235.0
 atlas=v22050101
 rgc=off
+
+# Settings for Atlas monitor script
+useMonitor=false
+monitor_interval=5
+update_check_interval=60
 ```
 
 The script will automatically check those versions on every reboot of an ATV. If the versions have changed, it will download the corresponding APKs from your above specified folder and will install them automatically.

@@ -1,8 +1,9 @@
 #!/system/bin/sh
-# version 1.2.2
+# version 1.3.0
 
 #Version checks
 Ver55atlas="1.0"
+VerMonitor="0.1"
 ### add webhook sender?
 
 #Create logfile
@@ -69,6 +70,21 @@ else
   done
   chmod +x /system/etc/init.d/55atlas
   echo "`date +%Y-%m-%d_%T` 55atlas installed, from master" >> $logfile
+fi
+
+# install atlas monitor
+if [ -f /sdcard/useAconfDevelop ] ;then
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/develop/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+    sleep 2
+  done
+  chmod +x /system/bin/atlas_monitor.sh
+  echo "`date +%Y-%m-%d_%T` Atlas monitor installed, from develop" >> $logfile
+else
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+    sleep 2
+  done
+  chmod +x /system/bin/atlas_monitor.sh
+  echo "`date +%Y-%m-%d_%T` Atlas monitor installed, from master" >> $logfile
 fi
 mount -o remount,ro /system
 
@@ -312,6 +328,39 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   fi
 fi
 
+#update atlas monitor if needed
+if [[ $(basename $0) = "atlas_new.sh" ]] ;then
+  oldMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }')
+  if [ $VerMonitor != $oldMonitor ] ;then
+    mount -o remount,rw /system
+    if [ -f /sdcard/useAconfDevelop ] ;then
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/develop/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+        sleep 2
+      done
+      chmod +x /system/bin/atlas_monitor.sh
+    else
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+        sleep 2
+      done
+      chmod +x /system/bin/atlas_monitor.sh
+    fi
+    mount -o remount,ro /system
+    newMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }')
+    echo "`date +%Y-%m-%d_%T` Atlas monitor $oldMonitor => $newMonitor" >> $logfile
+
+    # restart atlas monitor
+    if [ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == 'true' ] && [ -f /system/bin/atlas_monitor.sh ] ;then
+      checkMonitor=$(pgrep -f /system/bin/atlas_monitor.sh)
+      if [ ! -z $checkMonitor ] ;then
+        kill -9 $checkMonitor 
+        sleep 2
+        /system/bin/atlas_monitor.sh >/dev/null 2>&1 &
+        echo "`date +%Y-%m-%d_%T` Atlas monitor restarted" >> $logfile
+      fi
+    fi
+  fi
+fi
+
 # verify download credential file and set download
 if [[ ! -f /data/local/aconf_download ]] ;then
   echo "`date +%Y-%m-%d_%T` File /data/local/aconf_download not found, exit script" >> $logfile && exit 1
@@ -323,7 +372,7 @@ else
   fi
 fi
 
-# prevent amconf causing reboot loop. Add bypass ??
+# prevent aconf causing reboot loop. Add bypass ??
 if [ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ] ;then
   echo "`date +%Y-%m-%d_%T` Device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"  >> $logfile
   exit 1
@@ -367,6 +416,15 @@ fi
 # check for webhook
 if [[ $2 == https://* ]] ;then
   webhook=$2
+fi
+
+# enable atlas monitor
+if [ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == 'true' ] && [ -f /system/bin/atlas_monitor.sh ] ;then
+  checkMonitor=$(pgrep -f /system/bin/atlas_monitor.sh)
+  if [ -z $checkMonitor ] ;then
+    /system/bin/atlas_monitor.sh >/dev/null 2>&1 &
+    echo "`date +%Y-%m-%d_%T` Atlas monitor enabled" >> $logfile
+  fi
 fi
 
 for i in "$@" ;do
