@@ -9,9 +9,13 @@ atlasdead=0
 pogodead=0
 deviceonline="0"
 emptycheck=9
+updatecheck=0
+
 source /data/local/aconf_versions
 export monitor_interval
 export discord_webhook
+export update_check_interval
+update_check=$((update_check_interval/monitor_interval))
 
 #Create logfile, stolen from atlas.sh
 if [ ! -e /sdcard/atlas_monitor.log ] ;then
@@ -38,14 +42,16 @@ echo "`date +%Y-%m-%d_%T` [MONITORBOT] Starting atlas data monitor in 5 mins, lo
 sleep 300
 while :
 do
-	check_for_updates
-# to be removed
-	echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Atlas and Pogo" >> $logfile
 	until ping -c1 8.8.8.8 >/dev/null 2>/dev/null
 	do
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] No internet, pay the bill?" >> $logfile
 		sleep 60
 	done
+
+        updatecheck=$(($updatecheck+1))
+# to be removed
+        [[ $updatecheck -gt $update_check ]] && check_for_updates && echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Atlas and Pogo for update" >> $logfile
+
 
 	if [ -d /data/data/com.pokemod.atlas ] && [ -s /data/local/tmp/atlas_config.json ]
 		then
