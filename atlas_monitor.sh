@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.2
+# version 3.0.3
 # Monitor by Oldmole
 
 logfile="/sdcard/atlas_monitor.log"
@@ -44,7 +44,7 @@ while :
 do
 	until ping -c1 8.8.8.8 >/dev/null 2>/dev/null
 	do
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] No internet, pay the bill?" >> $logfile
+		[[ $( awk '/./{line=$0} END{print line}' $logfile | grep 'No internet' | wc -l) != 1 ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] No internet, pay the bill?" >> $logfile
 		sleep 60
 	done
 
