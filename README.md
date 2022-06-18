@@ -65,6 +65,7 @@ rgc=off
 useMonitor=false
 monitor_interval=5
 update_check_interval=60
+discord_webhook=""
 ```
 
 The script will automatically check those versions on every reboot of an ATV. If the versions have changed, it will download the corresponding APKs from your above specified folder and will install them automatically.

@@ -1,14 +1,17 @@
 #!/system/bin/sh
-# version 3.0.1
+# version 3.0.2
 # Monitor by Oldmole
 
 logfile="/sdcard/atlas_monitor.log"
+aconf="/data/local/tmp/atlas_config.json"
+origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
 atlasdead=0
 pogodead=0
 deviceonline="0"
 emptycheck=9
 source /data/local/aconf_versions
 export monitor_interval
+export discord_webhook
 
 #Create logfile, stolen from atlas.sh
 if [ ! -e /sdcard/atlas_monitor.log ] ;then
@@ -49,7 +52,8 @@ do
 # to be removed
 			echo "`date +%Y-%m-%d_%T` [MONITORBOT] atlas_config.json looks good" >> $logfile
 	else
-			echo "`date +%Y-%m-%d_%T` [MONITORBOT] atlas_config.json does not exist or is empty! Let's fix that" >> $logfile		
+			echo "`date +%Y-%m-%d_%T` [MONITORBOT] atlas_config.json does not exist or is empty! Let's fix that" >> $logfile
+			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: re-creating atlas config\"}" $discord_webhook &>/dev/null
 			/system/bin/atlas.sh -ic
 # to be removed
 			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Fixed config" >> $logfile
@@ -67,17 +71,20 @@ do
     if [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead == 2 ]
     then
         echo "`date +%Y-%m-%d_%T` [MONITORBOT] Atlas must be dead, rebooting device" >> $logfile
+	[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: atlas died, reboot\"}" $discord_webhook &>/dev/null
 #        echo "[MONITORBOT] Rebooting the unit..." >> $logfile
         reboot
     elif [ $emptycheck != 9 ] && [ $pogodead == 2 ]
     then
         echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo must be dead, rebooting device" >> $logfile
+	[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: pogo died, reboot\"}" $discord_webhook &>/dev/null
 #        echo "[MONITORBOT] Rebooting the unit..." >> $logfile
         reboot
 
 	elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead != 2 ]
 	then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device must be offline. Running a stop mapping service of Atlas, killing pogo and clearing junk" >> $logfile
+		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: device offline, restaring atlas and pogo\"}" $discord_webhook &>/dev/null
 #		echo "[MONITORBOT] Running a stop mapping service of Atlas, killing pogo and clearing junk" >> $logfile
 		stop_start_command
 		atlasdead=$((atlasdead+1))
@@ -87,6 +94,7 @@ do
 	elif [ $emptycheck == 9 ]
 	then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Couldn't check status, something wrong with RDM?" >> $logfile
+		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: unable to check status\"}" $discord_webhook &>/dev/null
 
 	elif [ $deviceonline == $devicestatus ]
 	then
@@ -97,6 +105,7 @@ do
 		if [ "$focusedapp" != "com.nianticlabs.pokemongo" ]
 		then
 			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something is not right! Pogo is not in focus. Running a stop mapping service of Atlas, killing pogo and clearing junk" >> $logfile
+			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: pogo not in focus, restart atlas + pogo\"}" $discord_webhook &>/dev/null
 #			echo "[MONITORBOT] Running a stop mapping service of Atlas, killing pogo and clearing junk" >> $logfile
 			stop_start_command
 			pogodead=$((pogodead+1))
@@ -109,6 +118,7 @@ do
 		fi
 	else
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something happened! Some kind of error" >> $logfile
+		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: no clue what happend, but its not good\"}" $discord_webhook &>/dev/null
 	fi
 	sleep $monitor_interval
 done
