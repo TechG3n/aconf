@@ -1,9 +1,9 @@
 #!/system/bin/sh
-# version 1.3.0
+# version 1.3.1
 
 #Version checks
 Ver55atlas="1.0"
-VerMonitor="0.1"
+VerMonitor="3.0.1"
 ### add webhook sender?
 
 #Create logfile
@@ -258,6 +258,8 @@ if [[ -z $webhook ]] ;then
 else
   # aconf log
   curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"aconf.log for $origin\"}" -F "file1=@$logfile" $webhook &>/dev/null
+  # monitor log
+  [[ -f /sdcard/atlas_monitor.log ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"atlas_monitor.log for $origin\"}" -F "file1=@/sdcard/atlas_monitor.log" $webhook &>/dev/null
   # atlas log
   cp /data/local/tmp/atlas.log /sdcard/atlas.log
   curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"atlas.log for $origin\"}" -F "file1=@/sdcard/atlas.log" $webhook &>/dev/null
