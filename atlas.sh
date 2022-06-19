@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.3.4
+# version 1.3.5
 
 #Version checks
 Ver55atlas="1.0"
@@ -307,6 +307,12 @@ if [[ $(basename $0) != "atlas_new.sh" ]] ;then
   fi
 fi
 
+# download latest version file
+until $download $aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` $download $aconf_versions $aconf_download/versions" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas versions file failed, exit script" >> $logfile ; exit 1; } ;do
+  sleep 2
+done
+dos2unix $aconf_versions
+echo "`date +%Y-%m-%d_%T` Downloaded latest versions file"  >> $logfile
 
 #update 55atlas if needed
 if [[ $(basename $0) = "atlas_new.sh" ]] ;then
@@ -332,7 +338,7 @@ fi
 
 #update atlas monitor if needed
 if [[ $(basename $0) = "atlas_new.sh" ]] ;then
-  [ -f /system/bin/atlas_monitor.sh ] && oldMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }') || oldMonitor="not installed"
+  [ -f /system/bin/atlas_monitor.sh ] && oldMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }') || oldMonitor="0"
   if [ $VerMonitor != $oldMonitor ] ;then
     mount -o remount,rw /system
     if [ -f /sdcard/useAconfDevelop ] ;then
@@ -397,13 +403,6 @@ if [[ $origin != "" ]] ;then
     fi
   fi
 fi
-
-# download latest version file
-until $download $aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` $download $aconf_versions $aconf_download/versions" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas versions file failed, exit script" >> $logfile ; exit 1; } ;do
-  sleep 2
-done
-dos2unix $aconf_versions
-echo "`date +%Y-%m-%d_%T` Downloaded latest versions file"  >> $logfile
 
 # check rgc enable/disable
 check_rgc
