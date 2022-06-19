@@ -63,9 +63,10 @@ rgc=off
 
 # Settings for Atlas monitor script
 useMonitor=false
-monitor_interval=5
-update_check_interval=60
+monitor_interval=300
+update_check_interval=3600
 discord_webhook=""
+debug=false
 ```
 
 The script will automatically check those versions on every reboot of an ATV. If the versions have changed, it will download the corresponding APKs from your above specified folder and will install them automatically.
