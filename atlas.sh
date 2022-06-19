@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.3.5
+# version 1.3.6
 
 #Version checks
 Ver55atlas="1.0"
@@ -307,6 +307,17 @@ if [[ $(basename $0) != "atlas_new.sh" ]] ;then
   fi
 fi
 
+# verify download credential file and set download
+if [[ ! -f /data/local/aconf_download ]] ;then
+  echo "`date +%Y-%m-%d_%T` File /data/local/aconf_download not found, exit script" >> $logfile && exit 1
+else
+  if [[ $aconf_user == "" ]] ;then
+    download="/system/bin/curl -s -k -L --fail --show-error -o"
+  else
+    download="/system/bin/curl -s -k -L --fail --show-error --user $aconf_user:$aconf_pass -o"
+  fi
+fi
+
 # download latest version file
 until $download $aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` $download $aconf_versions $aconf_download/versions" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas versions file failed, exit script" >> $logfile ; exit 1; } ;do
   sleep 2
@@ -366,17 +377,6 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
         echo "`date +%Y-%m-%d_%T` Atlas monitor restarted" >> $logfile
       fi
     fi
-  fi
-fi
-
-# verify download credential file and set download
-if [[ ! -f /data/local/aconf_download ]] ;then
-  echo "`date +%Y-%m-%d_%T` File /data/local/aconf_download not found, exit script" >> $logfile && exit 1
-else
-  if [[ $aconf_user == "" ]] ;then
-    download="/system/bin/curl -s -k -L --fail --show-error -o"
-  else
-    download="/system/bin/curl -s -k -L --fail --show-error --user $aconf_user:$aconf_pass -o"
   fi
 fi
 
