@@ -1,9 +1,9 @@
 #!/system/bin/sh
-# version 1.3.3
+# version 1.3.4
 
 #Version checks
 Ver55atlas="1.0"
-VerMonitor="3.0.3"
+VerMonitor="3.0.4"
 ### add webhook sender?
 
 #Create logfile
@@ -332,7 +332,7 @@ fi
 
 #update atlas monitor if needed
 if [[ $(basename $0) = "atlas_new.sh" ]] ;then
-  oldMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }')
+  [ -f /system/bin/atlas_monitor.sh ] && oldMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }') || oldMonitor="not installed"
   if [ $VerMonitor != $oldMonitor ] ;then
     mount -o remount,rw /system
     if [ -f /sdcard/useAconfDevelop ] ;then
@@ -354,7 +354,7 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
     if [ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == 'true' ] && [ -f /system/bin/atlas_monitor.sh ] ;then
       checkMonitor=$(pgrep -f /system/bin/atlas_monitor.sh)
       if [ ! -z $checkMonitor ] ;then
-        kill -9 $checkMonitor 
+        kill -9 $checkMonitor
         sleep 2
         /system/bin/atlas_monitor.sh >/dev/null 2>&1 &
         echo "`date +%Y-%m-%d_%T` Atlas monitor restarted" >> $logfile

@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.3
+# version 3.0.4
 # Monitor by Oldmole
 
 logfile="/sdcard/atlas_monitor.log"
@@ -21,6 +21,9 @@ update_check=$((update_check_interval/monitor_interval))
 if [ ! -e /sdcard/atlas_monitor.log ] ;then
 	touch /sdcard/atlas_monitor.log
 fi
+
+# stderr to logfile
+exec 2>> $logfile
 
 check_for_updates() {
 # to be removed
