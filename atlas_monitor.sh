@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.5
+# version 3.0.6
 # Monitor by Oldmole
 
 logfile="/sdcard/atlas_monitor.log"
@@ -27,14 +27,14 @@ fi
 exec 2>> $logfile
 
 check_for_updates() {
-	[ $debug == "true" ] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Checking for updates" >> $logfile
+	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Checking for updates" >> $logfile
 	/system/bin/atlas.sh -ua
 }
 
 stop_start_command () {
 	am force-stop com.nianticlabs.pokemongo & pm clear com.nianticlabs.pokemongo & am force-stop com.pokemod.atlas & pm clear com.pokemod.atlas
 	sleep 5
-	[ $debug == "true" ] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of Atlas" >> $logfile
+	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of Atlas" >> $logfile
 	am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
 	sleep 1
 
@@ -51,17 +51,20 @@ do
 	done
 
         updatecheck=$(($updatecheck+1))
-        [[ $updatecheck -gt $update_check ]] && check_for_updates && updatecheck=0 && echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Atlas and Pogo for update" >> $logfile
-
+        if [[ $updatecheck -gt $update_check ]] ;then
+		echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Atlas and Pogo for update" >> $logfile
+		updatecheck=0
+		check_for_updates
+	fi
 
 	if [ -d /data/data/com.pokemod.atlas ] && [ -s /data/local/tmp/atlas_config.json ]
 		then
-			[ $debug == "true" ] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] atlas_config.json looks good" >> $logfile
+			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] atlas_config.json looks good" >> $logfile
 	else
 			echo "`date +%Y-%m-%d_%T` [MONITORBOT] atlas_config.json does not exist or is empty! Let's fix that" >> $logfile
 			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: re-creating atlas config\"}" $discord_webhook &>/dev/null
 			/system/bin/atlas.sh -ic
-			[ $debug == "true" ] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Fixed config" >> $logfile
+			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Fixed config" >> $logfile
 			stop_start_command
 			sleep $monitor_interval
 			continue
@@ -90,7 +93,7 @@ do
 		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: device offline, restaring atlas and pogo\"}" $discord_webhook &>/dev/null
 		stop_start_command
 		atlasdead=$((atlasdead+1))
-		[ $debug == "true" ] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
+		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
 
 	elif [ $emptycheck == 9 ]
 	then
@@ -99,7 +102,7 @@ do
 
 	elif [ $deviceonline == $devicestatus ]
 	then
-		[ $debug == "true" ] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Atlas mapping service is running" >> $logfile
+		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Atlas mapping service is running" >> $logfile
 		atlasdead=0
 		focusedapp=$(dumpsys window windows | grep -E 'mFocusedApp'| cut -d / -f 1 | cut -d " " -f 7)
 		if [ "$focusedapp" != "com.nianticlabs.pokemongo" ]
@@ -108,9 +111,9 @@ do
 			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: pogo not in focus, restart atlas + pogo\"}" $discord_webhook &>/dev/null
 			stop_start_command
 			pogodead=$((pogodead+1))
-			[ $debug == "true" ] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
+			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
 		else
-			[ $debug == "true" ] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo in focus, all good" >> $logfile
+			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo in focus, all good" >> $logfile
 			pogodead=0
 		fi
 	else

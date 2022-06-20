@@ -1,9 +1,9 @@
 #!/system/bin/sh
-# version 1.3.7
+# version 1.3.8
 
 #Version checks
 Ver55atlas="1.0"
-VerMonitor="3.0.5"
+VerMonitor="3.0.6"
 ### add webhook sender?
 
 #Create logfile
@@ -420,7 +420,7 @@ if [[ $2 == https://* ]] ;then
 fi
 
 # enable atlas monitor
-if [ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == 'true' ] && [ -f /system/bin/atlas_monitor.sh ] ;then
+if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/atlas_monitor.sh ] ;then
   checkMonitor=$(pgrep -f /system/bin/atlas_monitor.sh)
   if [ -z $checkMonitor ] ;then
     /system/bin/atlas_monitor.sh >/dev/null 2>&1 &
