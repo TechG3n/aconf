@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.6
+# version 3.0.7
 # Monitor by Oldmole
 
 logfile="/sdcard/atlas_monitor.log"
@@ -62,7 +62,7 @@ do
 			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] atlas_config.json looks good" >> $logfile
 	else
 			echo "`date +%Y-%m-%d_%T` [MONITORBOT] atlas_config.json does not exist or is empty! Let's fix that" >> $logfile
-			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: re-creating atlas config\"}" $discord_webhook &>/dev/null
+			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: re-creating atlas config\"}" $discord_webhook &>/dev/null
 			/system/bin/atlas.sh -ic
 			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Fixed config" >> $logfile
 			stop_start_command
@@ -79,18 +79,18 @@ do
     if [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead == 2 ]
     then
         echo "`date +%Y-%m-%d_%T` [MONITORBOT] Atlas must be dead, rebooting device" >> $logfile
-	[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: atlas died, reboot\"}" $discord_webhook &>/dev/null
+	[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: atlas died, reboot\"}" $discord_webhook &>/dev/null
         reboot
     elif [ $emptycheck != 9 ] && [ $pogodead == 2 ]
     then
         echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo must be dead, rebooting device" >> $logfile
-	[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: pogo died, reboot\"}" $discord_webhook &>/dev/null
+	[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: pogo died, reboot\"}" $discord_webhook &>/dev/null
         reboot
 
 	elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead != 2 ]
 	then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device must be offline. Running a stop mapping service of Atlas, killing pogo and clearing junk" >> $logfile
-		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: device offline, restaring atlas and pogo\"}" $discord_webhook &>/dev/null
+		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: device offline, restarting atlas and pogo\"}" $discord_webhook &>/dev/null
 		stop_start_command
 		atlasdead=$((atlasdead+1))
 		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
@@ -98,7 +98,7 @@ do
 	elif [ $emptycheck == 9 ]
 	then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Couldn't check status, something wrong with RDM?" >> $logfile
-		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: unable to check status\"}" $discord_webhook &>/dev/null
+		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: unable to check status\"}" $discord_webhook &>/dev/null
 
 	elif [ $deviceonline == $devicestatus ]
 	then
@@ -108,7 +108,7 @@ do
 		if [ "$focusedapp" != "com.nianticlabs.pokemongo" ]
 		then
 			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something is not right! Pogo is not in focus. Running a stop mapping service of Atlas, killing pogo and clearing junk" >> $logfile
-			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: pogo not in focus, restart atlas + pogo\"}" $discord_webhook &>/dev/null
+			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: pogo not in focus, restart atlas + pogo\"}" $discord_webhook &>/dev/null
 			stop_start_command
 			pogodead=$((pogodead+1))
 			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
@@ -118,7 +118,7 @@ do
 		fi
 	else
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something happened! Some kind of error" >> $logfile
-		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"$origin: no clue what happend, but its not good\"}" $discord_webhook &>/dev/null
+		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: no clue what happend, but its not good\"}" $discord_webhook &>/dev/null
 	fi
 	sleep $monitor_interval
 done

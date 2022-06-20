@@ -1,9 +1,9 @@
 #!/system/bin/sh
-# version 1.3.8
+# version 1.3.10
 
 #Version checks
 Ver55atlas="1.0"
-VerMonitor="3.0.6"
+VerMonitor="3.0.7"
 ### add webhook sender?
 
 #Create logfile
@@ -413,6 +413,9 @@ install_config
 am force-stop com.pokemod.atlas
 am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
 fi
+
+# check 16/42mad pogo autoupdate disabled
+! [[ -f /sdcard/disableautopogoupdate ]] && touch /sdcard/disableautopogoupdate
 
 # check for webhook
 if [[ $2 == https://* ]] ;then
