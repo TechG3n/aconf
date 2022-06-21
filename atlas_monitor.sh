@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.7
+# version 3.0.8
 # Monitor by Oldmole
 
 logfile="/sdcard/atlas_monitor.log"
@@ -31,12 +31,19 @@ check_for_updates() {
 	/system/bin/atlas.sh -ua
 }
 
-stop_start_command () {
+stop_start_atlas () {
 	am force-stop com.nianticlabs.pokemongo & pm clear com.nianticlabs.pokemongo & am force-stop com.pokemod.atlas & pm clear com.pokemod.atlas
 	sleep 5
 	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of Atlas" >> $logfile
 	am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
 	sleep 1
+
+}
+
+stop_pogo () {
+	am force-stop com.nianticlabs.pokemongo & pm clear com.nianticlabs.pokemongo
+	sleep 5
+	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Killing pogo and clearing junk" >> $logfile
 
 }
 
@@ -65,7 +72,7 @@ do
 			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: re-creating atlas config\"}" $discord_webhook &>/dev/null
 			/system/bin/atlas.sh -ic
 			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Fixed config" >> $logfile
-			stop_start_command
+			stop_start_atlas
 			sleep $monitor_interval
 			continue
 
@@ -91,7 +98,7 @@ do
 	then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device must be offline. Running a stop mapping service of Atlas, killing pogo and clearing junk" >> $logfile
 		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: device offline, restarting atlas and pogo\"}" $discord_webhook &>/dev/null
-		stop_start_command
+		stop_start_atlas
 		atlasdead=$((atlasdead+1))
 		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
 
@@ -107,9 +114,9 @@ do
 		focusedapp=$(dumpsys window windows | grep -E 'mFocusedApp'| cut -d / -f 1 | cut -d " " -f 7)
 		if [ "$focusedapp" != "com.nianticlabs.pokemongo" ]
 		then
-			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something is not right! Pogo is not in focus. Running a stop mapping service of Atlas, killing pogo and clearing junk" >> $logfile
-			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: pogo not in focus, restart atlas + pogo\"}" $discord_webhook &>/dev/null
-			stop_start_command
+			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something is not right! Pogo is not in focus. Killing pogo and clearing junk" >> $logfile
+			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: pogo not in focus, Killing pogo and clearing junk\"}" $discord_webhook &>/dev/null
+			stop_pogo
 			pogodead=$((pogodead+1))
 			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
 		else
