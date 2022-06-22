@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.8
+# version 3.0.9
 # Monitor by Oldmole
 
 logfile="/sdcard/atlas_monitor.log"
@@ -12,6 +12,7 @@ emptycheck=9
 updatecheck=0
 
 source /data/local/aconf_versions
+export useMonitor
 export monitor_interval
 export discord_webhook
 export update_check_interval
@@ -51,6 +52,8 @@ echo "`date +%Y-%m-%d_%T` [MONITORBOT] Starting atlas data monitor in 5 mins, lo
 sleep 300
 while :
 do
+	[[ $useMonitor == "false" ]] && echo "`date +%Y-%m-%d_%T` atlas_monitor stopped" >> $logfile && exit 1
+
 	until ping -c1 8.8.8.8 >/dev/null 2>/dev/null
 	do
 		[[ $( awk '/./{line=$0} END{print line}' $logfile | grep 'No internet' | wc -l) != 1 ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] No internet, pay the bill?" >> $logfile
