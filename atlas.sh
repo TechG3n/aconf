@@ -1,9 +1,9 @@
 #!/system/bin/sh
-# version 1.3.10
+# version 1.3.11
 
 #Version checks
 Ver55atlas="1.0"
-VerMonitor="3.0.7"
+VerMonitor="3.0.9"
 ### add webhook sender?
 
 #Create logfile
