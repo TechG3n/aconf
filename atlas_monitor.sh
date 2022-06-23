@@ -1,6 +1,6 @@
 #!/system/bin/sh
-# version 3.1.0
-# Monitor by Oldmole
+# version 3.1.1
+# Monitor by Oldmole && bbdoc
 
 logfile="/sdcard/atlas_monitor.log"
 aconf="/data/local/tmp/atlas_config.json"
