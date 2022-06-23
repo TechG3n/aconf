@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.3.15
+# version 1.3.16
 
 #Version checks
 Ver55atlas="1.0"
@@ -155,7 +155,7 @@ echo "`date +%Y-%m-%d_%T` atlas config installed, deviceName $origin"  >> $logfi
 
 update_all(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-pversions=$(grep 'pogo' $aconf_versions | awk -F "=" '{ print $NF }')
+pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
 aversions=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }')
 
@@ -238,7 +238,7 @@ fi
 
 downgrade_pogo(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-pversions=$(grep 'pogo' $aconf_versions | awk -F "=" '{ print $NF }')
+pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 if [[ $pinstalled != $pversions ]] ;then
   until $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
