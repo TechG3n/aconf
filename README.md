@@ -69,6 +69,20 @@ discord_webhook=""
 debug=false
 ```
 
+Optionally you can also add settings for the types of webhooks you want to receive from the Atlas monitor script.
+By default all types of webhooks will be send to your discord channels but you can decide to disable some of them.
+Actions will still occur, this is only stopping the webhook messages to be sent.
+
+``
+# Settings for Monitor Webhooks
+recreate_atlas_config=true
+atlas_died=true
+pogo_died=true
+device_offline=true
+unable_check_status=true
+pogo_not_focused=false
+````
+
 The script will automatically check those versions on every reboot of an ATV. If the versions have changed, it will download the corresponding APKs from your above specified folder and will install them automatically.
 
 `rgc=off` : setting this value to `on` will enable rgc on your devices on next reboot. Please be cautious as if you enable it and have a different version of PoGo in your Madmin packages, you will enter a boot loop as RGC will push the MAD version of the APK while this script will push the one in your directory. The recommandation is to keep if off during your migration, and only enable it when :
