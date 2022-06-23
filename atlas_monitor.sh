@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.1.2
+# version 3.1.3
 # Monitor by Oldmole && bbdoc
 
 logfile="/sdcard/atlas_monitor.log"
@@ -103,19 +103,17 @@ do
 	        echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device got License again. Recovering" >> $logfile
                 [[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: Device got Atlas license again\"}" $discord_webhook &>/dev/null
 		rm /sdcard/not_licensed
-	fi
 
-
-    if [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead == 2 ]
-    then
-        echo "`date +%Y-%m-%d_%T` [MONITORBOT] Atlas must be dead, rebooting device" >> $logfile
-	[[ ! -z $discord_webhook ]] && [[ $atlas_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: atlas died, reboot\"}" $discord_webhook &>/dev/null
-        reboot
-    elif [ $emptycheck != 9 ] && [ $pogodead == 2 ]
-    then
-        echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo must be dead, rebooting device" >> $logfile
-	[[ ! -z $discord_webhook ]] && [[ $pogo_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: pogo died, reboot\"}" $discord_webhook &>/dev/null
-        reboot
+        elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead == 2 ]
+        then
+                echo "`date +%Y-%m-%d_%T` [MONITORBOT] Atlas must be dead, rebooting device" >> $logfile
+   	        [[ ! -z $discord_webhook ]] && [[ $atlas_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: atlas died, reboot\"}" $discord_webhook &>/dev/null
+                reboot
+        elif [ $emptycheck != 9 ] && [ $pogodead == 2 ]
+        then
+                echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo must be dead, rebooting device" >> $logfile
+   	        [[ ! -z $discord_webhook ]] && [[ $pogo_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: pogo died, reboot\"}" $discord_webhook &>/dev/null
+                reboot
 
 	elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead != 2 ]
 	then
