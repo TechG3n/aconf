@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.3.17
+# version 1.3.18
 
 #Version checks
 Ver55atlas="1.0"
@@ -89,7 +89,7 @@ fi
 mount -o remount,ro /system
 
 # get version
-aversions=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }')
+aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
 # download atlas
 /system/bin/rm -f /sdcard/Download/atlas.apk
@@ -157,7 +157,7 @@ update_all(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
 pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
-aversions=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }')
+aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
 if [[ $pinstalled != $pversions ]] ;then
   echo "`date +%Y-%m-%d_%T` New pogo version detected, $pinstalled=>$pversions" >> $logfile
