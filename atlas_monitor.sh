@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.1.1
+# version 3.1.2
 # Monitor by Oldmole && bbdoc
 
 logfile="/sdcard/atlas_monitor.log"
@@ -85,6 +85,26 @@ do
 	dumpsys activity services | grep -e "MappingService" > /dev/null 2>&1
 	devicestatus=$(echo $?)
 	emptycheck="9$devicestatus"
+
+	not_licensed=$(tail -n 100 /data/local/tmp/atlas.log | grep -c "Not licensed")
+
+	if [ -f /sdcard/not_licensed ] && [ $not_licensed -gt 0 ]
+	then
+		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Still unlicensed, exiting" >> $logfile
+		exit 1
+	elif [ $not_licensed -gt 0 ]
+	then
+		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device List Atlas License" >> $logfile
+		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: UNLICENSED !!! Check Atlas Dashboard\"}" $discord_webhook &>/dev/null
+		touch /sdcard/not_licensed
+		exit 1
+	elif [ -f /sdcard/not_licensed ] && [ $not_licensed -eq 0 ]
+	then
+	        echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device got License again. Recovering" >> $logfile
+                [[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: Device got Atlas license again\"}" $discord_webhook &>/dev/null
+		rm /sdcard/not_licensed
+	fi
+
 
     if [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead == 2 ]
     then
