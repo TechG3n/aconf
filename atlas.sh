@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.3.16
+# version 1.3.17
 
 #Version checks
 Ver55atlas="1.0"
@@ -368,7 +368,7 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
     echo "`date +%Y-%m-%d_%T` Atlas monitor $oldMonitor => $newMonitor" >> $logfile
 
     # restart atlas monitor
-    if [ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == 'true' ] && [ -f /system/bin/atlas_monitor.sh ] ;then
+    if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/atlas_monitor.sh ] ;then
       checkMonitor=$(pgrep -f /system/bin/atlas_monitor.sh)
       if [ ! -z $checkMonitor ] ;then
         kill -9 $checkMonitor
