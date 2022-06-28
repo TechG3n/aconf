@@ -60,6 +60,27 @@ Here is the content of the `versions` file :
 pogo=0.235.0
 atlas=v22050101
 rgc=off
+
+# Settings for Atlas monitor script
+useMonitor=false
+monitor_interval=300
+update_check_interval=3600
+discord_webhook=""
+debug=false
+```
+
+Optionally you can also add settings for the types of webhooks you want to receive from the Atlas monitor script.
+By default all types of webhooks will be send to your discord channels but you can decide to disable some of them.
+Actions will still occur, this is only stopping the webhook messages to be sent.
+
+```
+# Settings for Monitor Webhooks
+recreate_atlas_config=true
+atlas_died=true
+pogo_died=true
+device_offline=true
+unable_check_status=true
+pogo_not_focused=false
 ```
 
 The script will automatically check those versions on every reboot of an ATV. If the versions have changed, it will download the corresponding APKs from your above specified folder and will install them automatically.

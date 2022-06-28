@@ -1,8 +1,9 @@
 #!/system/bin/sh
-# version 1.2.2
+# version 1.3.18
 
 #Version checks
 Ver55atlas="1.0"
+VerMonitor="3.1.3"
 ### add webhook sender?
 
 #Create logfile
@@ -70,10 +71,25 @@ else
   chmod +x /system/etc/init.d/55atlas
   echo "`date +%Y-%m-%d_%T` 55atlas installed, from master" >> $logfile
 fi
+
+# install atlas monitor
+if [ -f /sdcard/useAconfDevelop ] ;then
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/develop/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+    sleep 2
+  done
+  chmod +x /system/bin/atlas_monitor.sh
+  echo "`date +%Y-%m-%d_%T` Atlas monitor installed, from develop" >> $logfile
+else
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+    sleep 2
+  done
+  chmod +x /system/bin/atlas_monitor.sh
+  echo "`date +%Y-%m-%d_%T` Atlas monitor installed, from master" >> $logfile
+fi
 mount -o remount,ro /system
 
 # get version
-aversions=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }')
+aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
 # download atlas
 /system/bin/rm -f /sdcard/Download/atlas.apk
@@ -139,9 +155,9 @@ echo "`date +%Y-%m-%d_%T` atlas config installed, deviceName $origin"  >> $logfi
 
 update_all(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-pversions=$(grep 'pogo' $aconf_versions | awk -F "=" '{ print $NF }')
+pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
-aversions=$(grep 'atlas' $aconf_versions | awk -F "=" '{ print $NF }')
+aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
 if [[ $pinstalled != $pversions ]] ;then
   echo "`date +%Y-%m-%d_%T` New pogo version detected, $pinstalled=>$pversions" >> $logfile
@@ -222,7 +238,7 @@ fi
 
 downgrade_pogo(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-pversions=$(grep 'pogo' $aconf_versions | awk -F "=" '{ print $NF }')
+pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 if [[ $pinstalled != $pversions ]] ;then
   until $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $aconf_download/pokemongo_$arch\_$pversions.apk" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download pogo failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
@@ -242,6 +258,8 @@ if [[ -z $webhook ]] ;then
 else
   # aconf log
   curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"aconf.log for $origin\"}" -F "file1=@$logfile" $webhook &>/dev/null
+  # monitor log
+  [[ -f /sdcard/atlas_monitor.log ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"atlas_monitor.log for $origin\"}" -F "file1=@/sdcard/atlas_monitor.log" $webhook &>/dev/null
   # atlas log
   cp /data/local/tmp/atlas.log /sdcard/atlas.log
   curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"atlas.log for $origin\"}" -F "file1=@/sdcard/atlas.log" $webhook &>/dev/null
@@ -289,6 +307,23 @@ if [[ $(basename $0) != "atlas_new.sh" ]] ;then
   fi
 fi
 
+# verify download credential file and set download
+if [[ ! -f /data/local/aconf_download ]] ;then
+  echo "`date +%Y-%m-%d_%T` File /data/local/aconf_download not found, exit script" >> $logfile && exit 1
+else
+  if [[ $aconf_user == "" ]] ;then
+    download="/system/bin/curl -s -k -L --fail --show-error -o"
+  else
+    download="/system/bin/curl -s -k -L --fail --show-error --user $aconf_user:$aconf_pass -o"
+  fi
+fi
+
+# download latest version file
+until $download $aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` $download $aconf_versions $aconf_download/versions" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas versions file failed, exit script" >> $logfile ; exit 1; } ;do
+  sleep 2
+done
+dos2unix $aconf_versions
+echo "`date +%Y-%m-%d_%T` Downloaded latest versions file"  >> $logfile
 
 #update 55atlas if needed
 if [[ $(basename $0) = "atlas_new.sh" ]] ;then
@@ -312,18 +347,40 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   fi
 fi
 
-# verify download credential file and set download
-if [[ ! -f /data/local/aconf_download ]] ;then
-  echo "`date +%Y-%m-%d_%T` File /data/local/aconf_download not found, exit script" >> $logfile && exit 1
-else
-  if [[ $aconf_user == "" ]] ;then
-    download="/system/bin/curl -s -k -L --fail --show-error -o"
-  else
-    download="/system/bin/curl -s -k -L --fail --show-error --user $aconf_user:$aconf_pass -o"
+#update atlas monitor if needed
+if [[ $(basename $0) = "atlas_new.sh" ]] ;then
+  [ -f /system/bin/atlas_monitor.sh ] && oldMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }') || oldMonitor="0"
+  if [ $VerMonitor != $oldMonitor ] ;then
+    mount -o remount,rw /system
+    if [ -f /sdcard/useAconfDevelop ] ;then
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/develop/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+        sleep 2
+      done
+      chmod +x /system/bin/atlas_monitor.sh
+    else
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+        sleep 2
+      done
+      chmod +x /system/bin/atlas_monitor.sh
+    fi
+    mount -o remount,ro /system
+    newMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }')
+    echo "`date +%Y-%m-%d_%T` Atlas monitor $oldMonitor => $newMonitor" >> $logfile
+
+    # restart atlas monitor
+    if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/atlas_monitor.sh ] ;then
+      checkMonitor=$(pgrep -f /system/bin/atlas_monitor.sh)
+      if [ ! -z $checkMonitor ] ;then
+        kill -9 $checkMonitor
+        sleep 2
+        /system/bin/atlas_monitor.sh >/dev/null 2>&1 &
+        echo "`date +%Y-%m-%d_%T` Atlas monitor restarted" >> $logfile
+      fi
+    fi
   fi
 fi
 
-# prevent amconf causing reboot loop. Add bypass ??
+# prevent aconf causing reboot loop. Add bypass ??
 if [ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ] ;then
   echo "`date +%Y-%m-%d_%T` Device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"  >> $logfile
   exit 1
@@ -347,13 +404,6 @@ if [[ $origin != "" ]] ;then
   fi
 fi
 
-# download latest version file
-until $download $aconf_versions $aconf_download/versions || { echo "`date +%Y-%m-%d_%T` $download $aconf_versions $aconf_download/versions" >> $logfile ; echo "`date +%Y-%m-%d_%T` Download atlas versions file failed, exit script" >> $logfile ; exit 1; } ;do
-  sleep 2
-done
-dos2unix $aconf_versions
-echo "`date +%Y-%m-%d_%T` Downloaded latest versions file"  >> $logfile
-
 # check rgc enable/disable
 check_rgc
 
@@ -364,9 +414,21 @@ am force-stop com.pokemod.atlas
 am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
 fi
 
+# check 16/42mad pogo autoupdate disabled
+! [[ -f /sdcard/disableautopogoupdate ]] && touch /sdcard/disableautopogoupdate
+
 # check for webhook
 if [[ $2 == https://* ]] ;then
   webhook=$2
+fi
+
+# enable atlas monitor
+if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/atlas_monitor.sh ] ;then
+  checkMonitor=$(pgrep -f /system/bin/atlas_monitor.sh)
+  if [ -z $checkMonitor ] ;then
+    /system/bin/atlas_monitor.sh >/dev/null 2>&1 &
+    echo "`date +%Y-%m-%d_%T` Atlas monitor enabled" >> $logfile
+  fi
 fi
 
 for i in "$@" ;do
