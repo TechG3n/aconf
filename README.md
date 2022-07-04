@@ -92,3 +92,12 @@ The script will automatically check those versions on every reboot of an ATV. If
 
 Logging and any failure while executing script is logged to /sdcard/aconf.log
 In case of issues always check there first
+
+***Using aconf without Madmin***
+
+If you don't run madmin and don't want to run it, you still can push the install of the atlas script manually by connecting to the device using ADB and using the following on command line (update `mydownloadfolder.com`to your own folder location + add your user and password ) :
+
+```
+su -c 'file='/data/local/aconf_download' && touch $file  && echo url=https://mydownloadfolder.com > $file  && echo authUser='' >> $file && echo authPass='' >> $file && mount -o remount,rw /system && /system/bin/curl -L -o /system/bin/atlas.sh -k -s https://raw.githubusercontent.com/dkmur/aconf/master/atlas.sh && chmod +x /system/bin/atlas.sh && /system/bin/atlas.sh -ia'
+```
+
