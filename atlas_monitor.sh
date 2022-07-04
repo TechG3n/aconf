@@ -1,5 +1,6 @@
 #!/system/bin/sh
 # version 3.1.4
+
 # Monitor by Oldmole && bbdoc
 
 logfile="/sdcard/atlas_monitor.log"
@@ -97,6 +98,7 @@ do
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device Lost Atlas License" >> $logfile
 		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas monitor\", \"content\": \"__**$origin**__: UNLICENSED !!! Check Atlas Dashboard\"}" $discord_webhook &>/dev/null
 		touch /sdcard/not_licensed
+
 	elif [ -f /sdcard/not_licensed ] && [ $not_licensed -eq 0 ]
 	then
 	        echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device got License again. Recovering" >> $logfile
