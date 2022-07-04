@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.1.3
+# version 3.1.4
 # Monitor by Oldmole && bbdoc
 
 logfile="/sdcard/atlas_monitor.log"
