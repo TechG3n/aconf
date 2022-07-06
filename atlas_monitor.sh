@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.1.4
+# version 3.1.5
 
 # Monitor by Oldmole && bbdoc
 
@@ -34,7 +34,7 @@ check_for_updates() {
 }
 
 stop_start_atlas () {
-	am force-stop com.nianticlabs.pokemongo & pm clear com.nianticlabs.pokemongo & am force-stop com.pokemod.atlas & pm clear com.pokemod.atlas
+	am force-stop com.nianticlabs.pokemongo & pm clear com.nianticlabs.pokemongo & am force-stop com.pokemod.atlas 
 	sleep 5
 	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of Atlas" >> $logfile
 	am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
