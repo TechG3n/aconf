@@ -159,6 +159,15 @@ sleep 15
 
 # Set for reboot device
 reboot=1
+
+## Send webhook
+discord_config_wh=$(grep 'discord_webhook' $aconf_versions | awk -F "=" '{ print $NF }')
+ip=$(ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
+
+if [[ ! -z $discord_config_wh ]] ;then
+  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"Aconf new device\", \"content\": \"New atlas device configured. Origin: $origin , IP: $ip \"}"  $discord_config_wh &>/dev/null
+  echo "`date +%Y-%m-%d_%T` Send new device webhook to discord" >> $logfile
+fi
 }
 
 install_config(){
