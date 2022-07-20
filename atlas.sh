@@ -1,11 +1,10 @@
 #!/system/bin/sh
-# version 1.3.21
+# version 1.3.22
 
 #Version checks
 Ver55atlas="1.0"
 VerMonitor="3.1.6"
-
-### add webhook sender?
+VerATVsender="0.1"
 
 #Create logfile
 if [ ! -e /sdcard/aconf.log ] ;then
@@ -87,7 +86,23 @@ else
   chmod +x /system/bin/atlas_monitor.sh
   echo "`date +%Y-%m-%d_%T` Atlas monitor installed, from master" >> $logfile
 fi
+
+# install ATVdetails sender
+if [ -f /sdcard/useAconfDevelop ] ;then
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/dkmur/aconf/develop/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
+    sleep 2
+  done
+  chmod +x /system/bin/ATVdetailsSender.sh
+  echo "`date +%Y-%m-%d_%T` ATVdetails sender installed, from develop" >> $logfile
+else
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/dkmur/aconf/master/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
+    sleep 2
+  done
+  chmod +x /system/bin/ATVdetailsSender.sh
+  echo "`date +%Y-%m-%d_%T` ATVdetails sender installed, from master" >> $logfile
+fi
 mount -o remount,ro /system
+
 
 # get version
 aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
@@ -381,6 +396,43 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   fi
 fi
 
+
+#update atvdetails sender if needed
+if [[ $(basename $0) = "atlas_new.sh" ]] ;then
+  [ -f /system/bin/ATVdetailsSender.sh ] && oldSender=$(head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }') || oldSender="0"
+  if [ $VerATVsender != $oldSender ] ;then
+    mount -o remount,rw /system
+    if [ -f /sdcard/useAconfDevelop ] ;then
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/dkmur/aconf/develop/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
+        sleep 2
+      done
+      chmod +x /system/bin/ATVdetailsSender.sh
+      echo "`date +%Y-%m-%d_%T` ATVdetails sender installed, from develop" >> $logfile
+    else
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/dkmur/aconf/master/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
+        sleep 2
+      done
+      chmod +x /system/bin/ATVdetailsSender.sh
+      echo "`date +%Y-%m-%d_%T` ATVdetails sender installed, from master" >> $logfile
+    fi
+    mount -o remount,ro /system
+    newSender=$(head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }')
+    echo "`date +%Y-%m-%d_%T` ATVdetails sender $oldSender => $newSender" >> $logfile
+
+    # restart ATVdetails sender
+    if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/ATVdetailsSender.sh ] ;then
+      checkSender=$(pgrep -f /system/bin/ATVdetailsSender.sh)
+      if [ ! -z $checkSender ] ;then
+        kill -9 $checkSender
+        sleep 2
+        /system/bin/ATVdetailsSender.sh >/dev/null 2>&1 &
+        echo "`date +%Y-%m-%d_%T` ATVdetails sender restarted" >> $logfile
+      fi
+    fi
+  fi
+fi
+
+
 # prevent aconf causing reboot loop. Add bypass ??
 if [ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ] ;then
   echo "`date +%Y-%m-%d_%T` Device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"  >> $logfile
@@ -429,6 +481,15 @@ if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == "true" 
   if [ -z $checkMonitor ] ;then
     /system/bin/atlas_monitor.sh >/dev/null 2>&1 &
     echo "`date +%Y-%m-%d_%T` Atlas monitor enabled" >> $logfile
+  fi
+fi
+
+# enable atvdetails sender
+if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/ATVdetailsSender.sh ] ;then
+  checkSender=$(pgrep -f /system/bin/ATVdetailsSender.sh)
+  if [ -z $checkSender ] ;then
+    /system/bin/ATVdetailsSender.sh >/dev/null 2>&1 &
+    echo "`date +%Y-%m-%d_%T` ATVdetails sender enabled" >> $logfile
   fi
 fi
 

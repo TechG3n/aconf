@@ -67,6 +67,12 @@ monitor_interval=300
 update_check_interval=3600
 discord_webhook=""
 debug=false
+
+# Settings for atvdetails sender
+useSender=false
+atvdetails_interval=900
+atvdetails_receiver_host=""
+atvdetails_receiver_port=""
 ```
 
 Optionally you can also add settings for the types of webhooks you want to receive from the Atlas monitor script.
