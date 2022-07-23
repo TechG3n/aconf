@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.1.6
+# version 3.1.7
 
 # Monitor by Oldmole && bbdoc
 
@@ -92,7 +92,6 @@ do
 	if [ -f /sdcard/not_licensed ] && [ $not_licensed -gt 0 ]
 	then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Still unlicensed, exiting" >> $logfile
-		exit 1
 	elif [ $not_licensed -gt 0 ]
 	then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device Lost Atlas License" >> $logfile
