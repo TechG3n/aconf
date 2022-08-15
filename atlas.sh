@@ -3,7 +3,7 @@
 
 #Version checks
 Ver55atlas="1.0"
-VerMonitor="3.1.6"
+VerMonitor="3.1.7"
 VerATVsender="0.1"
 
 #Create logfile
