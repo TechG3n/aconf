@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS ATVsummary (
   `diskSysPct` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `diskDataPct` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `numPogo` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reboot` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`deviceName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -52,6 +53,11 @@ CREATE TABLE IF NOT EXISTS `version` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+ALTER TABLE ATVsummary
+ADD COLUMN IF NOT EXISTS `reboot` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+;
+
 -- update version
 INSERT IGNORE INTO version values ('atlas_atvdetails',1);
-UPDATE version set version = 1 where version.key = 'atlas_atvdetails';
+UPDATE version set version = 2 where version.key = 'atlas_atvdetails';
