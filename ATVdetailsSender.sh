@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.5
+# version 0.6
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -95,7 +95,7 @@ while true
     "cpuUser": "${cpuUser}",
     "cpuL5": "${cpuL5}",
     "cpuL10": "${cpuL10}",
-    "cpuL15": "${cpuLavg}",
+    "cpuL15": "${cpuL15}",
     "cpuPogoPct": "${cpuPogoPct}",
     "cpuApct": "${cpuApct}",
     "diskSysPct": "${diskSysPct}",

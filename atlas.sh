@@ -1,10 +1,10 @@
 #!/system/bin/sh
-# version 1.3.23
+# version 1.3.24
 
 #Version checks
 Ver55atlas="1.0"
 VerMonitor="3.1.7"
-VerATVsender="0.5"
+VerATVsender="0.6"
 
 #Create logfile
 if [ ! -e /sdcard/aconf.log ] ;then
