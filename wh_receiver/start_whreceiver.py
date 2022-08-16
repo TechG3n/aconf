@@ -3,7 +3,7 @@
 #
 __author__ = "GhostTalker and Apple314"
 __copyright__ = "Copyright 2022, The GhostTalker project"
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __status__ = "DEV"
 
 import os
@@ -119,6 +119,7 @@ def webhook():
         cpuPogoPct = validate_string(request.json["cpuPogoPct"])
         cpuApct = validate_string(request.json["cpuApct"]) 
         numPogo = validate_string(request.json["numPogo"])
+        reboot = validate_string(request.json["reboot"])
         whversion = validate_string(request.json["whversion"])
 
         insert_stmt1 = "\
@@ -143,7 +144,8 @@ def webhook():
                 diskSysPct, \
                 diskDataPct, \
                 whversion, \
-                numPogo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
+                numPogo, \
+                reboot) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
             ON DUPLICATE KEY UPDATE \
                 timestamp = VALUES(timestamp), \
                 deviceName = VALUES(deviceName), \
@@ -165,7 +167,8 @@ def webhook():
                 diskSysPct = VALUES(diskSysPct), \
                 diskDataPct = VALUES(diskDataPct), \
                 whversion = VALUES(whversion), \
-                numPogo = VALUES(numPogo)"
+                numPogo = VALUES(numPogo), \
+                reboot = VALUES(reboot)"
 
         data1 = (str(timestamp), str(deviceName), str(arch), str(productmodel), str(atlasSh), str(atlas55), str(pogo), str(atlas), str(monitor), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo) )
 
