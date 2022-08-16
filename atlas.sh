@@ -4,7 +4,7 @@
 #Version checks
 Ver55atlas="1.0"
 VerMonitor="3.1.7"
-VerATVsender="0.1"
+VerATVsender="0.4"
 
 #Create logfile
 if [ ! -e /sdcard/aconf.log ] ;then

@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.3
+# version 0.4
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -52,7 +52,7 @@ while true
     diskDataPct=$(df -h | grep /sbin/.magisk/mirror/data | awk '{print substr($5, 1, length($5)-1)}')
     numPogo=$(ls -l /sbin/.magisk/mirror/data/app/ | grep com.nianticlabs.pokemongo | wc -l)
 # aconf.log
-    aconf_reboot=$(grep 'Device rebooted' $aconf_log | wc -l)
+    reboot=$(grep 'Device rebooted' $aconf_log | wc -l)
 # atlas config
     authBearer=$(cat $atlas_conf | tr , '\n' | grep -w 'authBearer' | awk -F ":" '{ print $2 }' | tr -d \"})
     deviceAuthToken=$(cat $atlas_conf | tr , '\n' | grep -w 'deviceAuthToken' | awk -F ":" '{ print $2 }' | tr -d \"})
@@ -102,7 +102,7 @@ while true
     "diskDataPct": "${diskDataPct}",
     "numPogo": "${numPogo}",
 
-    "aconf_reboot": "${aconf_reboot}"
+    "reboot": "${reboot}"
 }
 DATA
 
