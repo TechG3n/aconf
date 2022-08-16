@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.6
+# version 1.0
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"

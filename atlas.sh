@@ -1,10 +1,10 @@
 #!/system/bin/sh
-# version 1.3.24
+# version 1.4.0
 
 #Version checks
 Ver55atlas="1.0"
 VerMonitor="3.1.7"
-VerATVsender="0.6"
+VerATVsender="1.0"
 
 #Create logfile
 if [ ! -e /sdcard/aconf.log ] ;then
@@ -434,9 +434,9 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
       if [ ! -z $checkSender ] ;then
         kill -9 $checkSender
         sleep 2
-        /system/bin/ATVdetailsSender.sh >/dev/null 2>&1 &
-        echo "`date +%Y-%m-%d_%T` ATVdetails sender restarted" >> $logfile
       fi
+      /system/bin/ATVdetailsSender.sh >/dev/null 2>&1 &
+      echo "`date +%Y-%m-%d_%T` ATVdetails sender (re)started" >> $logfile
     fi
   fi
 fi
@@ -498,7 +498,7 @@ if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]
   checkSender=$(pgrep -f /system/bin/ATVdetailsSender.sh)
   if [ -z $checkSender ] ;then
     /system/bin/ATVdetailsSender.sh >/dev/null 2>&1 &
-    echo "`date +%Y-%m-%d_%T` ATVdetails sender enabled" >> $logfile
+    echo "`date +%Y-%m-%d_%T` ATVdetails sender started" >> $logfile
   fi
 fi
 
