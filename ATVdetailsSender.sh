@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.1
+# version 1.2
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -55,10 +55,10 @@ while true
     reboot=$(grep 'Device rebooted' $aconf_log | wc -l)
 # atlas config
     authBearer=$(cat $atlas_conf | tr , '\n' | grep -w 'authBearer' | awk -F ":" '{ print $2 }' | tr -d \"})
-    deviceAuthToken=$(cat $atlas_conf | tr , '\n' | grep -w 'deviceAuthToken' | awk -F ":" '{ print $2 }' | tr -d \"})
+    token=$(cat $atlas_conf | tr , '\n' | grep -w 'deviceAuthToken' | awk -F ":" '{ print $2 }' | tr -d \"})
     email=$(cat $atlas_conf | tr , '\n' | grep -w 'email' | awk -F ":" '{ print $2 }' | tr -d \"})
     rdmUrl=$(cat $atlas_conf | tr , '\n' | grep -w 'rdmUrl' | awk -F ":" '{ print $2 }' | tr -d \"})
-    runOnBoot=$(cat $atlas_conf | tr , '\n' | grep -w 'runOnBoot' | awk -F ":" '{ print $2 }' | tr -d \"})
+    onBoot=$(cat $atlas_conf | tr , '\n' | grep -w 'runOnBoot' | awk -F ":" '{ print $2 }' | tr -d \"})
 # atlas.log (anything to grep from $atlas_log ?)
 
 # monitor.log (anything to grep from $monitor_log ?)
@@ -105,10 +105,10 @@ while true
     "reboot": "${reboot}",
 
     "authBearer": "${authBearer}",
-    "deviceAuthToken": "${deviceAuthToken}",
+    "token": "${token}",
     "email": "${email}",
     "rdmUrl": "${rdmUrl}",
-    "runOnBoot": "${runOnBoot}"
+    "onBoot": "${onBoot}"
 }
 DATA
 
