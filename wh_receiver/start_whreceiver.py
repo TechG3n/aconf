@@ -87,10 +87,12 @@ def webhook():
 
         # parse json data to SQL insert
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        deviceName = validate_string(request.json["deviceName"])
         arch = validate_string(request.json["arch"])
         productmodel = validate_string(request.json["productmodel"])
         atlasSh = validate_string(request.json["atlasSh"])
         atlas55 = validate_string(request.json["atlas55"])
+        monitor = validate_string(request.json["monitor"])
         pogo = validate_string(request.json["pogo"])
         atlas = validate_string(request.json["atlas"])
         temperature = validate_string(request.json["temperature"])
@@ -100,6 +102,7 @@ def webhook():
         mace = validate_string(request.json["mace"])
         ip = validate_string(request.json["ip"])
         ext_ip = validate_string(request.json["ext_ip"])
+        hostname = validate_string(request.json["hostname"])
         diskSysPct = validate_string(request.json["diskSysPct"])
         diskDataPct = validate_string(request.json["diskDataPct"])
         RPL = validate_string(request.json["RPL"])
@@ -121,10 +124,12 @@ def webhook():
         insert_stmt1 = "\
             INSERT INTO ATVsummary \
                 (timestamp, \
+                deviceName, \
                 arch, \
                 productmodel, \
                 atlasSh, \
                 55atlas, \
+                monitor, \
                 pogo, \
                 atlas, \
                 temperature, \
@@ -134,18 +139,21 @@ def webhook():
                 MACe, \
                 ip, \
                 ext_ip, \
+                hostname, \
                 diskSysPct, \
                 diskDataPct, \
                 whversion, \
-                numPogo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
+                numPogo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
             ON DUPLICATE KEY UPDATE \
                 timestamp = VALUES(timestamp), \
+                deviceName = VALUES(deviceName), \
                 arch = VALUES(arch), \
                 productmodel = VALUES(productmodel), \
                 atlasSh = VALUES(atlasSh), \
                 55atlas = VALUES(55atlas), \
                 pogo = VALUES(pogo), \
                 atlas = VALUES(atlas), \
+                monitor = VALUES(monitor), \
                 temperature = VALUES(temperature), \
                 magisk = VALUES(magisk), \
                 magisk_modules = VALUES(magisk_modules), \
@@ -153,19 +161,20 @@ def webhook():
                 MACe = VALUES(MACe), \
                 ip = VALUES(ip), \
                 ext_ip = VALUES(ext_ip), \
+                hostname = VALUES(hostname), \
                 diskSysPct = VALUES(diskSysPct), \
                 diskDataPct = VALUES(diskDataPct), \
                 whversion = VALUES(whversion), \
                 numPogo = VALUES(numPogo)"
 
-        data1 = (str(timestamp), str(arch), str(productmodel), str(atlasSh), str(atlas55), str(pogo), str(atlas), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo) )
+        data1 = (str(timestamp), str(deviceName), str(arch), str(productmodel), str(atlasSh), str(atlas55), str(pogo), str(atlas), str(monitor), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo) )
 
         insert_stmt2 = (
-            "INSERT INTO ATVstats (timestamp, RPL, temperature, memTot, memFree, memAv, memPogo, memAtlas, cpuSys, cpuUser, cpuL5, cpuL10, cpuL15, cpuPogoPct, cpuApct, diskSysPct, diskDataPct)"
-            "VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )"
+            "INSERT INTO ATVstats (timestamp, RPL, deviceName, temperature, memTot, memFree, memAv, memPogo, memAtlas, cpuSys, cpuUser, cpuL5, cpuL10, cpuL15, cpuPogoPct, cpuApct, diskSysPct, diskDataPct)"
+            "VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )"
         )        
         
-        data2 = (str(timestamp), str(RPL), str(temperature), str(memTot), str(memFree), str(memAv), str(memPogo), str(memAtlas), str(cpuSys), str(cpuUser), str(cpuL5), str(cpuL10), str(cpuL15), str(cpuPogoPct), str(cpuApct), str(diskSysPct), str(diskDataPct) )
+        data2 = (str(timestamp), str(RPL), str(deviceName), str(temperature), str(memTot), str(memFree), str(memAv), str(memPogo), str(memAtlas), str(cpuSys), str(cpuUser), str(cpuL5), str(cpuL10), str(cpuL15), str(cpuPogoPct), str(cpuApct), str(diskSysPct), str(diskDataPct) )
 
         try:
             connection_object = connection_pool.get_connection()
