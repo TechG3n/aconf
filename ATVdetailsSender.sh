@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0
+# version 1.1
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -102,7 +102,13 @@ while true
     "diskDataPct": "${diskDataPct}",
     "numPogo": "${numPogo}",
 
-    "reboot": "${reboot}"
+    "reboot": "${reboot}",
+
+    "authBearer": "${authBearer}",
+    "deviceAuthToken": "${deviceAuthToken}",
+    "email": "${email}",
+    "rdmUrl": "${rdmUrl}",
+    "runOnBoot": "${runOnBoot}"
 }
 DATA
 
