@@ -121,6 +121,11 @@ def webhook():
         numPogo = validate_string(request.json["numPogo"])
         reboot = validate_string(request.json["reboot"])
         whversion = validate_string(request.json["whversion"])
+        authBearer = validate_string(request.json["authBearer"])
+        token = validate_string(request.json["token"])
+        email = validate_string(request.json["email"])
+        rdmUrl = validate_string(request.json["rdmUrl"])
+        onBoot = validate_string(request.json["onBoot"])
 
         insert_stmt1 = "\
             INSERT INTO ATVsummary \
@@ -145,7 +150,12 @@ def webhook():
                 diskDataPct, \
                 whversion, \
                 numPogo, \
-                reboot) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
+                reboot, \
+                authBearer, \
+                token, \
+                email, \
+                rdmUrl, \
+                onBoot) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
             ON DUPLICATE KEY UPDATE \
                 timestamp = VALUES(timestamp), \
                 deviceName = VALUES(deviceName), \
@@ -168,9 +178,14 @@ def webhook():
                 diskDataPct = VALUES(diskDataPct), \
                 whversion = VALUES(whversion), \
                 numPogo = VALUES(numPogo), \
-                reboot = VALUES(reboot)"
+                reboot = VALUES(reboot), \
+                authBearer = VALUES(authBearer), \
+                token = VALUES(token), \
+                email = VALUES(email), \
+                rdmUrl = VALUES(rdmUrl), \
+                onBoot = VALUES(onBoot)"
 
-        data1 = (str(timestamp), str(deviceName), str(arch), str(productmodel), str(atlasSh), str(atlas55), str(pogo), str(atlas), str(monitor), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo), str(reboot) )
+        data1 = (str(timestamp), str(deviceName), str(arch), str(productmodel), str(atlasSh), str(atlas55), str(pogo), str(atlas), str(monitor), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo), str(reboot), str(authBearer), str(token), str(email), str(rdmUrl), str(onBoot) )
 
         insert_stmt2 = (
             "INSERT INTO ATVstats (timestamp, RPL, deviceName, temperature, memTot, memFree, memAv, memPogo, memAtlas, cpuSys, cpuUser, cpuL5, cpuL10, cpuL15, cpuPogoPct, cpuApct, diskSysPct, diskDataPct)"
