@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.4
+# version 0.5
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -17,7 +17,7 @@ while true
     fi
 
 # generic
-    RPL=$(($SENDING_INTERVAL_SECONDS/60))
+    RPL=$(($atvdetails_interval/60))
     deviceName=$(cat $atlas_conf | tr , '\n' | grep -w 'deviceName' | awk -F ":" '{ print $2 }' | tr -d \"})
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
@@ -40,7 +40,7 @@ while true
     memFree=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
     memAv=$(cat /proc/meminfo | grep MemAvailable | awk '{print $2}')
     memPogo=$(dumpsys meminfo 'com.nianticlabs.pokemongo' | grep -m 1 "TOTAL" | awk '{print $2}')
-    memAtlas=$(dumpsys meminfo 'com.pokemod.atlas' | grep -m 1 "TOTAL" | awk '{print $2}')
+    memAtlas=$(dumpsys meminfo 'com.pokemod.atlas:mapping' | grep -m 1 "TOTAL" | awk '{print $2}')
     cpuSys=$(top -n 1 | grep -m 1 "System" | awk '{print substr($2, 1, length($2)-2)}')
     cpuUser=$(top -n 1 | grep -m 1 "User" | awk '{print substr($2, 1, length($2)-2)}')
     cpuL5=$(dumpsys cpuinfo | grep "Load" | awk '{ print $2 }')
