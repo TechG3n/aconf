@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 0.1
+# version 0.2
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -90,14 +90,14 @@ while true
     "memFree": "${memFree}",
     "memAv": "${memAv}",
     "memPogo": "${memPogo}",
-    "memAtlas": "${memVM}",
+    "memAtlas": "${memAtlas}",
     "cpuSys": "${cpuSys}",
     "cpuUser": "${cpuUser}",
     "cpuL5": "${cpuL5}",
     "cpuL10": "${cpuL10}",
     "cpuL15": "${cpuLavg}",
     "cpuPogoPct": "${cpuPogoPct}",
-    "cpuApct": "${cpuVmPct}",
+    "cpuApct": "${cpuApct}",
     "diskSysPct": "${diskSysPct}",
     "diskDataPct": "${diskDataPct}",
     "numPogo": "${numPogo}",
