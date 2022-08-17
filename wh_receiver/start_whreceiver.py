@@ -3,7 +3,7 @@
 #
 __author__ = "GhostTalker and Apple314"
 __copyright__ = "Copyright 2022, The GhostTalker project"
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 __status__ = "DEV"
 
 import os
@@ -163,9 +163,9 @@ def webhook():
                 productmodel = VALUES(productmodel), \
                 atlasSh = VALUES(atlasSh), \
                 55atlas = VALUES(55atlas), \
+                monitor = VALUES(monitor), \
                 pogo = VALUES(pogo), \
                 atlas = VALUES(atlas), \
-                monitor = VALUES(monitor), \
                 temperature = VALUES(temperature), \
                 magisk = VALUES(magisk), \
                 magisk_modules = VALUES(magisk_modules), \
@@ -185,7 +185,7 @@ def webhook():
                 rdmUrl = VALUES(rdmUrl), \
                 onBoot = VALUES(onBoot)"
 
-        data1 = (str(timestamp), str(deviceName), str(arch), str(productmodel), str(atlasSh), str(atlas55), str(pogo), str(atlas), str(monitor), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo), str(reboot), str(authBearer), str(token), str(email), str(rdmUrl), str(onBoot) )
+        data1 = (str(timestamp), str(deviceName), str(arch), str(productmodel), str(atlasSh), str(atlas55), str(monitor), str(pogo), str(atlas), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo), str(reboot), str(authBearer), str(token), str(email), str(rdmUrl), str(onBoot) )
 
         insert_stmt2 = (
             "INSERT INTO ATVstats (timestamp, RPL, deviceName, temperature, memTot, memFree, memAv, memPogo, memAtlas, cpuSys, cpuUser, cpuL5, cpuL10, cpuL15, cpuPogoPct, cpuApct, diskSysPct, diskDataPct)"
