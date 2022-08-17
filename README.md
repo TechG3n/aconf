@@ -73,6 +73,12 @@ useSender=false
 atvdetails_interval=900
 atvdetails_receiver_host=""
 atvdetails_receiver_port=""
+
+# settings for atvdetails sender
+useSender=false
+atvdetails_interval=900
+atvdetails_receiver_host=""
+atvdetails_receiver_port=""
 ```
 
 Optionally you can also add settings for the types of webhooks you want to receive from the Atlas monitor script.
@@ -98,6 +104,20 @@ The script will automatically check those versions on every reboot of an ATV. If
 
 Logging and any failure while executing script is logged to /sdcard/aconf.log
 In case of issues always check there first
+
+***ATVdetails sender/receiver***  
+Aconf allows to setup for sending atv information such as pogo/atlas/script versions, ip, atlas settings, atlas/pogo cpu and mem usage to server side receiver which will process to database.  
+
+Prepare receiver:
+- receiver is located in folder wh_receiver
+- create database and create tables from /sql/tables.sql
+- copy config.ini.example to config.ini and fill out the details
+- start receiver i.e. `pm2 start start_whreceiver.py --name atvdetails --interpreter python3`
+- make sure firewall is not blocking host/port
+
+Prepare aconf settings and start sender:
+- ajust versions file settings for atvdetails sender
+- execute /system/bin/atlas.sh to update to latest version, add webhook sender and start it
 
 ***Using aconf without Madmin***
 

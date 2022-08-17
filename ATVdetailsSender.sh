@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0
+# version 1.5
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -9,6 +9,9 @@ atlas_conf="/data/local/tmp/atlas_config.json"
 atlas_log="/data/local/tmp/atlas.log"
 aconf_log="/sdcard/aconf.log"
 monitor_log="/sdcard/atlas_monitor.log"
+
+# initial sleep for reboot
+sleep 120
 
 while true
   do
@@ -55,10 +58,10 @@ while true
     reboot=$(grep 'Device rebooted' $aconf_log | wc -l)
 # atlas config
     authBearer=$(cat $atlas_conf | tr , '\n' | grep -w 'authBearer' | awk -F ":" '{ print $2 }' | tr -d \"})
-    deviceAuthToken=$(cat $atlas_conf | tr , '\n' | grep -w 'deviceAuthToken' | awk -F ":" '{ print $2 }' | tr -d \"})
+    token=$(cat $atlas_conf | tr , '\n' | grep -w 'deviceAuthToken' | awk -F ":" '{ print $2 }' | tr -d \"})
     email=$(cat $atlas_conf | tr , '\n' | grep -w 'email' | awk -F ":" '{ print $2 }' | tr -d \"})
-    rdmUrl=$(cat $atlas_conf | tr , '\n' | grep -w 'rdmUrl' | awk -F ":" '{ print $2 }' | tr -d \"})
-    runOnBoot=$(cat $atlas_conf | tr , '\n' | grep -w 'runOnBoot' | awk -F ":" '{ print $2 }' | tr -d \"})
+    rdmUrl=$(cat $atlas_conf | tr , '\n' | grep -w 'rdmUrl' | awk -F "\"" '{ print $4 }')
+    onBoot=$(cat $atlas_conf | tr , '\n' | grep -w 'runOnBoot' | awk -F ":" '{ print $2 }' | tr -d \"})
 # atlas.log (anything to grep from $atlas_log ?)
 
 # monitor.log (anything to grep from $monitor_log ?)
@@ -102,7 +105,13 @@ while true
     "diskDataPct": "${diskDataPct}",
     "numPogo": "${numPogo}",
 
-    "reboot": "${reboot}"
+    "reboot": "${reboot}",
+
+    "authBearer": "${authBearer}",
+    "token": "${token}",
+    "email": "${email}",
+    "rdmUrl": "${rdmUrl}",
+    "onBoot": "${onBoot}"
 }
 DATA
 
