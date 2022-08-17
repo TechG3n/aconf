@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.4
+# version 1.5
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -9,6 +9,9 @@ atlas_conf="/data/local/tmp/atlas_config.json"
 atlas_log="/data/local/tmp/atlas.log"
 aconf_log="/sdcard/aconf.log"
 monitor_log="/sdcard/atlas_monitor.log"
+
+# initial sleep for reboot
+sleep 120
 
 while true
   do
