@@ -12,7 +12,7 @@ An example job is provided in the code. Please update it to the URL of your dire
 
 Don't worry if the job is reporting a failure, it's only because it includes a reboot and is taking too much time, but it does run successfully.
 
-***OPTIONAL BUT HIGHLY RECOMMANDED :***
+***OPTIONAL BUT HIGHLY RECOMMENDED :***
 The Job allows you to add an `authUser` and `authPass`. 
 Those user and passwords will be used if basic auth has been enabled on your directory.
 Please remember this directory contains important information such as your Atlas token or RDM auth.
@@ -67,6 +67,12 @@ monitor_interval=300
 update_check_interval=3600
 discord_webhook=""
 debug=false
+
+# Settings for atvdetails sender
+useSender=false
+atvdetails_interval=900
+atvdetails_receiver_host=""
+atvdetails_receiver_port=""
 ```
 
 Optionally you can also add settings for the types of webhooks you want to receive from the Atlas monitor script.
@@ -93,7 +99,37 @@ The script will automatically check those versions on every reboot of an ATV. If
 Logging and any failure while executing script is logged to /sdcard/aconf.log
 In case of issues always check there first
 
-***Using aconf without Madmin***
+## ***ATVdetails sender/receiver***  
+Aconf allows to setup for sending ATV information such as pogo/atlas/script versions, ip, atlas settings, atlas/pogo cpu and mem usage to server side receiver which will process to database.  
+
+1. Prepare receiver:
+- Receiver is located in folder wh_receiver
+- Create database and create tables from /sql/tables.sql
+- Create a database user and provide permissions to user (make sure not to use `$` in password):
+```
+grant all privileges on ##STATS_DB##.* to ##MYSELF##@localhost;
+flush privileges;
+```
+- Copy config.ini.example to config.ini and fill out the details
+- Start receiver i.e. `pm2 start start_whreceiver.py --name atvdetails --interpreter python3`
+- Ensure firewall is not blocking host/port
+
+2. Prepare aconf settings and start sender:
+- Ajust versions file settings for atvdetails sender
+- Execute /system/bin/atlas.sh to update to latest version, add webhook sender and start it
+
+3. Grafana Installation:
+- To visualise the ATV information sent from aconf, set up Grafana.
+- More information here: https://grafana.com/grafana/download and https://grafana.com/docs/grafana/next/setup-grafana/installation/debian/#install-from-apt-repository
+Default port is 3000 and you can expose Grafana to the web for easy access.
+
+**Note: Docker install can be messy to connect to your stats database so be warned. (If you get this working, please share how so I can add it to readme).**
+
+- In Grafana web interface, create a data source on your stats database (make sure your user can access the database). Click on “Save & test” to check connection.
+
+- Finally, you can import the dashboards – the `.JSON` files in `aconf/wh_receiver/grafana`. You can do this by selecting, in the Grafana sidebar, `Dashboards -> + Import`. Select, one at a time, the three dashboards to import to Grafana.
+  
+## ***Using aconf without Madmin***
 
 If you don't run madmin and don't want to run it, you still can push the install of the atlas script manually by connecting to the device using ADB and using the following on command line (update `mydownloadfolder.com`to your own folder location + add your user and password ) :
 
