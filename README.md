@@ -12,7 +12,7 @@ An example job is provided in the code. Please update it to the URL of your dire
 
 Don't worry if the job is reporting a failure, it's only because it includes a reboot and is taking too much time, but it does run successfully.
 
-***OPTIONAL BUT HIGHLY RECOMMANDED :***
+***OPTIONAL BUT HIGHLY RECOMMENDED :***
 The Job allows you to add an `authUser` and `authPass`. 
 Those user and passwords will be used if basic auth has been enabled on your directory.
 Please remember this directory contains important information such as your Atlas token or RDM auth.
