@@ -99,23 +99,38 @@ The script will automatically check those versions on every reboot of an ATV. If
 Logging and any failure while executing script is logged to /sdcard/aconf.log
 In case of issues always check there first
 
-***ATVdetails sender/receiver***  
-Aconf allows to setup for sending atv information such as pogo/atlas/script versions, ip, atlas settings, atlas/pogo cpu and mem usage to server side receiver which will process to database.  
+## ***ATVdetails sender/receiver***  
+Aconf allows to setup for sending ATV information such as pogo/atlas/script versions, ip, atlas settings, atlas/pogo cpu and mem usage to server side receiver which will process to database.  
 
-Prepare receiver:
-- receiver is located in folder wh_receiver
-- create database and create tables from /sql/tables.sql
-- copy config.ini.example to config.ini and fill out the details
-- start receiver i.e. `pm2 start start_whreceiver.py --name atvdetails --interpreter python3`
-- make sure firewall is not blocking host/port
+1. Prepare receiver:
+- Receiver is located in folder wh_receiver
+- Create database and create tables from /sql/tables.sql
+- Create a database user and provide permissions to user (make sure not to use `$` in password):
+```
+create database ##STATS_DB##;
+grant all privileges on ##STATS_DB##.* to ##MYSELF##@localhost;
+flush privileges;
+```
+- Copy config.ini.example to config.ini and fill out the details
+- Start receiver i.e. `pm2 start start_whreceiver.py --name atvdetails --interpreter python3`
+- Ensure firewall is not blocking host/port
 
-Prepare aconf settings and start sender:
-- ajust versions file settings for atvdetails sender
-- execute /system/bin/atlas.sh to update to latest version, add webhook sender and start it
+2. Prepare aconf settings and start sender:
+- Ajust versions file settings for atvdetails sender
+- Execute /system/bin/atlas.sh to update to latest version, add webhook sender and start it
+
+3. Grafana Installation:
+- To visualise the ATV information sent from aconf, set up Grafana.
+- More information here: https://grafana.com/grafana/download and https://grafana.com/docs/grafana/next/setup-grafana/installation/debian/#install-from-apt-repository
+Default port is 3000 and you can expose Grafana to the web for easy access.
+
+**Note: Docker install can be messy to connect to your stats database so be warned. (If you get this working, please share how so I can add it to readme).**
+
+- In Grafana web interface, create a data source on your stats database (make sure your user can access the database). Click on “Save & test” to check connection.
+
+- Finally, you can import the dashboards – the `.default` files in `aconf/wh_receiver/grafana`. You can do this by selecting, in the Grafana sidebar, `Dashboards -> + Import`. Select, one at a time, the three dashboards to import to Grafana.
   
-Grafana templates can be found in folder wh_receiver/grafana
-  
-***Using aconf without Madmin***
+## ***Using aconf without Madmin***
 
 If you don't run madmin and don't want to run it, you still can push the install of the atlas script manually by connecting to the device using ADB and using the following on command line (update `mydownloadfolder.com`to your own folder location + add your user and password ) :
 
