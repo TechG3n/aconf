@@ -73,12 +73,6 @@ useSender=false
 atvdetails_interval=900
 atvdetails_receiver_host=""
 atvdetails_receiver_port=""
-
-# settings for atvdetails sender
-useSender=false
-atvdetails_interval=900
-atvdetails_receiver_host=""
-atvdetails_receiver_port=""
 ```
 
 Optionally you can also add settings for the types of webhooks you want to receive from the Atlas monitor script.
@@ -118,7 +112,9 @@ Prepare receiver:
 Prepare aconf settings and start sender:
 - ajust versions file settings for atvdetails sender
 - execute /system/bin/atlas.sh to update to latest version, add webhook sender and start it
-
+  
+Grafana templates can be found in folder wh_receiver/grafana
+  
 ***Using aconf without Madmin***
 
 If you don't run madmin and don't want to run it, you still can push the install of the atlas script manually by connecting to the device using ADB and using the following on command line (update `mydownloadfolder.com`to your own folder location + add your user and password ) :
