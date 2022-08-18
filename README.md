@@ -107,7 +107,6 @@ Aconf allows to setup for sending ATV information such as pogo/atlas/script vers
 - Create database and create tables from /sql/tables.sql
 - Create a database user and provide permissions to user (make sure not to use `$` in password):
 ```
-create database ##STATS_DB##;
 grant all privileges on ##STATS_DB##.* to ##MYSELF##@localhost;
 flush privileges;
 ```
