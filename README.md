@@ -127,7 +127,7 @@ Default port is 3000 and you can expose Grafana to the web for easy access.
 
 - In Grafana web interface, create a data source on your stats database (make sure your user can access the database). Click on “Save & test” to check connection.
 
-- Finally, you can import the dashboards – the `.default` files in `aconf/wh_receiver/grafana`. You can do this by selecting, in the Grafana sidebar, `Dashboards -> + Import`. Select, one at a time, the three dashboards to import to Grafana.
+- Finally, you can import the dashboards – the `.JSON` files in `aconf/wh_receiver/grafana`. You can do this by selecting, in the Grafana sidebar, `Dashboards -> + Import`. Select, one at a time, the three dashboards to import to Grafana.
   
 ## ***Using aconf without Madmin***
 
