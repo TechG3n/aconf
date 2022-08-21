@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.4.5
+# version 1.4.6
 
 #Version checks
 Ver55atlas="1.0"
@@ -485,7 +485,7 @@ if [[ $2 == https://* ]] ;then
 fi
 
 # enable atlas monitor
-if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/atlas_monitor.sh ] ;then
+if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsub(/ /,""); print }') == "true" ]] && [ -f /system/bin/atlas_monitor.sh ] ;then
   checkMonitor=$(pgrep -f /system/bin/atlas_monitor.sh)
   if [ -z $checkMonitor ] ;then
     /system/bin/atlas_monitor.sh >/dev/null 2>&1 &
@@ -494,7 +494,7 @@ if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == "true" 
 fi
 
 # enable atvdetails sender
-if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/ATVdetailsSender.sh ] ;then
+if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsub(/ /,""); print }') == "true" ]] && [ -f /system/bin/ATVdetailsSender.sh ] ;then
   checkSender=$(pgrep -f /system/bin/ATVdetailsSender.sh)
   if [ -z $checkSender ] ;then
     /system/bin/ATVdetailsSender.sh >/dev/null 2>&1 &
