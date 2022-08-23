@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.5
+# version 1.6
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -18,6 +18,9 @@ while true
     if [ "$useSender" != true ] ;then
       echo "`date +%Y-%m-%d_%T` ATVdetailsSender: sender stopped" >> $logfile && exit 1
     fi
+
+# remove windows line ending
+    dos2unix $atlas_conf
 
 # generic
     RPL=$(($atvdetails_interval/60))
