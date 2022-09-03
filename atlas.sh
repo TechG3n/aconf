@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.4.7
+# version 1.5.0
 
 #Version checks
 Ver55atlas="1.0"
@@ -500,6 +500,13 @@ if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsu
     /system/bin/ATVdetailsSender.sh >/dev/null 2>&1 &
     echo "`date +%Y-%m-%d_%T` ATVdetails sender started" >> $logfile
   fi
+fi
+
+# check atlas running
+atlas_check=$(ps | grep com.pokemod.atlas:mapping | awk '{print $9}')
+if [[ -z $atlas_check ]] ;then
+  am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+  echo "`date +%Y-%m-%d_%T` atlas not running at execution of atlas.sh, starting it" >> $logfile
 fi
 
 for i in "$@" ;do
