@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `ATVlogs` (
   `m_deviceOffline` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_noRDM` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_noFocus` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `m_unknown` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `m_unknown` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 PRIMARY KEY (`deviceName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
