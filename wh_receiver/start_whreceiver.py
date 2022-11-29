@@ -3,7 +3,7 @@
 #
 __author__ = "GhostTalker and Apple314"
 __copyright__ = "Copyright 2022, The GhostTalker project"
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __status__ = "DEV"
 
 import os
@@ -258,6 +258,7 @@ def webhook():
                 cursor = connection_object.cursor()
                 cursor.execute(insert_stmt1, data1)
                 cursor.execute(insert_stmt2, data2)
+                cursor.execute(insert_stmt3, data3)
                 connection_object.commit()
                 print("Data inserted")
 
