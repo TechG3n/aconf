@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.6
+# version 1.7
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -65,10 +65,23 @@ while true
     email=$(cat $atlas_conf | tr , '\n' | grep -w 'email' | awk -F ":" '{ print $2 }' | tr -d \"})
     rdmUrl=$(cat $atlas_conf | tr , '\n' | grep -w 'rdmUrl' | awk -F "\"" '{ print $4 }')
     onBoot=$(cat $atlas_conf | tr , '\n' | grep -w 'runOnBoot' | awk -F ":" '{ print $2 }' | tr -d \"})
-# atlas.log (anything to grep from $atlas_log ?)
+# atlas.log
+    a_pogoStarted=$(grep 'Launched Pokemon Go' $atlas_log | wc -l)
+    a_injection=$(grep 'Injected successfully' $atlas_log | wc -l)
+    a_ptcLogin=$(grep 'Logged in using ptc' $atlas_log | wc -l)
+    a_atlasCrash=$(grep 'Agent has crashed or stopped responding' $atlas_log | wc -l)
+    a_rdmError=$(grep 'Could not send heartbeat' $atlas_log | wc -l)
 
-# monitor.log (anything to grep from $monitor_log ?)
-
+# monitor.log
+    m_noInternet=$(grep 'No internet' $monitor_log | wc -l)
+    m_noConfig=$(grep 'atlas_config.json does not exist or is empty' $monitor_log | wc -l)
+    m_noLicense=$(grep 'Device Lost Atlas License' $monitor_log | wc -l)
+    m_atlasDied=$(grep 'Atlas must be dead, rebooting device' $monitor_log | wc -l)
+    m_pogoDied=$(grep 'Pogo must be dead, rebooting device' $monitor_log | wc -l)
+    m_deviceOffline=$(grep 'Device must be offline. Running a stop mapping service of Atlas, killing pogo and clearing junk' $monitor_log | wc -l)
+    m_noRDM=$(grep 'something wrong with RDM' $monitor_log | wc -l)
+    m_noFocus=$(grep 'Something is not right! Pogo is not in focus. Killing pogo and clearing junk' $monitor_log | wc -l)
+    m_unknown=$(grep 'Something happened! Some kind of error' $monitor_log | wc -l)
 
 #send data
     curl -k -X POST $atvdetails_receiver_host:$atvdetails_receiver_port/webhook -H "Accept: application/json" -H "Content-Type: application/json" --data-binary @- <<DATA
@@ -114,7 +127,23 @@ while true
     "token": "${token}",
     "email": "${email}",
     "rdmUrl": "${rdmUrl}",
-    "onBoot": "${onBoot}"
+    "onBoot": "${onBoot}",
+
+    "a_pogoStarted": "${a_pogoStarted}",
+    "a_injection": "${a_injection}",
+    "a_ptcLogin": "${a_ptcLogin}",
+    "a_atlasCrash": "${a_atlasCrash}",
+    "a_rdmError": "${a_rdmError}",
+
+    "m_noInternet": "${m_noInternet}",
+    "m_noConfig": "${m_noConfig}",
+    "m_noLicense": "${m_noLicense}",
+    "m_atlasDied": "${m_atlasDied}",
+    "m_pogoDied": "${m_pogoDied}",
+    "m_deviceOffline": "${m_deviceOffline}",
+    "m_noRDM": "${m_noRDM}",
+    "m_noFocus": "${m_noFocus}",
+    "m_unknown": "${m_unknown}"
 }
 DATA
 

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS ATVsummary (
+CREATE TABLE IF NOT EXISTS `ATVsummary` (
   `timestamp` datetime NOT NULL,
   `deviceName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `arch` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -52,6 +52,27 @@ CREATE TABLE IF NOT EXISTS `ATVstats` (
 PRIMARY KEY (`deviceName`,`timestamp`,`RPL`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `ATVlogs` (
+  `timestamp` datetime NOT NULL,
+  `deviceName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `reboot` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `a_pogoStarted` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `a_injection` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `a_ptcLogin` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `a_atlasCrash` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `a_rdmError` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `m_noInternet` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `m_noConfig` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `m_noLicense` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `m_atlasDied` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `m_pogoDied` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `m_deviceOffline` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `m_noRDM` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `m_noFocus` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `m_unknown` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+PRIMARY KEY (`deviceName`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `version` (
   `key` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `version` smallint(6) NOT NULL,
@@ -70,4 +91,4 @@ ADD COLUMN IF NOT EXISTS `onBoot` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT
 
 -- update version
 INSERT IGNORE INTO version values ('atlas_atvdetails',1);
-UPDATE version set version = 3 where version.key = 'atlas_atvdetails';
+UPDATE version set version = 4 where version.key = 'atlas_atvdetails';

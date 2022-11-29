@@ -3,7 +3,7 @@
 #
 __author__ = "GhostTalker and Apple314"
 __copyright__ = "Copyright 2022, The GhostTalker project"
-__version__ = "0.1.5"
+__version__ = "0.2.0"
 __status__ = "DEV"
 
 import os
@@ -126,6 +126,20 @@ def webhook():
         email = validate_string(request.json["email"])
         rdmUrl = validate_string(request.json["rdmUrl"])
         onBoot = validate_string(request.json["onBoot"])
+        a_pogoStarted = validate_string(request.json["a_pogoStarted"])
+        a_injection = validate_string(request.json["a_injection"])
+        a_ptcLogin = validate_string(request.json["a_ptcLogin"])
+        a_atlasCrash = validate_string(request.json["a_atlasCrash"])
+        a_rdmError = validate_string(request.json["a_rdmError"])
+        m_noInternet = validate_string(request.json["m_noInternet"])
+        m_noConfig = validate_string(request.json["m_noConfig"])
+        m_noLicense = validate_string(request.json["m_noLicense"])
+        m_atlasDied = validate_string(request.json["m_atlasDied"])
+        m_pogoDied = validate_string(request.json["m_pogoDied"])
+        m_deviceOffline = validate_string(request.json["m_deviceOffline"])
+        m_noRDM = validate_string(request.json["m_noRDM"])
+        m_noFocus = validate_string(request.json["m_noFocus"])
+        m_unknown = validate_string(request.json["m_unknown"])
 
         insert_stmt1 = "\
             INSERT INTO ATVsummary \
@@ -190,13 +204,53 @@ def webhook():
         insert_stmt2 = (
             "INSERT INTO ATVstats (timestamp, RPL, deviceName, temperature, memTot, memFree, memAv, memPogo, memAtlas, cpuSys, cpuUser, cpuL5, cpuL10, cpuL15, cpuPogoPct, cpuApct, diskSysPct, diskDataPct)"
             "VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )"
-        )        
-        
+        )
+
         data2 = (str(timestamp), str(RPL), str(deviceName), str(temperature), str(memTot), str(memFree), str(memAv), str(memPogo), str(memAtlas), str(cpuSys), str(cpuUser), str(cpuL5), str(cpuL10), str(cpuL15), str(cpuPogoPct), str(cpuApct), str(diskSysPct), str(diskDataPct) )
+
+        insert_stmt3 = "\
+            INSERT INTO ATVlogs \
+                (timestamp, \
+                deviceName, \
+                reboot, \
+                a_pogoStarted, \
+                a_injection, \
+                a_ptcLogin, \
+                a_atlasCrash, \
+                a_rdmError, \
+                m_noInternet, \
+                m_noConfig, \
+                m_noLicense, \
+                m_atlasDied, \
+                m_pogoDied, \
+                m_deviceOffline, \
+                m_noRDM, \
+                m_noFocus, \
+                m_unknown) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
+            ON DUPLICATE KEY UPDATE \
+                timestamp = VALUES(timestamp), \
+                deviceName = VALUES(deviceName), \
+                reboot = VALUES(reboot), \
+                a_pogoStarted = VALUES(a_pogoStarted), \
+                a_injection = VALUES(a_injection), \
+                a_ptcLogin = VALUES(a_ptcLogin), \
+                a_atlasCrash = VALUES(a_atlasCrash), \
+                a_rdmError = VALUES(a_rdmError), \
+                m_noInternet = VALUES(m_noInternet), \
+                m_noConfig = VALUES(m_noConfig), \
+                m_noLicense = VALUES(m_noLicense), \
+                m_atlasDied = VALUES(m_atlasDied), \
+                m_pogoDied = VALUES(m_pogoDied), \
+                m_deviceOffline = VALUES(m_deviceOffline), \
+                m_noRDM = VALUES(m_noRDM), \
+                m_noFocus = VALUES(m_noFocus), \
+                m_unknown = VALUES(m_unknown)"
+
+        data3 = (str(timestamp), str(deviceName), str(reboot), str(a_pogoStarted), str(a_injection), str(a_ptcLogin), str(a_atlasCrash), str(a_rdmError), str(m_noInternet), str(m_noConfig), str(m_noLicense), str(m_atlasDied), str(m_pogoDied), str(m_deviceOffline), str(m_noRDM), str(m_noFocus), str(m_unknown) )
 
         try:
             connection_object = connection_pool.get_connection()
-        
+
             # Get connection object from a pool
             if connection_object.is_connected():
                 print("MySQL pool connection is open.")
@@ -206,7 +260,7 @@ def webhook():
                 cursor.execute(insert_stmt2, data2)
                 connection_object.commit()
                 print("Data inserted")
-                
+
         except Exception as e:
             # Rolling back in case of error
             connection_object.rollback()
@@ -225,7 +279,7 @@ def webhook():
 # start scheduling
 try:
     app.run(host=_host, port=_port)
-	
+
 except KeyboardInterrupt:
     print("Webhook receiver will be stopped")
     exit(0)
