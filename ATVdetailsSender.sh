@@ -86,6 +86,8 @@ while true
 #send data
     curl -k -X POST $atvdetails_receiver_host:$atvdetails_receiver_port/webhook -H "Accept: application/json" -H "Content-Type: application/json" --data-binary @- <<DATA
 {
+    "WHType": "ATVDetails",
+
     "RPL": "${RPL}",
     "deviceName": "${deviceName}",
     "arch": "${arch}",
