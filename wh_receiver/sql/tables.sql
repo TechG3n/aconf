@@ -73,6 +73,14 @@ CREATE TABLE IF NOT EXISTS `ATVlogs` (
 PRIMARY KEY (`deviceName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `ATVMonitor` (
+  `timestamp` datetime NOT NULL,
+  `deviceName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `issue` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `action` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`deviceName`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `version` (
   `key` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `version` smallint(6) NOT NULL,
