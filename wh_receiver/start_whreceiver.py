@@ -82,8 +82,53 @@ app = Flask(__name__)
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    if request.method == 'POST':
-        print("Data received from Webhook is: ", request.json)
+
+    if request.method == 'POST' and request.json["WHType"] == 'ATVMonitor':
+        print("Data received from ATV Monitor Webhook is: ", request.json)
+
+        # parse json data to SQL insert
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        deviceName = validate_string(request.json["deviceName"])
+        issue = validate_string(request.json["issue"])
+        action = validate_string(request.json["action"])
+
+        insert_stmt_monitor = (
+            "INSERT INTO ATVMonitor (timestamp, deviceName, issue, action)"
+            "VALUES ( %s, %s, %s, %s )"
+        )
+
+        data_monitor = ( str(timestamp), str(deviceName), str(issue), str(action) )
+
+        try:
+            connection_object = connection_pool.get_connection()
+
+            # Get connection object from a pool
+            if connection_object.is_connected():
+                print("MySQL pool connection is open.")
+                # Executing the SQL command
+                cursor = connection_object.cursor()
+                cursor.execute(insert_stmt_monitor, data_monitor)
+                connection_object.commit()
+                print("Monitor Data inserted")
+
+        except Exception as e:
+            # Rolling back in case of error
+            connection_object.rollback()
+            print(e)
+            print("Monitor Data NOT inserted. rollbacked.")
+
+        finally:
+            # closing database connection.
+            if connection_object.is_connected():
+                cursor.close()
+                connection_object.close()
+                print("MySQL pool connection is closed.")
+
+        return "Monitor Webhook received!"
+
+
+    if request.method == 'POST' and request.json["WHType"] == 'ATVDetails':
+        print("Data received from ATV Details Webhook is: ", request.json)
 
         # parse json data to SQL insert
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -260,13 +305,13 @@ def webhook():
                 cursor.execute(insert_stmt2, data2)
                 cursor.execute(insert_stmt3, data3)
                 connection_object.commit()
-                print("Data inserted")
+                print("ATVDetails Data inserted")
 
         except Exception as e:
             # Rolling back in case of error
             connection_object.rollback()
             print(e)
-            print("Data NOT inserted. rollbacked.")
+            print("ATVDetails Data NOT inserted. rollbacked.")
 
         finally:
             # closing database connection.
@@ -275,7 +320,7 @@ def webhook():
                 connection_object.close()
                 print("MySQL pool connection is closed.")
 
-        return "Webhook received!"
+        return "ATVDetails Webhook received!"
 
 # start scheduling
 try:
