@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.2
+# version 3.2.1
 
 # Monitor by Oldmole && bbdoc
 
@@ -48,8 +48,8 @@ stop_pogo () {
 }
 
 send_webhook () {
-	$issue = $1;
-	$action = $2;
+	issue=$1;
+	action=$2;
 	curl -k -X POST $atvdetails_receiver_host:$atvdetails_receiver_port/webhook -H "Accept: application/json" -H "Content-Type: application/json" --data-binary @- <<DATA
         {
             "WHType": "ATVMonitor",
