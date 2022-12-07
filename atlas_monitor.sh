@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.1.9
+# version 3.2
 
 # Monitor by Oldmole && bbdoc
 
@@ -52,9 +52,11 @@ send_webhook () {
 	$action = $2;
 	curl -k -X POST $atvdetails_receiver_host:$atvdetails_receiver_port/webhook -H "Accept: application/json" -H "Content-Type: application/json" --data-binary @- <<DATA
         {
+            "WHType": "ATVMonitor",
             "deviceName": "${origin}",
             "issue": "${issue}",
-            "action": "${action}"
+            "action": "${action}",
+            "script": "atlas_monitor.sh"
         }
 DATA
 }

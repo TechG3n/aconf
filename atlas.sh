@@ -1,9 +1,9 @@
 #!/system/bin/sh
-# version 1.5.4
+# version 1.5.5
 
 #Version checks
 Ver55atlas="1.0"
-VerMonitor="3.1.9"
+VerMonitor="3.2"
 VerATVsender="1.7.1"
 
 #Create logfile
