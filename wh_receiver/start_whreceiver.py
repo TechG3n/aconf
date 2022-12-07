@@ -91,13 +91,14 @@ def webhook():
         deviceName = validate_string(request.json["deviceName"])
         issue = validate_string(request.json["issue"])
         action = validate_string(request.json["action"])
+        script = validate_string(request.json["script"])
 
         insert_stmt_monitor = (
-            "INSERT INTO ATVMonitor (timestamp, deviceName, issue, action)"
-            "VALUES ( %s, %s, %s, %s )"
+            "INSERT INTO ATVMonitor (timestamp, deviceName, issue, action, script)"
+            "VALUES ( %s, %s, %s, %s, %s )"
         )
 
-        data_monitor = ( str(timestamp), str(deviceName), str(issue), str(action) )
+        data_monitor = ( str(timestamp), str(deviceName), str(issue), str(action), str(script) )
 
         try:
             connection_object = connection_pool.get_connection()

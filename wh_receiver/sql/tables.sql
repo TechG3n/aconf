@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `ATVMonitor` (
   `deviceName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `issue` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `action` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`deviceName`)
+  `script` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `version` (
