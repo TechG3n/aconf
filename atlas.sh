@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.5.6
+# version 1.5.7
 
 #Version checks
 Ver55atlas="1.0"
@@ -58,6 +58,7 @@ install_atlas(){
 
 # install 55atlas
 mount -o remount,rw /system
+mount -o remount,rw /system/etc/init.d
 if [ -f /sdcard/useAconfDevelop ] ;then
   until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/develop/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
@@ -102,6 +103,7 @@ else
   echo "`date +%Y-%m-%d_%T` ATVdetails sender installed, from master" >> $logfile
 fi
 mount -o remount,ro /system
+mount -o remount,ro /system/etc/init.d
 
 
 # get version
@@ -355,6 +357,7 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   old55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
   if [ $Ver55atlas != $old55 ] ;then
     mount -o remount,rw /system
+	mount -o remount,rw /system/etc/init.d
     if [ -f /sdcard/useAconfDevelop ] ;then
       until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/develop/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
         sleep 2
@@ -367,6 +370,7 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
       chmod +x /system/etc/init.d/55atlas
     fi
     mount -o remount,ro /system
+	mount -o remount,ro /system/etc/init.d
     new55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
     echo "`date +%Y-%m-%d_%T` 55atlas $old55=>$new55" >> $logfile
   fi
