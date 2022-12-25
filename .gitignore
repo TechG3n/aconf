@@ -1,1 +1,7 @@
+versions
+atlas_config.json
 wh_receiver/config.ini
+apk/*
+
+# exceptions
+!apk/.gitkeep

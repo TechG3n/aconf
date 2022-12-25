@@ -1,0 +1,71 @@
+#!/system/bin/sh
+
+logfile="/sdcard/aconf.log"
+aconf_download="/data/local/aconf_download"
+initfile="/system/etc/init.d/42atlas"
+
+#Create logfile
+if [ ! -e /sdcard/aconf.log ] ;then
+  touch /sdcard/aconf.log
+fi
+# stderr to logfile
+exec 2>> $logfile
+# logger
+logger() {
+if [[ ! -z $discord_webhook ]] ;then
+  echo "`date +%Y-%m-%d_%T` $1" >> $logfile
+  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"Bootstrap\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
+else
+  echo "`date +%Y-%m-%d_%T` $1" >> $logfile
+fi
+}
+
+
+#wait on internet
+until ping -c1 8.8.8.8 >/dev/null 2>/dev/null || ping -c1 1.1.1.1 >/dev/null 2>/dev/null ;do
+    sleep 5
+done
+logger "Internet connection available"
+
+# check for first boot
+if [[ ! -f $initfile ]] ;then
+  logger "First boot: 42atlas does not exist yet"
+  mount -o remount,rw /system
+  mount -o remount,rw /system/etc/init.d
+
+# wait for usb
+  usbfile="$(find /mnt/media_rw/ -name aconf_info|head -n1)"
+  until [[ ! -z $usbfile ]] ;do
+    sleep 5
+    usbfile="$(find /mnt/media_rw/ -name aconf_info|head -n1)"
+  done
+
+  cp $usbfile /data/local/
+  mv /data/local/aconf_info $aconf_download
+  dos2unix $aconf_download
+
+  discord_webhook=$(grep discord_webhook $aconf_download | awk -F "=" '{ print $NF }')
+  url=$(grep url $aconf_download | awk -F "=" '{ print $NF }')
+  authUser=$(grep authUser $aconf_download | awk -F "=" '{ print $NF }')
+  authPass=$(grep authPass $aconf_download | awk -F "=" '{ print $NF }')
+  ip=$(ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
+  logger "First boot: usb and config file found, IP:$ip "
+
+  if [[ $authUser == "" ]] ;then
+    download="/system/bin/curl -s -k -L --fail --show-error -o"
+  else
+    download="/system/bin/curl -s -k -L --fail --show-error --user $authUser:$authPass -o"
+  fi
+  until $download $initfile $url/42atlas || { logger "Download 42atlas failed, exit script" ; exit 1; } ;do
+    sleep 2
+  done
+  logger "First boot: downloaded 42atlas"
+  chmod +x $initfile
+  mount -o remount,ro /system
+  mount -o remount,ro /system/etc/init.d
+
+  touch /sdcard/new_install
+  logger "First boot: starting 42atlas"
+#  /system/bin/sh -x $initfile
+  $initfile &
+fi

@@ -1,0 +1,24 @@
+pogo=0.235.0
+atlas=v22050101
+rgc=off
+
+# Settings for Atlas monitor script
+useMonitor=false
+monitor_interval=300
+update_check_interval=3600
+discord_webhook=""
+debug=false
+
+# Settings for atvdetails sender
+useSender=false
+atvdetails_interval=900
+atvdetails_receiver_host=""
+atvdetails_receiver_port=""
+
+# Settings for Monitor Webhooks
+recreate_atlas_config=true
+atlas_died=true
+pogo_died=true
+device_offline=true
+unable_check_status=true
+pogo_not_focused=false
