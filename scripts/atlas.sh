@@ -76,7 +76,7 @@ install_atlas(){
 mount -o remount,rw /system
 mount -o remount,rw /system/etc/init.d
 if [ ! -f /system/etc/init.d/42atlas ] ;then
-  until $download /system/etc/init.d/55atlas $url/55atlas || { logger "Download 55atlas failed, exit script" ; exit 1; } ;do
+  until $download /system/etc/init.d/55atlas $url/scripts/55atlas || { logger "Download 55atlas failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/etc/init.d/55atlas
@@ -84,14 +84,14 @@ if [ ! -f /system/etc/init.d/42atlas ] ;then
 fi
 
 # install atlas monitor
-  until $download /system/bin/atlas_monitor.sh $url/atlas_monitor.sh || { logger "Download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
+  until $download /system/bin/atlas_monitor.sh $url/scripts/atlas_monitor.sh || { logger "Download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/atlas_monitor.sh
   logger "Atlas monitor installed"
 
 # install ATVdetails sender
-  until $download /system/bin/ATVdetailsSender.sh $url/ATVdetailsSender.sh || { logger "Download ATVdetailsSender.sh failed, exit script" ; exit 1; } ;do
+  until $download /system/bin/ATVdetailsSender.sh $url/scripts/ATVdetailsSender.sh || { logger "Download ATVdetailsSender.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/ATVdetailsSender.sh
@@ -181,7 +181,7 @@ aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF
 if [[ $pinstalled != $pversions ]] ;then
   logger "New pogo version detected, $pinstalled=>$pversions"
   /system/bin/rm -f /sdcard/Download/pogo.apk
-  until $download /sdcard/Download/pogo.apk $url/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "Download pogo failed, exit script" ; exit 1; } ;do
+  until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "Download pogo failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   # set pogo to be installed
@@ -304,7 +304,7 @@ echo "`date +%Y-%m-%d_%T` Internet connection available" >> $logfile
 if [[ $(basename $0) != "atlas_new.sh" ]] ;then
   mount -o remount,rw /system
   oldsh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
-  until $download /system/bin/atlas_new.sh $url/atlas.sh || { logger "Download atlas.sh failed, exit script" ; exit 1; } ;do
+  until $download /system/bin/atlas_new.sh $url/scripts/atlas.sh || { logger "Download atlas.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/atlas_new.sh
@@ -344,7 +344,7 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
     if [ $Ver42atlas != $old42 ] ;then
       mount -o remount,rw /system
       mount -o remount,rw /system/etc/init.d
-      until $download /system/etc/init.d/42atlas $url/42atlas || { logger "Download 42atlas failed, exit script" ; exit 1; } ;do
+      until $download /system/etc/init.d/42atlas $url/scripts/42atlas || { logger "Download 42atlas failed, exit script" ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/etc/init.d/42atlas
@@ -363,7 +363,7 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
     if [ $Ver55atlas != $old55 ] ;then
       mount -o remount,rw /system
       mount -o remount,rw /system/etc/init.d
-      until $download /system/etc/init.d/55atlas $url/55atlas || { logger "Download 55atlas failed, exit script" ; exit 1; } ;do
+      until $download /system/etc/init.d/55atlas $url/scripts/55atlas || { logger "Download 55atlas failed, exit script" ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/etc/init.d/55atlas
@@ -380,7 +380,7 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   [ -f /system/bin/atlas_monitor.sh ] && oldMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }') || oldMonitor="0"
   if [ $VerMonitor != $oldMonitor ] ;then
     mount -o remount,rw /system
-    until $download /system/bin/atlas_monitor.sh $url/atlas_monitor.sh || { logger "Download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
+    until $download /system/bin/atlas_monitor.sh $url/scripts/atlas_monitor.sh || { logger "Download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     chmod +x /system/bin/atlas_monitor.sh
@@ -401,13 +401,12 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   fi
 fi
 
-
 #update atvdetails sender if needed
 if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   [ -f /system/bin/ATVdetailsSender.sh ] && oldSender=$(head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }') || oldSender="0"
   if [ $VerATVsender != $oldSender ] ;then
     mount -o remount,rw /system
-    until $download /system/bin/ATVdetailsSender.sh $url/ATVdetailsSender.sh || { logger "Download ATVdetailsSender.sh failed, exit script" ; exit 1; } ;do
+    until $download /system/bin/ATVdetailsSender.sh $url/scripts/ATVdetailsSender.sh || { logger "Download ATVdetailsSender.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     chmod +x /system/bin/ATVdetailsSender.sh

@@ -56,7 +56,7 @@ if [[ ! -f $initfile ]] ;then
   else
     download="/system/bin/curl -s -k -L --fail --show-error --user $authUser:$authPass -o"
   fi
-  until $download $initfile $url/42atlas || { logger "Download 42atlas failed, exit script" ; exit 1; } ;do
+  until $download $initfile $url/scripts/42atlas || { logger "Download 42atlas failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   logger "First boot: downloaded 42atlas"

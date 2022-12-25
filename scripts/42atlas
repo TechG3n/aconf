@@ -195,7 +195,7 @@ mount -o remount,rw /system/etc/init.d
 
 # add atlas.sh
   if [[ ! -f /system/bin/atlas.sh ]] ;then
-    until $download $url/atlas.sh || { logger "42atlas: download atlas.sh failed, exit script" ; exit 1; } ;do
+    until $download $url/scripts/atlas.sh || { logger "42atlas: download atlas.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
   fi
