@@ -95,7 +95,7 @@ fi
     sleep 2
   done
   chmod +x /system/bin/ATVdetailsSender.sh
-  logger "`ATVdetails sender installed"
+  logger "ATVdetails sender installed"
 
 mount -o remount,ro /system
 mount -o remount,ro /system/etc/init.d
