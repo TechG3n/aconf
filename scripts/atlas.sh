@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.0
+# version 2.1.1
 
 #Version checks
 Ver42atlas="1.0"
@@ -299,6 +299,16 @@ until ping -c1 8.8.8.8 >/dev/null 2>/dev/null || ping -c1 1.1.1.1 >/dev/null 2>/
 done
 echo "`date +%Y-%m-%d_%T` Internet connection available" >> $logfile
 
+# verify download credential file and set download
+if [[ ! -f /data/local/aconf_download ]] ;then
+  logger "File /data/local/aconf_download not found, exit script" && exit 1
+else
+  if [[ $aconf_user == "" ]] ;then
+    download="/system/bin/curl -s -k -L --fail --show-error -o"
+  else
+    download="/system/bin/curl -s -k -L --fail --show-error --user $aconf_user:$aconf_pass -o"
+  fi
+fi
 
 #download latest atlas.sh
 if [[ $(basename $0) != "atlas_new.sh" ]] ;then
@@ -316,17 +326,6 @@ if [[ $(basename $0) != "atlas_new.sh" ]] ;then
     mount -o remount,ro /system
     /system/bin/atlas_new.sh $@
     exit 1
-  fi
-fi
-
-# verify download credential file and set download
-if [[ ! -f /data/local/aconf_download ]] ;then
-  logger "File /data/local/aconf_download not found, exit script" && exit 1
-else
-  if [[ $aconf_user == "" ]] ;then
-    download="/system/bin/curl -s -k -L --fail --show-error -o"
-  else
-    download="/system/bin/curl -s -k -L --fail --show-error --user $aconf_user:$aconf_pass -o"
   fi
 fi
 

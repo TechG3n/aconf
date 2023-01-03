@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.0
+# version 1.1
 
 logfile="/sdcard/aconf.log"
 aconf_download="/data/local/aconf_download"
@@ -195,11 +195,12 @@ mount -o remount,rw /system/etc/init.d
 
 # add atlas.sh
   if [[ ! -f /system/bin/atlas.sh ]] ;then
-    until $download $url/scripts/atlas.sh || { logger "42atlas: download atlas.sh failed, exit script" ; exit 1; } ;do
+    until $download /system/bin/atlas.sh $url/scripts/atlas.sh || { logger "42atlas: download atlas.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
   fi
   chmod +x /system/bin/atlas.sh
+  logger "42atlas: dowloaded atlas.sh"
 
 # download versions file
   until $download $aconf_versions $url/versions || { logger "42atlas: download versions file failed, exit script"; exit 1; } ;do
@@ -211,7 +212,7 @@ mount -o remount,rw /system/etc/init.d
 # add gapps to be installed
   if [[ ! $(pm list packages android.vending) ]] ;then
     install_gapps
-    logger "42atlas: gapps downloaded and set to be installed"
+    logger "42atlas: downloaded gapps and set to be installed"
   fi
 
 #default stuff from mad rom, needed? doubt it will hurt
