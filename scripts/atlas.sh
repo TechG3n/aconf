@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.1
+# version 2.1.2
 
 #Version checks
 Ver42atlas="1.0"
@@ -22,9 +22,9 @@ aconf_versions="/data/local/aconf_versions"
 [[ -f /data/local/aconf_download ]] && url=$(grep url /data/local/aconf_download | awk -F "=" '{ print $NF }')
 [[ -f /data/local/aconf_download ]] && aconf_user=$(grep authUser /data/local/aconf_download | awk -F "=" '{ print $NF }')
 [[ -f /data/local/aconf_download ]] && aconf_pass=$(grep authPass /data/local/aconf_download | awk -F "=" '{ print $NF }')
-discord_webhook=$(grep 'discord_webhook' $aconf_versions | awk -F "=" '{ print $NF }')
+discord_webhook=$(grep 'discord_webhook' $aconf_versions | awk -F "=" '{ print $NF }' | sed -e 's/^"//' -e 's/"$//')
 if [[ -z $discord_webhook ]] ;then
-  discord_webhook=$(grep discord_webhook /data/local/aconf_download | awk -F "=" '{ print $NF }')
+  discord_webhook=$(grep discord_webhook /data/local/aconf_download | awk -F "=" '{ print $NF }' | sed -e 's/^"//' -e 's/"$//')
 fi
 
 if [[ -f /data/local/tmp/atlas_config.json ]] ;then
