@@ -200,14 +200,14 @@ mount -o remount,rw /system/etc/init.d
     done
   fi
   chmod +x /system/bin/atlas.sh
-  logger "42atlas: dowloaded atlas.sh"
+  logger "42atlas: downloaded atlas.sh"
 
 # download versions file
   until $download $aconf_versions $url/versions || { logger "42atlas: download versions file failed, exit script"; exit 1; } ;do
     sleep 2
   done
   dos2unix $aconf_versions
-  logger "42atlas: dowloaded versions file"
+  logger "42atlas: downloaded versions file"
 
 # add gapps to be installed
   if [[ ! $(pm list packages android.vending) ]] ;then
