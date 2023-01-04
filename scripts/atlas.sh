@@ -1,8 +1,8 @@
 #!/system/bin/sh
-# version 2.1.6
+# version 2.1.7
 
 #Version checks
-Ver42atlas="1.1"
+Ver42atlas="1.2"
 Ver55atlas="1.0"
 VerMonitor="3.2.2"
 VerATVsender="1.7.3"
@@ -34,7 +34,7 @@ else
   if [[ -f /data/data/de.grennith.rgc.remotegpscontroller/shared_prefs/de.grennith.rgc.remotegpscontroller_preferences.xml ]] ;then
     origin=$(grep -w 'websocket_origin' $rgcconf | sed -e 's/    <string name="websocket_origin">\(.*\)<\/string>/\1/')
   else
-    echo "`date +%Y-%m-%d_%T` Cannot find origin, that can't be right" >> $logfile
+    echo "`date +%Y-%m-%d_%T` atlas.sh: cannot find origin, that can't be right" >> $logfile
   fi
 fi
 
@@ -43,7 +43,7 @@ exec 2>> $logfile
 
 # add atlas.sh command to log
 echo "" >> $logfile
-echo "`date +%Y-%m-%d_%T` ## Executing $(basename $0) $@" >> $logfile
+echo "`date +%Y-%m-%d_%T` atlas.sh: executing $(basename $0) $@" >> $logfile
 # echo "`date +%Y-%m-%d_%T` download folder set to $url, user is $aconf_user with pass $aconf_pass" >> $logfile
 
 
@@ -52,15 +52,19 @@ echo "`date +%Y-%m-%d_%T` ## Executing $(basename $0) $@" >> $logfile
 # logger
 logger() {
 if [[ ! -z $discord_webhook ]] ;then
-  echo "`date +%Y-%m-%d_%T` $1" >> $logfile
-  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas.sh\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
+  echo "`date +%Y-%m-%d_%T` atlas.sh: $1" >> $logfile
+  if [[ ! -z $origin ]] ;then
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas.sh\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
+  else
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas.sh\", \"content\": \" $origin\: $1 \"}"  $discord_webhook &>/dev/null
+  fi
 else
-  echo "`date +%Y-%m-%d_%T` $1" >> $logfile
+  echo "`date +%Y-%m-%d_%T` atlas.sh: $1" >> $logfile
 fi
 }
 
 reboot_device(){
-logger "atlas.sh: rebooting device"
+logger "rebooting device"
 sleep 2
 /system/bin/reboot
 }
@@ -76,26 +80,26 @@ install_atlas(){
 mount -o remount,rw /system
 mount -o remount,rw /system/etc/init.d
 if [ ! -f /system/etc/init.d/42atlas ] ;then
-  until $download /system/etc/init.d/55atlas $url/scripts/55atlas || { logger "atlas.sh: download 55atlas failed, exit script" ; exit 1; } ;do
+  until $download /system/etc/init.d/55atlas $url/scripts/55atlas || { logger "download 55atlas failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/etc/init.d/55atlas
-  logger "atlas.sh: 55atlas installed"
+  logger "55atlas installed"
 fi
 
 # install atlas monitor
-  until $download /system/bin/atlas_monitor.sh $url/scripts/atlas_monitor.sh || { logger "atlas.sh: download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
+  until $download /system/bin/atlas_monitor.sh $url/scripts/atlas_monitor.sh || { logger "download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/atlas_monitor.sh
-  logger "atlas.sh: atlas monitor installed"
+  logger "atlas monitor installed"
 
 # install ATVdetails sender
-  until $download /system/bin/ATVdetailsSender.sh $url/scripts/ATVdetailsSender.sh || { logger "atlas.sh: download ATVdetailsSender.sh failed, exit script" ; exit 1; } ;do
+  until $download /system/bin/ATVdetailsSender.sh $url/scripts/ATVdetailsSender.sh || { logger "download ATVdetailsSender.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/ATVdetailsSender.sh
-  logger "atlas.sh: ATVdetails sender installed"
+  logger "atvdetails sender installed"
 
 mount -o remount,ro /system
 mount -o remount,ro /system/etc/init.d
@@ -106,7 +110,7 @@ aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF
 
 # download atlas
 /system/bin/rm -f /sdcard/Download/atlas.apk
-until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "atlas.sh: download atlas failed, exit script" ; exit 1; } ;do
+until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
   sleep 2
 done
 
@@ -116,7 +120,7 @@ if [ -f "$pdconf" ] ;then
   chmod 660 $pdconf
   chown $puser:$puser $pdconf
   am force-stop com.mad.pogodroid
-  logger "atlas.sh: pogodroid disabled"
+  logger "pogodroid disabled"
   # disable pd autoupdate
   touch /sdcard/disableautopogodroidupdate
 fi
@@ -131,7 +135,7 @@ pm clear com.nianticlabs.pokemongo
 # Install atlas
 /system/bin/pm install -r /sdcard/Download/atlas.apk
 /system/bin/rm -f /sdcard/Download/atlas.apk
-logger "atlas.sh: atlas installed"
+logger "atlas installed"
 
 # Grant su access + settings
 auid="$(dumpsys package com.pokemod.atlas | grep userId | awk -F'=' '{print $2}')"
@@ -139,7 +143,7 @@ magisk --sqlite "DELETE from policies WHERE package_name='com.pokemod.atlas'"
 magisk --sqlite "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES($auid,'com.pokemod.atlas',2,0,1,0)"
 pm grant com.pokemod.atlas android.permission.READ_EXTERNAL_STORAGE
 pm grant com.pokemod.atlas android.permission.WRITE_EXTERNAL_STORAGE
-logger "atlas.sh: atlas granted su and settings set"
+logger "atlas granted su and settings set"
 
 # download atlas config file and adjust orgin to rgc setting
 install_config
@@ -160,16 +164,16 @@ reboot=1
 ## Send final webhook
 # discord_config_wh=$(grep 'discord_webhook' $aconf_versions | awk -F "=" '{ print $NF }')
 ip=$(ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
-logger "atlas.sh: new atlas device configured. Origin: $origin , IP: $ip"
+logger "new atlas device configured. IP: $ip"
 
 }
 
 install_config(){
-until $download /data/local/tmp/atlas_config.json $url/atlas_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/atlas_config.json $url/atlas_config.json" >> $logfile ; logger "atlas.sh: download atlas config file failed, exit script" ; exit 1; } ;do
+until $download /data/local/tmp/atlas_config.json $url/atlas_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/atlas_config.json $url/atlas_config.json" >> $logfile ; logger "download atlas config file failed, exit script" ; exit 1; } ;do
   sleep 2
 done
 sed -i 's,dummy,'$origin',g' $aconf
-logger "atlas.sh: atlas config installed, deviceName $origin"
+logger "atlas config installed"
 }
 
 update_all(){
@@ -179,9 +183,9 @@ ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | s
 aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
 if [[ $pinstalled != $pversions ]] ;then
-  logger "atlas.sh: New pogo version detected, $pinstalled=>$pversions"
+  logger "new pogo version detected, $pinstalled=>$pversions"
   /system/bin/rm -f /sdcard/Download/pogo.apk
-  until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "atlas.sh: download pogo failed, exit script" ; exit 1; } ;do
+  until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "download pogo failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   # set pogo to be installed
@@ -192,9 +196,9 @@ else
 fi
 
 if [ v$ainstalled != $aversions ] ;then
-  logger "atlas.sh: new atlas version detected, $ainstalled=>$aversions"
+  logger "new atlas version detected, $ainstalled=>$aversions"
   /system/bin/rm -f /sdcard/Download/atlas.apk
-  until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "atlas.sh: download atlas failed, exit script" ; exit 1; } ;do
+  until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   # set atlas to be installed
@@ -209,14 +213,14 @@ if [ ! -z "$atlas_install" ] && [ ! -z "$pogo_install" ] ;then
   if [ "$atlas_install" = "install" ] ;then
     Logger "Updating atlas"
     # install atlas
-    /system/bin/pm install -r /sdcard/Download/atlas.apk || { logger "atlas.sh: install atlas failed, downgrade perhaps? Exit script" ; exit 1; }
+    /system/bin/pm install -r /sdcard/Download/atlas.apk || { logger "install atlas failed, downgrade perhaps? Exit script" ; exit 1; }
     /system/bin/rm -f /sdcard/Download/atlas.apk
     reboot=1
   fi
   if [ "$pogo_install" = "install" ] ;then
-    logger "atlas.sh: updating pogo"
+    logger "updating pogo"
     # install pogo
-    /system/bin/pm install -r /sdcard/Download/pogo.apk || { logger "atlas.sh: install pogo failed, downgrade perhaps? Exit script" ; exit 1; }
+    /system/bin/pm install -r /sdcard/Download/pogo.apk || { logger "install pogo failed, downgrade perhaps? Exit script" ; exit 1; }
     /system/bin/rm -f /sdcard/Download/pogo.apk
     reboot=1
   fi
@@ -240,7 +244,7 @@ if [ -f "$rgcconf" ] ;then
     touch /sdcard/disableautorgcupdate
     # kill rgc
     am force-stop de.grennith.rgc.remotegpscontroller
-    logger "atlas.sh: disabled rgc"
+    logger "disabled rgc"
   fi
   if [[ $rgccheck == "on" ]] && [[ $rgcstatus == "false" ]] ;then
     # enable rgc
@@ -250,7 +254,7 @@ if [ -f "$rgcconf" ] ;then
     chown $ruser:$ruser $rgcconf
     # start rgc
     monkey -p de.grennith.rgc.remotegpscontroller 1
-    logger "atlas.sh: enabled and started rgc"
+    logger "enabled and started rgc"
   fi
 fi
 }
@@ -259,13 +263,13 @@ downgrade_pogo(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
 pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 if [[ $pinstalled != $pversions ]] ;then
-  until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "atlas.sh: download pogo failed, exit script" ; exit 1; } ;do
+  until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "download pogo failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   /system/bin/pm uninstall com.nianticlabs.pokemongo
   /system/bin/pm install -r /sdcard/Download/pogo.apk
   /system/bin/rm -f /sdcard/Download/pogo.apk
-  logger "atlas.sh: pogo removed and installed, now $pversions"
+  logger "pogo removed and installed, now $pversions"
 else
   echo "`date +%Y-%m-%d_%T` atlas.sh: pogo version correct, proceed" >> $logfile
 fi
@@ -287,7 +291,7 @@ else
   logcat -d > /sdcard/logcat.txt
   curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"logcat.txt for $origin\"}" -F "file1=@/sdcard/logcat.txt" $webhook &>/dev/null
   rm -f /sdcard/logcat.txt
-  echo "`date +%Y-%m-%d_%T` Sending logs to discord" >> $logfile
+  echo "`date +%Y-%m-%d_%T` atlas.sh: sending logs to discord" >> $logfile
 fi
 }
 
@@ -301,7 +305,7 @@ echo "`date +%Y-%m-%d_%T` atlas.sh: internet connection available" >> $logfile
 
 # verify download credential file and set download
 if [[ ! -f /data/local/aconf_download ]] ;then
-  logger "atlas.sh: file /data/local/aconf_download not found, exit script" && exit 1
+  logger "file /data/local/aconf_download not found, exit script" && exit 1
 else
   if [[ $aconf_user == "" ]] ;then
     download="/system/bin/curl -s -k -L --fail --show-error -o"
@@ -314,13 +318,13 @@ fi
 if [[ $(basename $0) != "atlas_new.sh" ]] ;then
   mount -o remount,rw /system
   oldsh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
-  until $download /system/bin/atlas_new.sh $url/scripts/atlas.sh || { logger "atlas.sh: download atlas.sh failed, exit script" ; exit 1; } ;do
+  until $download /system/bin/atlas_new.sh $url/scripts/atlas.sh || { logger "download atlas.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/atlas_new.sh
   newsh=$(head -2 /system/bin/atlas_new.sh | grep '# version' | awk '{ print $NF }')
   if [[ $oldsh != $newsh ]] ;then
-    logger "atlas.sh: atlas.sh updated $oldsh=>$newsh, restarting script"
+    logger "atlas.sh updated $oldsh=>$newsh, restarting script"
 #   folder=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
     cp /system/bin/atlas_new.sh /system/bin/atlas.sh
     mount -o remount,ro /system
@@ -330,7 +334,7 @@ if [[ $(basename $0) != "atlas_new.sh" ]] ;then
 fi
 
 # download latest version file
-until $download $aconf_versions $url/versions || { echo "`date +%Y-%m-%d_%T` $download $aconf_versions $url/versions" >> $logfile ; logger "atlas.sh: download atlas versions file failed, exit script" ; exit 1; } ;do
+until $download $aconf_versions $url/versions || { echo "`date +%Y-%m-%d_%T` $download $aconf_versions $url/versions" >> $logfile ; logger "download atlas versions file failed, exit script" ; exit 1; } ;do
   sleep 2
 done
 dos2unix $aconf_versions
@@ -343,14 +347,14 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
     if [ $Ver42atlas != $old42 ] ;then
       mount -o remount,rw /system
       mount -o remount,rw /system/etc/init.d
-      until $download /system/etc/init.d/42atlas $url/scripts/42atlas || { logger "atlas.sh: download 42atlas failed, exit script" ; exit 1; } ;do
+      until $download /system/etc/init.d/42atlas $url/scripts/42atlas || { logger "download 42atlas failed, exit script" ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/etc/init.d/42atlas
       mount -o remount,ro /system
       mount -o remount,ro /system/etc/init.d
       new42=$(head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }')
-      logger "atlas.sh: 42atlas updated $old42=>$new42"
+      logger "42atlas updated $old42=>$new42"
     fi
   fi
 fi
@@ -362,14 +366,14 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
     if [ $Ver55atlas != $old55 ] ;then
       mount -o remount,rw /system
       mount -o remount,rw /system/etc/init.d
-      until $download /system/etc/init.d/55atlas $url/scripts/55atlas || { logger "atlas.sh: download 55atlas failed, exit script" ; exit 1; } ;do
+      until $download /system/etc/init.d/55atlas $url/scripts/55atlas || { logger "download 55atlas failed, exit script" ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/etc/init.d/55atlas
       mount -o remount,ro /system
       mount -o remount,ro /system/etc/init.d
       new55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
-      logger "atlas.sh: 55atlas updated $old55=>$new55"
+      logger "55atlas updated $old55=>$new55"
     fi
   fi
 fi
@@ -379,13 +383,13 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   [ -f /system/bin/atlas_monitor.sh ] && oldMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }') || oldMonitor="0"
   if [ $VerMonitor != $oldMonitor ] ;then
     mount -o remount,rw /system
-    until $download /system/bin/atlas_monitor.sh $url/scripts/atlas_monitor.sh || { logger "atlas.sh: download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
+    until $download /system/bin/atlas_monitor.sh $url/scripts/atlas_monitor.sh || { logger "download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     chmod +x /system/bin/atlas_monitor.sh
     mount -o remount,ro /system
     newMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }')
-    logger "atlas.sh: atlas monitor updated $oldMonitor => $newMonitor"
+    logger "atlas monitor updated $oldMonitor => $newMonitor"
 
     # restart atlas monitor
     if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/atlas_monitor.sh ] ;then
@@ -394,7 +398,7 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
         kill -9 $checkMonitor
         sleep 2
         /system/bin/atlas_monitor.sh >/dev/null 2>&1 &
-        logger "atlas.sh: atlas monitor restarted"
+        logger "atlas monitor restarted"
       fi
     fi
   fi
@@ -405,13 +409,13 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   [ -f /system/bin/ATVdetailsSender.sh ] && oldSender=$(head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }') || oldSender="0"
   if [ $VerATVsender != $oldSender ] ;then
     mount -o remount,rw /system
-    until $download /system/bin/ATVdetailsSender.sh $url/scripts/ATVdetailsSender.sh || { logger "atlas.sh: download ATVdetailsSender.sh failed, exit script" ; exit 1; } ;do
+    until $download /system/bin/ATVdetailsSender.sh $url/scripts/ATVdetailsSender.sh || { logger "download ATVdetailsSender.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     chmod +x /system/bin/ATVdetailsSender.sh
     mount -o remount,ro /system
     newSender=$(head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }')
-    logger "atlas.sh: ATVdetails sender updated $oldSender => $newSender"
+    logger "atvdetails sender updated $oldSender => $newSender"
 
     # restart ATVdetails sender
     if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/ATVdetailsSender.sh ] ;then
@@ -421,7 +425,7 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
         sleep 2
       fi
       /system/bin/ATVdetailsSender.sh >/dev/null 2>&1 &
-      logger "atlas.sh: ATVdetails sender (re)started"
+      logger "atvdetails sender (re)started"
     fi
   fi
 fi
@@ -429,7 +433,7 @@ fi
 
 # prevent aconf causing reboot loop. Add bypass ??
 if [ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ] ;then
-  logger "atlas.sh: device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"
+  logger "device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"
   exit 1
 fi
 
@@ -437,14 +441,14 @@ fi
 if [[ $origin != "" ]] ;then
   if [ $(cat /system/build.prop | grep net.hostname | wc -l) = 0 ]; then
     mount -o remount,rw /system
-    logger "atlas.sh: no hostname set, setting it to $origin"
+    logger "no hostname set, setting it to $origin"
     echo "net.hostname=$origin" >> /system/build.prop
     mount -o remount,ro /system
   else
     hostname=$(grep net.hostname /system/build.prop | awk 'BEGIN { FS = "=" } ; { print $2 }')
     if [[ $hostname != $origin ]] ;then
       mount -o remount,rw /system
-      logger "atlas.sh: changing hostname, from $hostname to $origin"
+      logger "changing hostname, from $hostname to $origin"
       sed -i -e "s/^net.hostname=.*/net.hostname=$origin/g" /system/build.prop
       mount -o remount,ro /system
     fi
@@ -483,15 +487,15 @@ if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsu
   checkSender=$(pgrep -f /system/bin/ATVdetailsSender.sh)
   if [ -z $checkSender ] ;then
     /system/bin/ATVdetailsSender.sh >/dev/null 2>&1 &
-    echo "`date +%Y-%m-%d_%T` atlas.sh: ATVdetails sender started" >> $logfile
+    echo "`date +%Y-%m-%d_%T` atlas.sh: atvdetails sender started" >> $logfile
   fi
 fi
 
 # check atlas running
 atlas_check=$(ps | grep com.pokemod.atlas:mapping | awk '{print $9}')
-if [[ -z $atlas_check ]] ;then
+if [[ -z $atlas_check ]] && [[ -f /data/local/tmp/atlas_config.json ]] ;then
   am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
-  logger "atlas.sh: atlas not running at execution of atlas.sh, starting it"
+  logger "atlas not running at execution of atlas.sh, starting it"
 fi
 
 for i in "$@" ;do
