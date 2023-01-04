@@ -1,11 +1,11 @@
 #!/system/bin/sh
-# version 2.1.7
+# version 2.1.8
 
 #Version checks
-Ver42atlas="1.2"
+Ver42atlas="1.3"
 Ver55atlas="1.0"
 VerMonitor="3.2.2"
-VerATVsender="1.7.3"
+VerATVsender="1.7.4"
 
 #Create logfile
 if [ ! -e /sdcard/aconf.log ] ;then
@@ -51,12 +51,12 @@ echo "`date +%Y-%m-%d_%T` atlas.sh: executing $(basename $0) $@" >> $logfile
 
 # logger
 logger() {
-if [[ ! -z $discord_webhook ]] ;then
+if [[ -z $discord_webhook ]] ;then
   echo "`date +%Y-%m-%d_%T` atlas.sh: $1" >> $logfile
   if [[ ! -z $origin ]] ;then
     curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas.sh\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
   else
-    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas.sh\", \"content\": \" $origin\: $1 \"}"  $discord_webhook &>/dev/null
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas.sh\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
   fi
 else
   echo "`date +%Y-%m-%d_%T` atlas.sh: $1" >> $logfile
