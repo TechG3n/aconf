@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.2.1
+# version 3.2.2
 
 # Monitor by Oldmole && bbdoc
 
@@ -73,6 +73,8 @@ do
 		[[ $( awk '/./{line=$0} END{print line}' $logfile | grep 'No internet' | wc -l) != 1 ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] No internet, pay the bill?" >> $logfile
 		sleep 60
 	done
+
+	[[ -z $origin ]] && origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
 
         updatecheck=$(($updatecheck+1))
         if [[ $updatecheck -gt $update_check ]] ;then

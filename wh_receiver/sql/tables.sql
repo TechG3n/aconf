@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `ATVsummary` (
   `productmodel` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `atlasSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `55atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `42atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `monitor` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `whversion` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pogo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -89,6 +90,7 @@ CREATE TABLE IF NOT EXISTS `version` (
 
 
 ALTER TABLE ATVsummary
+ADD COLUMN IF NOT EXISTS `42atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `55atlas`,
 ADD COLUMN IF NOT EXISTS `reboot` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS `authBearer` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS `token` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -99,4 +101,4 @@ ADD COLUMN IF NOT EXISTS `onBoot` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT
 
 -- update version
 INSERT IGNORE INTO version values ('atlas_atvdetails',1);
-UPDATE version set version = 4 where version.key = 'atlas_atvdetails';
+UPDATE version set version = 5 where version.key = 'atlas_atvdetails';

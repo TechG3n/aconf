@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.7.2
+# version 1.7.3
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -29,6 +29,7 @@ while true
     productmodel=$(getprop ro.product.model)
     atlasSh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
     atlas55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
+    atlas42=$(head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
     monitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }')
     whversion=$([ -f /system/bin/ATVdetailsSender.sh ] && head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
@@ -85,6 +86,7 @@ while true
 
 # corrections
 [[ -z $temperature ]] && temperature=0
+[[ -z $cpuPogoPct ]] && cpuPogoPct=0
 
 #send data
     curl -k -X POST $atvdetails_receiver_host:$atvdetails_receiver_port/webhook -H "Accept: application/json" -H "Content-Type: application/json" --data-binary @- <<DATA
@@ -97,6 +99,7 @@ while true
     "productmodel": "${productmodel}",
     "atlasSh": "${atlasSh}",
     "atlas55": "${atlas55}",
+    "atlas42": "${atlas42}",
     "monitor": "${monitor}",
     "whversion": "${whversion}",
     "pogo": "${pogo}",
