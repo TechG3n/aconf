@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.7.4
+# version 1.7.5
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -28,9 +28,9 @@ while true
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
     atlasSh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
-    atlas55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
-    atlas42=$(head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
-    monitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }')
+    atlas55=$([ -f /system/etc/init.d/55atlas ] && head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
+    atlas42=$([ -f /system/etc/init.d/42atlas ] && head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
+    monitor=$([ -f /system/bin/atlas_monitor.sh ] && head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     whversion=$([ -f /system/bin/ATVdetailsSender.sh ] && head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
     atlas=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')

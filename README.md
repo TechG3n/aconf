@@ -10,7 +10,7 @@ Today it will/can:
 - automatic update of atlas, pogo and scripts
 
 ## Setup aconf server side
-1. Clone aconf, the directory must be reachable from the web  
+1. Clone aconf, the directory must be reachable from the web (and kept up-to-date)  
 2. It's highly recommended to add basic auth to the aconf directory. For more info see <https://ubiq.co/tech-blog/how-to-password-protect-directory-in-nginx/>  
 3. Copy versions.example and atlas_config.json.example and fill out the details. Make sure not to change `"deviceName":"dummy"`, deviceName will either be set to rgc origin in case of MAD atv ot it can be set after installation in atlas backend.  
 4. Add latest atlas version and supported pogo versions to apk folder, make sure to follow naming convention as per example below:  
