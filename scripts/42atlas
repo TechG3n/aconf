@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.3
+# version 1.4
 
 logfile="/sdcard/aconf.log"
 aconf_download="/data/local/aconf_download"
@@ -32,9 +32,9 @@ echo "`date +%Y-%m-%d_%T` 42atlas: internet connection available" >> $logfile
 
 # logger
 logger() {
-if [[ -z $discord_webhook ]] ;then
+if [[ ! -z $discord_webhook ]] ;then
   echo "`date +%Y-%m-%d_%T` 42atlas: $1" >> $logfile
-  if [[ ! -z $origin ]] ;then
+  if [[ -z $origin ]] ;then
     curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42atlas\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
   else
     curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42atlas\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
