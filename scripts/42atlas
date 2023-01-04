@@ -70,7 +70,7 @@ fi
 }
 
 repack_magisk(){
-logger "42atlas: Starting Magisk repackaging"
+logger "42atlas: starting magisk repackaging"
 monkey -p com.topjohnwu.magisk 1
 sleep 30
 input tap 39 42
@@ -88,19 +88,19 @@ sleep 2
 }
 
 install_magisk() {
-until $download /sdcard/magisk.zip $url_magisk || { logger "42atlas: Download magisk failed, exit script" ; exit 1; } ;do
+until $download /sdcard/magisk.zip $url_magisk || { logger "42atlas: download magisk failed, exit script" ; exit 1; } ;do
    sleep 5
 done
 mkdir -p /cache/recovery
 touch /cache/recovery/command
 echo '--update_package=/sdcard/magisk.zip' >> /cache/recovery/command
-logger "42atlas: Magisk set to be installed"
+logger "42atlas: magisk set to be installed"
 cachereboot=1
 }
 
 check_magisk(){
 if [[ -f /sbin/magisk ]] ;then
-  logger "42atlas: Setting Magisk permissions"
+  logger "42atlas: setting magisk permissions"
   [[ -f /sdcard/magisk.zip ]] && rm /sdcard/magisk.zip
   #check if shell has su root
   suid="$(id -u shell)"
@@ -108,20 +108,20 @@ if [[ -f /sbin/magisk ]] ;then
   if [[ "$suid" ]] && [[ "$pol" != 2 ]] ;then
     magisk --sqlite "DELETE from policies WHERE package_name='com.android.shell'"
     magisk --sqlite "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES($suid,'com.android.shell',2,0,1,1)"
-    logger "42atlas: Shell granted su root access"
+    logger "42atlas: shell granted su root access"
   fi
 fi
 # Install magisk.  If it already exists, check for an update
 if ! [[ -f /sbin/magisk ]] ;then
-  logger "42atlas: Preparing Magisk installation"
+  logger "42atlas: preparing magisk installation"
   touch /sdcard/magisk_repackage
   install_magisk
 elif ! magisk -c|grep -q "$magisk_ver"; then
-  logger "42atlas: Magisk update required"
+  logger "42atlas: magisk update required"
   touch /sdcard/magisk_update
   install_magisk
 elif [[ -f /sdcard/magisk_repackage ]] ;then
-  logger "42atlas: Magisk repackaging required"
+  logger "42atlas: magisk repackaging required"
   # After installation the manager may not be fully installed.  Wait for it to show then repackage
   until [[ $(pm list packages com.topjohnwu.magisk) ]] ;do
     sleep 10
@@ -131,28 +131,28 @@ elif [[ -f /sdcard/magisk_repackage ]] ;then
     sleep 10
     # if repackaging didnt take place in 200 seconds, try again
     if ! (( $((r%20)) )); then
-      logger "42atlas: Attempting to repackage Magisk"
+      logger "42atlas: attempting to repackage magisk"
       repack_magisk
     fi
     r=$((r+1))
   done
-  logger "42atlas: Magisk successfully repackaged"
+  logger "42atlas: magisk successfully repackaged"
   rm -f /sdcard/magisk_repackage
   sleep 10
 elif [[ -f /sdcard/magisk_update ]] ;then
   while [[ $(pm list packages com.topjohnwu.magisk) ]] ;do
     pm uninstall com.topjohnwu.magisk
-    logger "42atlas: Magisk uninstalled"
+    logger "42atlas: magisk uninstalled"
     sleep 3
   done
   rm -f /sdcard/magisk_update
 elif [[ $(pm list packages com.topjohnwu.magisk) ]] ;then
-  logger "42atlas: Magisk installed and not repackaged, this should not happen"
+  logger "42atlas: magisk installed and not repackaged, this should not happen"
 fi
 }
 
 install_gapps(){
-until /system/bin/curl -s -k -L --fail --show-error -o /sdcard/gapps.zip "$url_gapps" || { logger "42atlas: Download gapps failed, exit script" ; exit 1; } ;do
+until /system/bin/curl -s -k -L --fail --show-error -o /sdcard/gapps.zip "$url_gapps" || { logger "42atlas: download gapps failed, exit script" ; exit 1; } ;do
    sleep 5
 done
 
@@ -168,7 +168,7 @@ wait_for_internet
 
 # verify download credential file and set download
 if [[ ! -f $aconf_download ]] ;then
-  echo "`date +%Y-%m-%d_%T` File /data/local/aconf_download not found, exit script" >> $logfile && exit 1
+  echo "`date +%Y-%m-%d_%T` file /data/local/aconf_download not found, exit script" >> $logfile && exit 1
 else
   url=$(grep url $aconf_download | awk -F "=" '{ print $NF }')
   authUser=$(grep authUser $aconf_download | awk -F "=" '{ print $NF }')
@@ -222,14 +222,14 @@ mount -o remount,rw /system/etc/init.d
   ! settings get secure location_providers_allowed|grep -q gps && settings put secure location_providers_allowed +gps
 # time to reboot as magisk isn't installed
   if (( "$cachereboot" )) ;then
-    logger "42atlas: Rebooting into recovery mode for required installations"
+    logger "42atlas: rebooting into recovery mode for required installations"
     echo '--wipe_cache' >> /cache/recovery/command
     reboot recovery
   fi
 
 # Install Atlas
   if [[ ! -d /data/data/com.pokemod.atlas/ ]] ;then
-    logger "42atlas: Starting install of atlas"
+    logger "42atlas: starting install of atlas"
     /system/bin/atlas.sh -ia
   fi
 

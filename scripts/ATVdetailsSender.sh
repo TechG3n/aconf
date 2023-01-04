@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.7.1
+# version 1.7.2
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -82,6 +82,9 @@ while true
     m_noRDM=$(grep 'something wrong with RDM' $monitor_log | wc -l)
     m_noFocus=$(grep 'Something is not right! Pogo is not in focus. Killing pogo and clearing junk' $monitor_log | wc -l)
     m_unknown=$(grep 'Something happened! Some kind of error' $monitor_log | wc -l)
+
+# corrections
+[[ -z $temperature ]] && temperature=0
 
 #send data
     curl -k -X POST $atvdetails_receiver_host:$atvdetails_receiver_port/webhook -H "Accept: application/json" -H "Content-Type: application/json" --data-binary @- <<DATA

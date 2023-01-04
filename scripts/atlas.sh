@@ -1,11 +1,11 @@
 #!/system/bin/sh
-# version 2.1.4
+# version 2.1.5
 
 #Version checks
 Ver42atlas="1.1"
 Ver55atlas="1.0"
 VerMonitor="3.2.1"
-VerATVsender="1.7.1"
+VerATVsender="1.7.2"
 
 #Create logfile
 if [ ! -e /sdcard/aconf.log ] ;then
@@ -60,7 +60,7 @@ fi
 }
 
 reboot_device(){
-logger "atlas.sh: Rebooting device"
+logger "atlas.sh: rebooting device"
 sleep 2
 /system/bin/reboot
 }
@@ -188,7 +188,7 @@ if [[ $pinstalled != $pversions ]] ;then
   pogo_install="install"
 else
  pogo_install="skip"
- echo "`date +%Y-%m-%d_%T` atlas.sh: PoGo already on correct version" >> $logfile
+ echo "`date +%Y-%m-%d_%T` atlas.sh: pogo already on correct version" >> $logfile
 fi
 
 if [ v$ainstalled != $aversions ] ;then
@@ -265,7 +265,7 @@ if [[ $pinstalled != $pversions ]] ;then
   /system/bin/pm uninstall com.nianticlabs.pokemongo
   /system/bin/pm install -r /sdcard/Download/pogo.apk
   /system/bin/rm -f /sdcard/Download/pogo.apk
-  logger "atlas.sh: PoGo removed and installed, now $pversions"
+  logger "atlas.sh: pogo removed and installed, now $pversions"
 else
   echo "`date +%Y-%m-%d_%T` atlas.sh: pogo version correct, proceed" >> $logfile
 fi
