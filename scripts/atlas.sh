@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.11
+# version 2.1.12
 
 #Version checks
 Ver42atlas="1.4"
@@ -174,6 +174,19 @@ until $download /data/local/tmp/atlas_config.json $url/atlas_config.json || { ec
 done
 sed -i 's,dummy,'$origin',g' $aconf
 logger "atlas config installed"
+}
+
+update_atlas_config(){
+if [[ -z $origin ]] ;then
+  logger "will not replace atlas config file without deviceName being set"
+else
+  until $download /data/local/tmp/atlas_config.json $url/atlas_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/atlas_config.json $url/atlas_config.json" >> $logfile ; logger "download atlas config file failed, exit script" ; exit 1; } ;do
+    sleep 2
+  done
+  sed -i 's,dummy,'$origin',g' $aconf
+  am force-stop com.pokemod.atlas && am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+  logger "atlas config updated and atlas restarted"
+fi
 }
 
 update_all(){
@@ -503,10 +516,11 @@ for i in "$@" ;do
  -ia) install_atlas ;;
  -ic) install_config ;;
  -ua) update_all ;;
+ -uac) update_atlas_config ;;
  -dp) downgrade_pogo;;
  -cr) check_rgc;;
  -sl) send_logs;;
-# consider adding: downgrade atlas, update atlas config file, update donwload link
+# consider adding: downgrade atlas, update donwload link
  esac
 done
 
