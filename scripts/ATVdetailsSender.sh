@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.7.5
+# version 1.7.6
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -90,7 +90,7 @@ while true
 [[ -z $cpuApct ]] && cpuApct=0
 
 #send data
-    curl -k -X POST $atvdetails_receiver_host:$atvdetails_receiver_port/webhook -H "Accept: application/json" -H "Content-Type: application/json" --data-binary @- <<DATA
+    curl -k -X POST ${atvdetails_receiver_host}${atvdetails_receiver_port:+:atvdetails_receiver_port}/webhook -H "Accept: application/json" -H "Content-Type: application/json" --data-binary @- <<DATA
 {
     "WHType": "ATVDetails",
 
