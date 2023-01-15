@@ -9,11 +9,13 @@ update_check_interval=3600
 discord_webhook=""
 debug=false
 
-# Settings for atvdetails sender
+# Settings for atvdetails sender (port and basic auth, user+pass, are optional)
 useSender=false
 atvdetails_interval=900
 atvdetails_receiver_host=""
 atvdetails_receiver_port=""
+atvdetails_receiver_user=""
+atvdetails_receiver_pass=""
 
 # Settings for Monitor Webhooks
 recreate_atlas_config=true
