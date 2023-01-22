@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.4
+# version 1.5
 
 logfile="/sdcard/aconf.log"
 aconf_download="/data/local/aconf_download"
@@ -178,7 +178,7 @@ else
   authUser=$(grep authUser $aconf_download | awk -F "=" '{ print $NF }')
   authPass=$(grep authPass $aconf_download | awk -F "=" '{ print $NF }')
   discord_webhook=$(grep discord_webhook $aconf_download | awk -F "=" '{ print $NF }')
-  if [[ $aconf_user == "" ]] ;then
+  if [[ $authUser == "" ]] ;then
     download="/system/bin/curl -s -k -L --fail --show-error -o"
   else
     download="/system/bin/curl -s -k -L --fail --show-error --user $authUser:$authPass -o"

@@ -22,7 +22,12 @@ pokemongo_armeabi-v7a_0.235.0.apk
 
 ## ATV setup
 
-### Existing MAD ATV
+### 1. Adjusted MAD rom
+1. flash rom <https://github.com/dkmur/aconf/releases>  
+2. insert usb flasdrive containing `aconf_info` file (example in folder rom, make sure the file is called exactly that so NOT i.e. `aconf_info.txt`)  
+3. power on device and sit back watching you discord channel on progress of installation  
+
+### 2. Existing MAD ATV
 an example atlas install job can be found in jobs folder. Adjust url to point to your aconf directory and when used auth settings. Add job to MADmin and execute it. Don't worry if the job is reporting a failure, it's only because it includes a reboot and is taking too much time, but it does run successfully.
 
 `rgc=off` : setting this value to `on` will enable rgc on your devices on next reboot. Please be cautious as if you enable it and have a different version of PoGo in your Madmin packages, you will enter a boot loop as RGC will push the MAD version of the APK while this script will push the one in your directory. The recommandation is to keep if off during your migration, and only enable it when :
@@ -30,18 +35,12 @@ an example atlas install job can be found in jobs folder. Adjust url to point to
 - Your MAD instances have been restart in config only mode (using -cm).
 - You have removed 32bits and 64bits APKs from your Madmin Packages.
 
-### Default MAD rom flashed (no MADmin needed)
+### 3. Default MAD rom flashed (no MADmin needed)
 After flash power on atv so the mad scripts can install magisk and perform default settings. When that's done, after several reboots push the install of the atlas script manually by connecting to the device using ADB and using the following on command line (update `mydownloadfolder.com`to your own folder location + add your user and password ) :
 
 ```
 su -c 'file='/data/local/aconf_download' && touch $file  && echo url=https://mydownloadfolder.com > $file  && echo authUser='' >> $file && echo authPass='' >> $file && mount -o remount,rw /system && /system/bin/curl -L -o /system/bin/atlas.sh -k -s https://raw.githubusercontent.com/dkmur/aconf/master/atlas.sh && chmod +x /system/bin/atlas.sh && /system/bin/atlas.sh -ia'
 ```
-  
-### adjusted MAD rom
-on aconf github releases section you will find adjusted 64bit MAD roms to simplify install.
-1. flash rom  
-2. insert usb flasdrive containing `aconf_info` file (example in folder rom)  
-3. power on device and sit back watching you discord channel on progress of installation  
 
 ### Logs
 Logging and any failure while executing script is logged to /sdcard/aconf.log
