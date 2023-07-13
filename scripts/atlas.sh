@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.15
+# version 2.1.16
 
 #Version checks
 Ver42atlas="1.5"
@@ -509,6 +509,12 @@ atlas_check=$(ps | grep com.pokemod.atlas:mapping | awk '{print $9}')
 if [[ -z $atlas_check ]] && [[ -f /data/local/tmp/atlas_config.json ]] ;then
   am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
   logger "atlas not running at execution of atlas.sh, starting it"
+fi
+
+# check if playstore is enabled
+if [ "$(pm list packages -d com.android.vending)" = "package:com.android.vending" ] ;then
+  logger "Enabling Play Store"
+  pm enable com.android.vending
 fi
 
 for i in "$@" ;do
