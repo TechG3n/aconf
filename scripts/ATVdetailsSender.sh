@@ -42,6 +42,7 @@ while true
     ip=$(ifconfig wlan0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1 && ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
     ext_ip=$(curl -k -s https://ifconfig.me/)
     hostname=$(getprop net.hostname)
+    playstore=$(dumpsys package com.android.vending | grep versionName | head -n 1 | cut -d "=" -f 2 | cut -d " " -f 1)
 # atv performance
     memTot=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
     memFree=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
@@ -113,6 +114,7 @@ while true
     "ip": "${ip}",
     "ext_ip": "${ext_ip}",
     "hostname": "${hostname}",
+    "playstore": "${playstore}",
 
     "memTot": "${memTot}",
     "memFree": "${memFree}",
