@@ -590,7 +590,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\na.deviceName,\nifnull(a.ip,'no_data') as 'ip',\nifnull(a.arch,'no_data') as 'arch',\nifnull(a.productmodel,'no_data') as 'productmodel',\nifnull(a.pogo,'no_data') as 'pogo',\nifnull(a.atlas,'no_data') as 'atlas',\natlasSh as 'atlas.sh',\n55atlas as '55vm',\nwhversion as 'wh',\nmonitor,\ndiskSysPct,\ndiskDataPct,\nnumPogo,\ntemperature as 'temp',\nconvert_tz(timestamp,@@session.time_zone, '+00:00') as 'lastUpdate'\n-- timestamp as 'lastUpdate'\nFROM ATVsummary a\nORDER BY a.deviceName ASC\n",
+          "rawSql": "SELECT\na.deviceName,\nifnull(a.ip,'no_data') as 'ip',\nifnull(a.arch,'no_data') as 'arch',\nifnull(a.productmodel,'no_data') as 'productmodel',\nifnull(a.pogo,'no_data') as 'pogo',\nifnull(a.atlas,'no_data') as 'atlas',\natlasSh as 'atlas.sh',\n55atlas as '55vm',\nwhversion as 'wh',\nmonitor,\nplaystore,\ndiskSysPct,\ndiskDataPct,\nnumPogo,\ntemperature as 'temp',\nconvert_tz(timestamp,@@session.time_zone, '+00:00') as 'lastUpdate'\n-- timestamp as 'lastUpdate'\nFROM ATVsummary a\nORDER BY a.deviceName ASC\n",
           "refId": "A",
           "select": [
             [
