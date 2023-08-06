@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `ATVsummary` (
   `ext_ip` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `hostname` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `playstore` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `proxyinfo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `diskSysPct` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `diskDataPct` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `numPogo` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,

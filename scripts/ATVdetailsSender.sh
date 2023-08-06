@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.7.8
+# version 1.7.9
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -43,6 +43,7 @@ while true
     ext_ip=$(curl -k -s https://ifconfig.me/)
     hostname=$(getprop net.hostname)
     playstore=$(dumpsys package com.android.vending | grep versionName | head -n 1 | cut -d "=" -f 2 | cut -d " " -f 1)
+    proxyinfo=$(proxy=$(settings list global | grep "http_proxy=" | awk -F= '{ print $NF }'); [ -z "$proxy" ] || [ "$proxy" = ":0" ] && echo "none" || echo "$proxy")
 # atv performance
     memTot=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
     memFree=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
@@ -115,6 +116,7 @@ while true
     "ext_ip": "${ext_ip}",
     "hostname": "${hostname}",
     "playstore": "${playstore}",
+    "proxyinfo": "${proxyinfo}",
 
     "memTot": "${memTot}",
     "memFree": "${memFree}",
