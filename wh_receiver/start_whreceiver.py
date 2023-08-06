@@ -3,7 +3,7 @@
 #
 __author__ = "GhostTalker and Apple314"
 __copyright__ = "Copyright 2022, The GhostTalker project"
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 __status__ = "DEV"
 
 import os
@@ -151,6 +151,7 @@ def webhook():
         ext_ip = validate_string(request.json["ext_ip"])
         hostname = validate_string(request.json["hostname"])
         playstore = validate_string(request.json["playstore"])
+        proxyinfo = validate_string(request.json["proxyinfo"])
         diskSysPct = validate_string(request.json["diskSysPct"])
         diskDataPct = validate_string(request.json["diskDataPct"])
         RPL = validate_string(request.json["RPL"])
@@ -210,6 +211,7 @@ def webhook():
                 ext_ip, \
                 hostname, \
                 playstore, \
+                proxyinfo, \
                 diskSysPct, \
                 diskDataPct, \
                 whversion, \
@@ -219,7 +221,7 @@ def webhook():
                 token, \
                 email, \
                 rdmUrl, \
-                onBoot) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
+                onBoot) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
             ON DUPLICATE KEY UPDATE \
                 timestamp = VALUES(timestamp), \
                 deviceName = VALUES(deviceName), \
@@ -240,6 +242,7 @@ def webhook():
                 ext_ip = VALUES(ext_ip), \
                 hostname = VALUES(hostname), \
                 playstore = VALUES(playstore), \
+                proxyinfo = VALUES(proxyinfo), \
                 diskSysPct = VALUES(diskSysPct), \
                 diskDataPct = VALUES(diskDataPct), \
                 whversion = VALUES(whversion), \
@@ -251,7 +254,7 @@ def webhook():
                 rdmUrl = VALUES(rdmUrl), \
                 onBoot = VALUES(onBoot)"
 
-        data1 = (str(timestamp), str(deviceName), str(arch), str(productmodel), str(atlasSh), str(atlas55), str(atlas42), str(monitor), str(pogo), str(atlas), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(playstore), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo), str(reboot), str(authBearer), str(token), str(email), str(rdmUrl), str(onBoot) )
+        data1 = (str(timestamp), str(deviceName), str(arch), str(productmodel), str(atlasSh), str(atlas55), str(atlas42), str(monitor), str(pogo), str(atlas), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(playstore), str(proxyinfo), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo), str(reboot), str(authBearer), str(token), str(email), str(rdmUrl), str(onBoot) )
 
         insert_stmt2 = (
             "INSERT INTO ATVstats (timestamp, RPL, deviceName, temperature, memTot, memFree, memAv, memPogo, memAtlas, cpuSys, cpuUser, cpuL5, cpuL10, cpuL15, cpuPogoPct, cpuApct, diskSysPct, diskDataPct)"

@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `ATVsummary` (
   `ext_ip` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `hostname` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `playstore` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `proxyinfo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `diskSysPct` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `diskDataPct` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `numPogo` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -97,7 +98,9 @@ ADD COLUMN IF NOT EXISTS `authBearer` varchar(40) COLLATE utf8mb4_unicode_ci DEF
 ADD COLUMN IF NOT EXISTS `token` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS `email` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS `rdmUrl` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-ADD COLUMN IF NOT EXISTS `onBoot` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+ADD COLUMN IF NOT EXISTS `onBoot` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `playstore` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `proxyinfo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ;
 
 -- update version
