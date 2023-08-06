@@ -3,7 +3,7 @@
 #
 __author__ = "GhostTalker and Apple314"
 __copyright__ = "Copyright 2022, The GhostTalker project"
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 __status__ = "DEV"
 
 import os
@@ -211,7 +211,7 @@ def webhook():
                 ext_ip, \
                 hostname, \
                 playstore, \
-                proxyinfo, \    
+                proxyinfo, \
                 diskSysPct, \
                 diskDataPct, \
                 whversion, \
@@ -242,7 +242,7 @@ def webhook():
                 ext_ip = VALUES(ext_ip), \
                 hostname = VALUES(hostname), \
                 playstore = VALUES(playstore), \
-                proxyinfo = VALUES(proxyinfo), \ 
+                proxyinfo = VALUES(proxyinfo), \
                 diskSysPct = VALUES(diskSysPct), \
                 diskDataPct = VALUES(diskDataPct), \
                 whversion = VALUES(whversion), \
