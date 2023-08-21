@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.2.3
+# version 3.2.4
 
 # Monitor by Oldmole && bbdoc
 
@@ -11,6 +11,7 @@ pogodead=0
 deviceonline="0"
 emptycheck=9
 updatecheck=0
+gmolock=0
 
 source /data/local/aconf_versions
 export useMonitor
@@ -169,5 +170,21 @@ do
 		        [[ $useSender == "true" ]] && send_webhook "Unknown Error" "No action"
 		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: no clue what happend, but its not good\"}" $discord_webhook &>/dev/null
 	fi
+
+	#get count of gmo errors
+	gmocount=$(tail -n 200 /data/local/tmp/atlas.log | grep -E 'empty GMO|GMO failure|GMO with no contents|GMO that is completely empty' | wc -l)
+	if [ $gmocount -ge 15 ]; then
+		if [ $gmolock == 1 ]; then
+			#skip restart
+			gmolock=0
+		else
+			stop_pogo
+			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: GMO Error, restart pogo\"}" $discord_webhook &>/dev/null
+			gmolock=1
+		fi
+	else
+		gmolock=0
+	fi	
+
 	sleep $monitor_interval
 done
