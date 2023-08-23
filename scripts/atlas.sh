@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.19
+# version 2.1.20
 
 #Version checks
 Ver42atlas="1.5"

@@ -186,7 +186,7 @@ do
 		fi
 	else
 		gmolock=0
-	fi	
+	fi
 
 	sleep $monitor_interval
 done
