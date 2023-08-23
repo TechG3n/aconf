@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.2.5
+# version 3.2.6
 
 # Monitor by Oldmole && bbdoc
 
