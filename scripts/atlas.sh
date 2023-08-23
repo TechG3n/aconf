@@ -1,10 +1,10 @@
 #!/system/bin/sh
-# version 2.1.19
+# version 2.1.21
 
 #Version checks
 Ver42atlas="1.5"
 Ver55atlas="1.0"
-VerMonitor="3.2.4"
+VerMonitor="3.2.6"
 VerATVsender="1.7.9"
 
 #Create logfile

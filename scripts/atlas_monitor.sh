@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.2.4
+# version 3.2.6
 
 # Monitor by Oldmole && bbdoc
 
@@ -172,19 +172,22 @@ do
 	fi
 
 	#get count of gmo errors
-	gmocount=$(tail -n 200 /data/local/tmp/atlas.log | grep -E 'empty GMO|GMO failure|GMO with no contents|GMO that is completely empty' | wc -l)
-	if [ $gmocount -ge 15 ]; then
+	lastlog=$(tail -n 200 /data/local/tmp/atlas.log)
+	gmoerrcount=$(echo "$lastlog" | grep -E 'empty GMO|GMO failure|GMO with no contents|GMO that is completely empty' | wc -l)
+	successcount=$(echo "$lastlog" | grep -E 'Job executed successfully' | wc -l)
+	if [ $gmoerrcount -ge 15 ] && [ $gmoerrcount -ge $successcount ]; then
 		if [ $gmolock == 1 ]; then
 			#skip restart
 			gmolock=0
 		else
 			stop_pogo
-			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: GMO Error, restart pogo\"}" $discord_webhook &>/dev/null
+			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Found $gmoerrcount GMO Errors and $successcount successfull jobs, restarting Pogo" >> $logfile
+			[[ ! -z $discord_webhook ]] && [[ $gmo_errors != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: Found $gmoerrcount GMO Errors and $successcount successfull jobs, restart pogo\"}" $discord_webhook &>/dev/null
 			gmolock=1
 		fi
 	else
 		gmolock=0
-	fi	
+	fi
 
 	sleep $monitor_interval
 done
