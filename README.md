@@ -39,7 +39,7 @@ an example atlas install job can be found in jobs folder. Adjust url to point to
 After flash power on atv so the mad scripts can install magisk and perform default settings. When that's done, after several reboots push the install of the atlas script manually by connecting to the device using ADB and using the following on command line (update `mydownloadfolder.com`to your own folder location + add your user and password ) :
 
 ```
-su -c 'file='/data/local/aconf_download' && touch $file  && echo url=https://mydownloadfolder.com > $file  && echo authUser='' >> $file && echo authPass='' >> $file && mount -o remount,rw /system && /system/bin/curl -L -o /system/bin/atlas.sh -k -s https://raw.githubusercontent.com/dkmur/aconf/master/atlas.sh && chmod +x /system/bin/atlas.sh && /system/bin/atlas.sh -ia'
+su -c 'file='/data/local/aconf_download' && touch $file && echo url=https://sub.dom.com > $file && echo authUser='username' >> $file && echo authPass='password' >> $file && mount -o remount,rw /system && /system/bin/curl -s -k -L --fail --show-error --user username:password -o /system/bin/atlas.sh https://sub.dom.com/scripts/atlas.sh && chmod +x /system/bin/atlas.sh && mount -o remount,ro /system && /system/bin/atlas.sh -ia'
 ```
 
 ### Logs
