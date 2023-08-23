@@ -181,7 +181,8 @@ do
 			gmolock=0
 		else
 			stop_pogo
-			[[ ! -z $discord_webhook ]] && [[ $gmo_errors != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: GMO Error, restart pogo\"}" $discord_webhook &>/dev/null
+			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Found $gmoerrcount GMO Errors and $successcount successfull jobs, restarting Pogo" >> $logfile
+			[[ ! -z $discord_webhook ]] && [[ $gmo_errors != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: Found $gmoerrcount GMO Errors and $successcount successfull jobs, restart pogo\"}" $discord_webhook &>/dev/null
 			gmolock=1
 		fi
 	else
