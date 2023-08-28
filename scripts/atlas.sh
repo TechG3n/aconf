@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.21
+# version 2.1.22
 
 #Version checks
 Ver42atlas="1.5"
@@ -196,13 +196,18 @@ ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | s
 aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
 if [[ $pinstalled != $pversions ]] ;then
-  logger "new pogo version detected, $pinstalled=>$pversions"
-  /system/bin/rm -f /sdcard/Download/pogo.apk
-  until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "download pogo failed, exit script" ; exit 1; } ;do
-    sleep 2
-  done
-  # set pogo to be installed
-  pogo_install="install"
+  if [[ $(echo "$pinstalled" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') -gt $(echo "$pversions" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') ]]; then
+    #This happens if playstore autoupdate is on or mad+rgc aren't configured correctly
+    logger "pogo version is higher as it should, that shouldn't happen! ($pinstalled > $pversions)"
+    downgrade_pogo
+  else
+    logger "new pogo version detected, $pinstalled=>$pversions"
+    /system/bin/rm -f /sdcard/Download/pogo.apk
+    until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "download pogo failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    # set pogo to be installed
+    pogo_install="install"
 else
  pogo_install="skip"
  echo "`date +%Y-%m-%d_%T` atlas.sh: pogo already on correct version" >> $logfile
