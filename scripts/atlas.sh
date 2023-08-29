@@ -208,6 +208,7 @@ if [[ $pinstalled != $pversions ]] ;then
     done
     # set pogo to be installed
     pogo_install="install"
+  fi
 else
  pogo_install="skip"
  echo "`date +%Y-%m-%d_%T` atlas.sh: pogo already on correct version" >> $logfile
