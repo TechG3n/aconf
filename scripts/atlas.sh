@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.27
+# version 2.1.28
 
 #Version checks
 Ver42atlas="1.5"
@@ -216,12 +216,29 @@ fi
 
 if [ v$ainstalled != $aversions ] ;then
   logger "new atlas version detected, $ainstalled=>$aversions"
-  /system/bin/rm -f /sdcard/Download/atlas.apk
-  until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
-    sleep 2
-  done
-  # set atlas to be installed
-  atlas_install="install"
+  ver_atlas_md5=$(grep 'atlas_md5' $aconf_versions | awk -F "=" '{ print $NF }')
+  if [[ ! -z $atlas_md5 ]] ;then
+    inst_atlas_md5=$(md5sum /data/app/com.pokemod.atlas-2/base.apk)
+    if [[ $ver_atlas_md5 == $inst_atlas_md5 ]] ;then
+      logger "New version but same md5 - skip install"
+    else
+      logger "New version but same md5 - skip install"
+      /system/bin/rm -f /sdcard/Download/atlas.apk
+      until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+      # set atlas to be installed
+      atlas_install="install"
+    fi
+  else
+    logger "No md5 found, install new version regardless"
+    /system/bin/rm -f /sdcard/Download/atlas.apk
+    until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    # set atlas to be installed
+    atlas_install="install"
+  fi
 else
  atlas_install="skip"
  echo "`date +%Y-%m-%d_%T` atlas.sh: atlas already on correct version" >> $logfile
@@ -529,6 +546,7 @@ if [ "$(pm list packages -d com.android.vending)" = "package:com.android.vending
 fi
 
 # disable PlayIntegrity APK verification
+play_integrity=$(grep 'play_integrity' $aconf_versions | awk -F "=" '{ print $NF }')
 pintegrity=$(settings get global package_verifier_user_consent)
 if [[ $play_integrity != "false" ]] && [[ $pintegrity == 1 ]]; then
   settings put global package_verifier_user_consent -1
