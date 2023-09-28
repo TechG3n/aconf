@@ -451,7 +451,7 @@ fi
 
 
 # prevent aconf causing reboot loop. Add bypass ?? <- done :)
-if [[ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ]] && [[ $bypass_loopprotect != "true" ]] ;then
+if [[ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ]] && [[ $loop_protect_enabled != "false" ]] ;then
   logger "device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"
   exit 1
 fi

@@ -26,4 +26,4 @@ unable_check_status=true
 pogo_not_focused=false
 gmo_errors=true
 play_integrity=true
-bypass_loopprotect=false
+loop_protect_enabled=true
