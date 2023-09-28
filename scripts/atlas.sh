@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.25
+# version 2.1.27
 
 #Version checks
 Ver42atlas="1.5"
@@ -451,9 +451,14 @@ fi
 
 
 # prevent aconf causing reboot loop. Add bypass ?? <- done :)
-if [[ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ]] && [[ $loop_protect_enabled != "false" ]] ;then
-  logger "device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"
-  exit 1
+loop_protect_enabled=$(grep 'loop_protect_enabled' $aconf_versions | awk -F "=" '{ print $NF }')
+if [[ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ]] ;then
+  if [[ $loop_protect_enabled != "false" ]] ;then
+    logger "device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"
+    exit 1
+  else
+    logger "device rebooted over 20 times today, BUT loop protect is disabled, will continue - Don't forget to turn it back on!"
+  fi
 fi
 
 # set hostname = origin, wait till next reboot for it to take effect
@@ -528,7 +533,7 @@ pintegrity=$(settings get global package_verifier_user_consent)
 if [[ $play_integrity != "false" ]] && [[ $pintegrity == 1 ]]; then
   settings put global package_verifier_user_consent -1
   logger "disabled PlayIntegrity APK verification"
-fi  
+fi
 
 
 for i in "$@" ;do
