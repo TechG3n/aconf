@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.23
+# version 2.1.24
 
 #Version checks
 Ver42atlas="1.5"
@@ -523,6 +523,14 @@ if [ "$(pm list packages -d com.android.vending)" = "package:com.android.vending
   pm enable com.android.vending
 fi
 
+# disable PlayIntegrity APK verification
+pintegrity=$(settings get global package_verifier_user_consent)
+if [[ $play_integrity != "false" ]] && [[ $pintegrity == 1 ]]; then
+  settings put global package_verifier_user_consent -1
+  logger "disabled PlayIntegrity APK verification"
+fi  
+
+  
 for i in "$@" ;do
  case "$i" in
  -ia) install_atlas ;;
