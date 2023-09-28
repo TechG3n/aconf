@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.29
+# version 2.1.31
 
 #Version checks
 Ver42atlas="1.5"
@@ -218,11 +218,12 @@ if [ v$ainstalled != $aversions ] ;then
   logger "new atlas version detected, $ainstalled=>$aversions"
   ver_atlas_md5=$(grep 'atlas_md5' $aconf_versions | awk -F "=" '{ print $NF }')
   if [[ ! -z $ver_atlas_md5 ]] ;then
-    inst_atlas_md5=$(md5sum /data/app/com.pokemod.atlas-2/base.apk)
+    inst_atlas_md5=$(md5sum /data/app/com.pokemod.atlas-2/base.apk | awk '{print $1}')
     if [[ $ver_atlas_md5 == $inst_atlas_md5 ]] ;then
       logger "New version but same md5 - skip install"
+      atlas_install="skip"
     else
-      logger "New version but same md5 - skip install"
+      logger "New version, new md5 - start install"
       /system/bin/rm -f /sdcard/Download/atlas.apk
       until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
         sleep 2
