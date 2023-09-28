@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.27
+# version 2.1.31
 
 #Version checks
 Ver42atlas="1.5"
@@ -216,12 +216,30 @@ fi
 
 if [ v$ainstalled != $aversions ] ;then
   logger "new atlas version detected, $ainstalled=>$aversions"
-  /system/bin/rm -f /sdcard/Download/atlas.apk
-  until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
-    sleep 2
-  done
-  # set atlas to be installed
-  atlas_install="install"
+  ver_atlas_md5=$(grep 'atlas_md5' $aconf_versions | awk -F "=" '{ print $NF }')
+  if [[ ! -z $ver_atlas_md5 ]] ;then
+    inst_atlas_md5=$(md5sum /data/app/com.pokemod.atlas-2/base.apk | awk '{print $1}')
+    if [[ $ver_atlas_md5 == $inst_atlas_md5 ]] ;then
+      logger "New version but same md5 - skip install"
+      atlas_install="skip"
+    else
+      logger "New version, new md5 - start install"
+      /system/bin/rm -f /sdcard/Download/atlas.apk
+      until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+      # set atlas to be installed
+      atlas_install="install"
+    fi
+  else
+    logger "No md5 found, install new version regardless"
+    /system/bin/rm -f /sdcard/Download/atlas.apk
+    until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    # set atlas to be installed
+    atlas_install="install"
+  fi
 else
  atlas_install="skip"
  echo "`date +%Y-%m-%d_%T` atlas.sh: atlas already on correct version" >> $logfile
@@ -454,10 +472,10 @@ fi
 loop_protect_enabled=$(grep 'loop_protect_enabled' $aconf_versions | awk -F "=" '{ print $NF }')
 if [[ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ]] ;then
   if [[ $loop_protect_enabled != "false" ]] ;then
-    logger "device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"
+    logger "device reb00ted over 20 times today, atlas.sh signing out, see you tomorrow"
     exit 1
   else
-    logger "device rebooted over 20 times today, BUT loop protect is disabled, will continue - Don't forget to turn it back on!"
+    logger "device reb00ted over 20 times today, BUT loop protect is disabled, will continue - Don't forget to turn it back on!"
   fi
 fi
 
@@ -529,6 +547,7 @@ if [ "$(pm list packages -d com.android.vending)" = "package:com.android.vending
 fi
 
 # disable PlayIntegrity APK verification
+play_integrity=$(grep 'play_integrity' $aconf_versions | awk -F "=" '{ print $NF }')
 pintegrity=$(settings get global package_verifier_user_consent)
 if [[ $play_integrity != "false" ]] && [[ $pintegrity == 1 ]]; then
   settings put global package_verifier_user_consent -1
