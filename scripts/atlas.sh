@@ -7,6 +7,8 @@ Ver55atlas="1.0"
 VerMonitor="3.2.6"
 VerATVsender="1.7.9"
 
+android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
+
 #Create logfile
 if [ ! -e /sdcard/aconf.log ] ;then
     touch /sdcard/aconf.log
@@ -74,11 +76,37 @@ case "$(uname -m)" in
  armv8l)  arch="armeabi-v7a";;
 esac
 
-install_atlas(){
+mount_system_rw() {
+  if [ $android_version -ge 9 ]; then
+    # if a magisk module is installed that puts stuff under /system/etc, we're screwed, though.
+    # because then /system/etc ends up full of bindmounts.. and you can't place new files under it.
+    mount -o remount,rw /
+  else
+    mount -o remount,rw /system
+    mount -o remount,rw /system/etc/init.d
+  fi
+}
 
-# install 55atlas if 42atlas does not exist
-mount -o remount,rw /system
-mount -o remount,rw /system/etc/init.d
+mount_system_ro() {
+  if [ $android_version -ge 9 ]; then
+    mount -o remount,ro /
+  else
+    mount -o remount,ro /system
+    mount -o remount,ro /system/etc/init.d
+  fi
+}
+
+setup_initd_dir() {
+  if [ $android_version -ge 9 ]; then
+    mkdir -p /system/etc/init.d
+    chmod 755 /system/etc/init.d
+    chown root:root /system/etc/init.d
+  fi
+}
+
+install_atlas(){
+  mount_system_rw
+  setup_initd_dir
 if [ ! -f /system/etc/init.d/42atlas ] ;then
   until $download /system/etc/init.d/55atlas $url/scripts/55atlas || { logger "download 55atlas failed, exit script" ; exit 1; } ;do
     sleep 2
@@ -87,12 +115,34 @@ if [ ! -f /system/etc/init.d/42atlas ] ;then
   logger "55atlas installed"
 fi
 
+if [ $android_version -ge 9 ]; then
+    cat <<EOF > /system/etc/init/55atlas.rc
+on property:sys.boot_completed=1
+    exec_background u:r:init:s0 root root -- /system/etc/init.d/55atlas
+EOF
+    chown root:root /system/etc/init/55atlas.rc
+    chmod 644 /system/etc/init/55atlas.rc
+    logger "55atlas.rc installed"
+fi
+
 # install atlas monitor
   until $download /system/bin/atlas_monitor.sh $url/scripts/atlas_monitor.sh || { logger "download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/atlas_monitor.sh
   logger "atlas monitor installed"
+	
+
+if [ $android_version -ge 9 ]; then
+		cat <<EOF > /system/etc/init/atlas_monitor.rc
+on property:sys.boot_completed=1
+		exec_background u:r:init:s0 root root -- /system/bin/atlas_monitor.sh
+EOF
+		chown root:root /system/etc/init/atlas_monitor.rc
+		chmod 644 /system/etc/init/atlas_monitor.rc
+		logger "atlas_monitor.rc installed"
+
+fi
 
 # install ATVdetails sender
   until $download /system/bin/ATVdetailsSender.sh $url/scripts/ATVdetailsSender.sh || { logger "download ATVdetailsSender.sh failed, exit script" ; exit 1; } ;do
@@ -100,10 +150,7 @@ fi
   done
   chmod +x /system/bin/ATVdetailsSender.sh
   logger "atvdetails sender installed"
-
-mount -o remount,ro /system
-mount -o remount,ro /system/etc/init.d
-
+  mount_system_ro
 
 # get version
 aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
@@ -155,6 +202,10 @@ downgrade_pogo
 check_rgc
 
 # start atlas
+
+if [ $android_version -ge 9 ]; then
+am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+else
 am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
 sleep 15
 
@@ -184,9 +235,15 @@ else
     sleep 2
   done
   sed -i 's,dummy,'$origin',g' $aconf
+
+  if [ $android_version -ge 9 ]; then
+  am force-stop com.pokemod.atlas && am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+  else
   am force-stop com.pokemod.atlas && am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+  fi
   logger "atlas config updated and atlas restarted"
 fi
+
 }
 
 update_all(){
@@ -353,7 +410,7 @@ fi
 
 #download latest atlas.sh
 if [[ $(basename $0) != "atlas_new.sh" ]] ;then
-  mount -o remount,rw /system
+  mount_system_rw
   oldsh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
   until $download /system/bin/atlas_new.sh $url/scripts/atlas.sh || { logger "download atlas.sh failed, exit script" ; exit 1; } ;do
     sleep 2
@@ -364,7 +421,7 @@ if [[ $(basename $0) != "atlas_new.sh" ]] ;then
     logger "atlas.sh updated $oldsh=>$newsh, restarting script"
 #   folder=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
     cp /system/bin/atlas_new.sh /system/bin/atlas.sh
-    mount -o remount,ro /system
+    mount_system_ro
     /system/bin/atlas_new.sh $@
     exit 1
   fi
@@ -382,14 +439,13 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   if [[ -f /system/etc/init.d/42atlas ]] ;then
     old42=$(head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }')
     if [ $Ver42atlas != $old42 ] ;then
-      mount -o remount,rw /system
-      mount -o remount,rw /system/etc/init.d
+      mount_system_rw
+      setup_initd_dir
       until $download /system/etc/init.d/42atlas $url/scripts/42atlas || { logger "download 42atlas failed, exit script" ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/etc/init.d/42atlas
-      mount -o remount,ro /system
-      mount -o remount,ro /system/etc/init.d
+      mount_system_ro
       new42=$(head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }')
       logger "42atlas updated $old42=>$new42"
     fi
@@ -401,14 +457,13 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   if [[ -f /system/etc/init.d/55atlas ]] ;then
     old55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
     if [ $Ver55atlas != $old55 ] ;then
-      mount -o remount,rw /system
-      mount -o remount,rw /system/etc/init.d
+      mount_system_rw
+      setup_initd_dir
       until $download /system/etc/init.d/55atlas $url/scripts/55atlas || { logger "download 55atlas failed, exit script" ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/etc/init.d/55atlas
-      mount -o remount,ro /system
-      mount -o remount,ro /system/etc/init.d
+      mount_system_ro
       new55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
       logger "55atlas updated $old55=>$new55"
     fi
@@ -419,12 +474,12 @@ fi
 if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   [ -f /system/bin/atlas_monitor.sh ] && oldMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }') || oldMonitor="0"
   if [ $VerMonitor != $oldMonitor ] ;then
-    mount -o remount,rw /system
+    mount_system_rw
     until $download /system/bin/atlas_monitor.sh $url/scripts/atlas_monitor.sh || { logger "download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     chmod +x /system/bin/atlas_monitor.sh
-    mount -o remount,ro /system
+    mount_system_ro
     newMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }')
     logger "atlas monitor updated $oldMonitor => $newMonitor"
 
@@ -445,12 +500,12 @@ fi
 if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   [ -f /system/bin/ATVdetailsSender.sh ] && oldSender=$(head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }') || oldSender="0"
   if [ $VerATVsender != $oldSender ] ;then
-    mount -o remount,rw /system
+    mount_system_rw
     until $download /system/bin/ATVdetailsSender.sh $url/scripts/ATVdetailsSender.sh || { logger "download ATVdetailsSender.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     chmod +x /system/bin/ATVdetailsSender.sh
-    mount -o remount,ro /system
+    mount_system_ro
     newSender=$(head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }')
     logger "atvdetails sender updated $oldSender => $newSender"
 
@@ -482,17 +537,17 @@ fi
 # set hostname = origin, wait till next reboot for it to take effect
 if [[ $origin != "" ]] ;then
   if [ $(cat /system/build.prop | grep net.hostname | wc -l) = 0 ]; then
-    mount -o remount,rw /system
+    mount_system_rw
     logger "no hostname set, setting it to $origin"
     echo "net.hostname=$origin" >> /system/build.prop
-    mount -o remount,ro /system
+    mount_system_ro
   else
     hostname=$(grep net.hostname /system/build.prop | awk 'BEGIN { FS = "=" } ; { print $2 }')
     if [[ $hostname != $origin ]] ;then
-      mount -o remount,rw /system
+      mount_system_rw
       logger "changing hostname, from $hostname to $origin"
       sed -i -e "s/^net.hostname=.*/net.hostname=$origin/g" /system/build.prop
-      mount -o remount,ro /system
+      mount_system_ro
     fi
   fi
 fi
@@ -536,8 +591,11 @@ fi
 # check atlas running
 atlas_check=$(ps | grep com.pokemod.atlas:mapping | awk '{print $9}')
 if [[ -z $atlas_check ]] && [[ -f /data/local/tmp/atlas_config.json ]] ;then
-  am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
   logger "atlas not running at execution of atlas.sh, starting it"
+  if [ $android_verison -ge 9 ]; then
+      am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+  else
+      am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
 fi
 
 # check if playstore is enabled

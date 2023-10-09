@@ -38,9 +38,13 @@ stop_start_atlas () {
 	am force-stop com.nianticlabs.pokemongo &  rm -rf /data/data/com.nianticlabs.pokemongo/cache/* & am force-stop com.pokemod.atlas 
 	sleep 5
 	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of Atlas" >> $logfile
+if [ $android_version -ge 9 ]; then
+	am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+else
 	am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
-	sleep 1
-}
+fi
+		sleep 1
+	}
 
 stop_pogo () {
 	am force-stop com.nianticlabs.pokemongo & rm -rf /data/data/com.nianticlabs.pokemongo/cache/*
