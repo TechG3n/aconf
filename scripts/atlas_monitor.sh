@@ -6,6 +6,7 @@
 logfile="/sdcard/atlas_monitor.log"
 aconf="/data/local/tmp/atlas_config.json"
 origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
+android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 atlasdead=0
 pogodead=0
 deviceonline="0"
@@ -38,7 +39,13 @@ stop_start_atlas () {
 	am force-stop com.nianticlabs.pokemongo &  rm -rf /data/data/com.nianticlabs.pokemongo/cache/* & am force-stop com.pokemod.atlas 
 	sleep 5
 	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of Atlas" >> $logfile
-	am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+
+	if [ $android_version -ge 9 ]; then
+		am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+	else
+		am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+	fi
+	
 	sleep 1
 }
 
