@@ -6,6 +6,7 @@
 logfile="/sdcard/atlas_monitor.log"
 aconf="/data/local/tmp/atlas_config.json"
 origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
+android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 atlasdead=0
 pogodead=0
 deviceonline="0"
