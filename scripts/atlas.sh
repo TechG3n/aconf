@@ -560,7 +560,11 @@ check_rgc
 if [[ -d /data/data/com.pokemod.atlas ]] && [[ ! -s $aconf ]] ;then
   install_config
   am force-stop com.pokemod.atlas
+  if [ $android_version -ge 9 ]; then
+  am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+  else
   am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+  fi
 fi
 
 # check 16/42mad pogo autoupdate disabled
@@ -597,6 +601,7 @@ if [[ -z $atlas_check ]] && [[ -f /data/local/tmp/atlas_config.json ]] ;then
     am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
   else
     am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+  fi
 fi
 
 # check if playstore is enabled
