@@ -593,10 +593,11 @@ fi
 atlas_check=$(ps | grep com.pokemod.atlas:mapping | awk '{print $9}')
 if [[ -z $atlas_check ]] && [[ -f /data/local/tmp/atlas_config.json ]] ;then
   logger "atlas not running at execution of atlas.sh, starting it"
-  if [ $android_verison -ge 9 ]; then
+  if [ $android_version -ge 9 ]; then
     am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
   else
     am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+  fi
 fi
 
 # check if playstore is enabled
