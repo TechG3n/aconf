@@ -39,7 +39,7 @@ an example atlas install job can be found in jobs folder. Adjust url to point to
 After flash power on atv so the mad scripts can install magisk and perform default settings. When that's done, after several reboots push the install of the atlas script manually by connecting to the device using ADB and using the following on command line (update `mydownloadfolder.com`to your own folder location + add your user and password ) :
 
 ```
-su -c 'file='/data/local/aconf_download' && touch $file  && echo url=https://mydownloadfolder.com > $file  && echo authUser='username' >> $file && echo authPass='password' >> $file && mount -o remount,rw / && /system/bin/curl -s -k -L --fail --show-error --user username:password -o /system/bin/atlas.sh https://mydownloadfolder.com/scripts/atlas.sh && chmod +x /system/bin/atlas.sh && mount -o remount,ro / && /system/bin/atlas.sh -ia'
+su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/atlas.sh "$url_base/scripts/atlas.sh" && chmod +x /system/bin/atlas.sh && mount -o remount,ro / && /system/bin/atlas.sh -ia'
 ```
 
 ### Logs
