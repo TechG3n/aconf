@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.31
+# version 2.1.32
 
 #Version checks
 Ver42atlas="1.5"
@@ -616,6 +616,18 @@ pintegrity=$(settings get global package_verifier_user_consent)
 if [[ $play_integrity != "false" ]] && [[ $pintegrity == 1 ]]; then
   settings put global package_verifier_user_consent -1
   logger "disabled PlayIntegrity APK verification"
+fi
+
+# set proxy server
+proxy_address=$(grep 'proxy_address' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
+if [[ ! -z $proxy_address ]] ;then
+  proxy_get=$(settings list global | grep "http_proxy=" | awk -F= '{ print $NF }')
+  if [ -z "$proxy_get" ] || [ "$proxy_get" = ":0" ]; then
+    settings put global http_proxy $proxy_address
+    sleep 2
+    su -c am broadcast -a android.intent.action.PROXY_CHANGE
+    logger "Set Proxy to $proxy_address"
+  fi
 fi
 
 

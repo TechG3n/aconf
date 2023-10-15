@@ -30,3 +30,4 @@ gmo_errors=true
 # Settings for Atlas.sh
 play_integrity=true
 loop_protect_enabled=true
+proxy_address=""
