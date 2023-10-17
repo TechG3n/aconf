@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.2.1
+# version 3.2.6
 
 # Monitor by Oldmole && bbdoc
 
@@ -11,6 +11,7 @@ pogodead=0
 deviceonline="0"
 emptycheck=9
 updatecheck=0
+gmolock=0
 
 source /data/local/aconf_versions
 export useMonitor
@@ -74,6 +75,8 @@ do
 		sleep 60
 	done
 
+	[[ -z $origin ]] && origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
+
         updatecheck=$(($updatecheck+1))
         if [[ $updatecheck -gt $update_check ]] ;then
 		echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Atlas and Pogo for update" >> $logfile
@@ -109,7 +112,7 @@ do
 	then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device Lost Atlas License" >> $logfile
 		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: UNLICENSED !!! Check Atlas Dashboard\"}" $discord_webhook &>/dev/null
-		send_webhook "Lost Licence" "No action"
+		[[ $useSender == "true" ]] && send_webhook "Lost Licence" "No action"
 		touch /sdcard/not_licensed
 
 	elif [ -f /sdcard/not_licensed ] && [ $not_licensed -eq 0 ]
@@ -121,20 +124,20 @@ do
         elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead == 2 ]
         then
                 echo "`date +%Y-%m-%d_%T` [MONITORBOT] Atlas must be dead, rebooting device" >> $logfile
-		send_webhook "Atlas Dead" "Reboot"
+		[[ $useSender == "true" ]] && send_webhook "Atlas Dead" "Reboot"
    	        [[ ! -z $discord_webhook ]] && [[ $atlas_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: atlas died, reboot\"}" $discord_webhook &>/dev/null
                 reboot
         elif [ $emptycheck != 9 ] && [ $pogodead == 2 ]
         then
                 echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo must be dead, rebooting device" >> $logfile
-		send_webhook "Pogo Dead" "Reboot"
+		[[ $useSender == "true" ]] && send_webhook "Pogo Dead" "Reboot"
    	        [[ ! -z $discord_webhook ]] && [[ $pogo_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: pogo died, reboot\"}" $discord_webhook &>/dev/null
                 reboot
 
 	elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead != 2 ]
 	then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device must be offline. Running a stop mapping service of Atlas, killing pogo and clearing junk" >> $logfile
-		send_webhook "Device Offline" "Kill Pogo and Clear Junk"
+		[[ $useSender == "true" ]] && send_webhook "Device Offline" "Kill Pogo and Clear Junk"
 		[[ ! -z $discord_webhook ]] && [[ $device_offline != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: device offline, restarting atlas and pogo\"}" $discord_webhook &>/dev/null
 		stop_start_atlas
 		atlasdead=$((atlasdead+1))
@@ -153,7 +156,7 @@ do
 		if [ "$focusedapp" != "com.nianticlabs.pokemongo" ]
 		then
 			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something is not right! Pogo is not in focus. Killing pogo and clearing junk" >> $logfile
-		        send_webhook "Pogo not in Focus" "Kill Pogo and Clear Junk"
+		        [[ $useSender == "true" ]] && send_webhook "Pogo not in Focus" "Kill Pogo and Clear Junk"
 			[[ ! -z $discord_webhook ]] && [[ $pogo_not_focused != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: pogo not in focus, Killing and clearing junk\"}" $discord_webhook &>/dev/null
 			stop_pogo
 			pogodead=$((pogodead+1))
@@ -164,8 +167,27 @@ do
 		fi
 	else
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something happened! Some kind of error" >> $logfile
-		        send_webhook "Unknown Error" "No action"
+		        [[ $useSender == "true" ]] && send_webhook "Unknown Error" "No action"
 		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: no clue what happend, but its not good\"}" $discord_webhook &>/dev/null
 	fi
+
+	#get count of gmo errors
+	lastlog=$(tail -n 200 /data/local/tmp/atlas.log)
+	gmoerrcount=$(echo "$lastlog" | grep -E 'empty GMO|GMO failure|GMO with no contents|GMO that is completely empty' | wc -l)
+	successcount=$(echo "$lastlog" | grep -E 'Job executed successfully' | wc -l)
+	if [ $gmoerrcount -ge 15 ] && [ $gmoerrcount -ge $successcount ]; then
+		if [ $gmolock == 1 ]; then
+			#skip restart
+			gmolock=0
+		else
+			stop_pogo
+			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Found $gmoerrcount GMO Errors and $successcount successfull jobs, restarting Pogo" >> $logfile
+			[[ ! -z $discord_webhook ]] && [[ $gmo_errors != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: Found $gmoerrcount GMO Errors and $successcount successfull jobs, restart pogo\"}" $discord_webhook &>/dev/null
+			gmolock=1
+		fi
+	else
+		gmolock=0
+	fi
+
 	sleep $monitor_interval
 done

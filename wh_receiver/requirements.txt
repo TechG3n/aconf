@@ -3,6 +3,6 @@ Flask==2.1.1
 PyMySQL==1.0.2
 requests==2.27.1
 mysql==0.0.3
-mysql-connector==2.2.9
+mysql-connector-python==8.0.31
 mysqlclient==2.1.0
 

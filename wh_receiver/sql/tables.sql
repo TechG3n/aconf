@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `ATVsummary` (
   `productmodel` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `atlasSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `55atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `42atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `monitor` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `whversion` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pogo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -17,6 +18,8 @@ CREATE TABLE IF NOT EXISTS `ATVsummary` (
   `ip` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ext_ip` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `hostname` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `playstore` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `proxyinfo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `diskSysPct` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `diskDataPct` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `numPogo` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -89,14 +92,17 @@ CREATE TABLE IF NOT EXISTS `version` (
 
 
 ALTER TABLE ATVsummary
+ADD COLUMN IF NOT EXISTS `42atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `55atlas`,
 ADD COLUMN IF NOT EXISTS `reboot` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS `authBearer` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS `token` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS `email` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS `rdmUrl` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-ADD COLUMN IF NOT EXISTS `onBoot` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+ADD COLUMN IF NOT EXISTS `onBoot` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `playstore` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `proxyinfo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ;
 
 -- update version
 INSERT IGNORE INTO version values ('atlas_atvdetails',1);
-UPDATE version set version = 4 where version.key = 'atlas_atvdetails';
+UPDATE version set version = 5 where version.key = 'atlas_atvdetails';

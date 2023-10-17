@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.7.1
+# version 1.7.9
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -28,8 +28,9 @@ while true
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
     atlasSh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
-    atlas55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
-    monitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }')
+    atlas55=$([ -f /system/etc/init.d/55atlas ] && head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
+    atlas42=$([ -f /system/etc/init.d/42atlas ] && head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
+    monitor=$([ -f /system/bin/atlas_monitor.sh ] && head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     whversion=$([ -f /system/bin/ATVdetailsSender.sh ] && head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
     atlas=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
@@ -41,6 +42,8 @@ while true
     ip=$(ifconfig wlan0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1 && ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
     ext_ip=$(curl -k -s https://ifconfig.me/)
     hostname=$(getprop net.hostname)
+    playstore=$(dumpsys package com.android.vending | grep versionName | head -n 1 | cut -d "=" -f 2 | cut -d " " -f 1)
+    proxyinfo=$(proxy=$(settings list global | grep "http_proxy=" | awk -F= '{ print $NF }'); [ -z "$proxy" ] || [ "$proxy" = ":0" ] && echo "none" || echo "$proxy")
 # atv performance
     memTot=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
     memFree=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
@@ -83,8 +86,13 @@ while true
     m_noFocus=$(grep 'Something is not right! Pogo is not in focus. Killing pogo and clearing junk' $monitor_log | wc -l)
     m_unknown=$(grep 'Something happened! Some kind of error' $monitor_log | wc -l)
 
+# corrections
+[[ -z $temperature ]] && temperature=0
+[[ -z $cpuPogoPct ]] && cpuPogoPct=0
+[[ -z $cpuApct ]] && cpuApct=0
+
 #send data
-    curl -k -X POST $atvdetails_receiver_host:$atvdetails_receiver_port/webhook -H "Accept: application/json" -H "Content-Type: application/json" --data-binary @- <<DATA
+    curl -k -X POST ${atvdetails_receiver_user:+-u $atvdetails_receiver_user:$atvdetails_receiver_pass} ${atvdetails_receiver_host}${atvdetails_receiver_port:+:$atvdetails_receiver_port}/webhook -H "Accept: application/json" -H "Content-Type: application/json" --data-binary @- <<DATA
 {
     "WHType": "ATVDetails",
 
@@ -94,6 +102,7 @@ while true
     "productmodel": "${productmodel}",
     "atlasSh": "${atlasSh}",
     "atlas55": "${atlas55}",
+    "atlas42": "${atlas42}",
     "monitor": "${monitor}",
     "whversion": "${whversion}",
     "pogo": "${pogo}",
@@ -106,6 +115,8 @@ while true
     "ip": "${ip}",
     "ext_ip": "${ext_ip}",
     "hostname": "${hostname}",
+    "playstore": "${playstore}",
+    "proxyinfo": "${proxyinfo}",
 
     "memTot": "${memTot}",
     "memFree": "${memFree}",

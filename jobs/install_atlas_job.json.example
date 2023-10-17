@@ -13,5 +13,13 @@
         "TYPE": "jobType.PASSTHROUGH",
         "SYNTAX": "su -c 'touch /sdcard/useAconfDevelop && file='/data/local/aconf_download' && touch $file  && echo url=https://mydownloadfolder.com > $file  && echo authUser='' >> $file && echo authPass='' >> $file && mount -o remount,rw /system && /system/bin/curl -L -o /system/bin/atlas.sh -k -s https://raw.githubusercontent.com/dkmur/aconf/develop/atlas.sh && chmod +x /system/bin/atlas.sh && /system/bin/atlas.sh -ia'"
         }
+    ],
+
+    "atlas: directly from mad to aconf rom branch":
+    [
+        {
+        "TYPE": "jobType.PASSTHROUGH",
+        "SYNTAX": "su -c 'file='/data/local/aconf_download' && touch $file  && echo url=https://sub.dom.de > $file  && echo authUser='' >> $file && echo authPass='' >> $file && mount -o remount,rw /system && /system/bin/curl -s -k -L --fail --show-error --user User:Pass -o /system/bin/atlas.sh https://sub.dom.de/scripts/atlas.sh && chmod +x /system/bin/atlas.sh && mount -o remount,ro /system && /system/bin/atlas.sh -ia'"
+        }
     ]
 }
