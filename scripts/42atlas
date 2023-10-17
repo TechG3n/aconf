@@ -1,0 +1,255 @@
+#!/system/bin/sh
+# version 1.5
+
+logfile="/sdcard/aconf.log"
+aconf_download="/data/local/aconf_download"
+aconf_versions="/data/local/aconf_versions"
+url_gapps="https://madatv.b-cdn.net/open_gapps-arm64-7.1-pico-20200715.zip"
+url_magisk="https://github.com/Map-A-Droid/MAD-ATV/raw/master/Magisk-v20.3.zip"
+
+cachereboot=0
+
+#Create logfile
+if [ ! -e /sdcard/aconf.log ] ;then
+  touch /sdcard/aconf.log
+fi
+
+echo "" >> $logfile
+echo "`date +%Y-%m-%d_%T` Device rebooted" >> $logfile
+
+# stderr to logfile
+exec 2>> $logfile
+
+
+########## Functions
+
+wait_for_internet(){
+until ping -c1 8.8.8.8 >/dev/null 2>/dev/null || ping -c1 1.1.1.1 >/dev/null 2>/dev/null; do
+    sleep 10
+done
+echo "`date +%Y-%m-%d_%T` 42atlas: internet connection available" >> $logfile
+}
+
+# logger
+logger() {
+if [[ ! -z $discord_webhook ]] ;then
+  echo "`date +%Y-%m-%d_%T` 42atlas: $1" >> $logfile
+  if [[ -z $origin ]] ;then
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42atlas\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
+  else
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42atlas\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
+  fi
+else
+  echo "`date +%Y-%m-%d_%T` 42atlas: $1" >> $logfile
+fi
+}
+
+set_mac(){
+echo 1 > /sys/class/unifykeys/lock
+echo mac > /sys/class/unifykeys/name
+echo "$1" >/sys/class/unifykeys/write
+cat /sys/class/unifykeys/read
+echo 0 > /sys/class/unifykeys/lock
+}
+
+checkmac(){
+if ifconfig|grep -A5 wlan0|grep -q inet ;then
+  current_mac=$(ifconfig wlan0|awk '/HWaddr/{print $5}')
+elif ifconfig|grep -A5 eth0|grep -q inet ;then
+  current_mac=$(ifconfig eth0|awk '/HWaddr/{print $5}')
+fi
+
+if [[ "$current_mac" == "00:15:18:01:81:31" ]] ;then
+  new_mac=$(xxd -l 6 -p /dev/urandom |sed 's/../&:/g;s/:$//')
+  ifconfig eth0 down
+  until ifconfig eth0 hw ether "$new_mac" 2>/dev/null; do
+    new_mac=$(xxd -l 6 -p /dev/urandom |sed 's/../&:/g;s/:$//')
+  done
+  ifconfig eth0 up
+  sleep 3
+  set_mac $new_mac
+  logger "changed mac from $current_mac to $new_mac"
+  wait_for_internet
+fi
+}
+
+repack_magisk(){
+logger "starting magisk repackaging"
+monkey -p com.topjohnwu.magisk 1
+sleep 30
+input tap 39 42
+sleep 5
+input tap 150 537
+sleep 5
+input tap 315 552
+sleep 5
+input keyevent 61
+sleep 2
+input keyevent 61
+sleep 2
+input keyevent 66
+sleep 2
+}
+
+install_magisk() {
+until $download /sdcard/magisk.zip $url_magisk || { logger "download magisk failed, exit script" ; exit 1; } ;do
+   sleep 5
+done
+mkdir -p /cache/recovery
+touch /cache/recovery/command
+echo '--update_package=/sdcard/magisk.zip' >> /cache/recovery/command
+logger "magisk set to be installed"
+cachereboot=1
+}
+
+check_magisk(){
+if [[ -f /sbin/magisk ]] ;then
+  logger "setting magisk permissions"
+  [[ -f /sdcard/magisk.zip ]] && rm /sdcard/magisk.zip
+  #check if shell has su root
+  suid="$(id -u shell)"
+  pol="$(sqlite3 /data/adb/magisk.db "select policy from policies where package_name='com.android.shell'")"
+  if [[ "$suid" ]] && [[ "$pol" != 2 ]] ;then
+    magisk --sqlite "DELETE from policies WHERE package_name='com.android.shell'"
+    magisk --sqlite "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES($suid,'com.android.shell',2,0,1,1)"
+    logger "shell granted su root access"
+  fi
+fi
+# Install magisk.  If it already exists, check for an update
+if ! [[ -f /sbin/magisk ]] ;then
+  logger "preparing magisk installation"
+  touch /sdcard/magisk_repackage
+  install_magisk
+elif ! magisk -c|grep -q "$magisk_ver"; then
+  logger "magisk update required"
+  touch /sdcard/magisk_update
+  install_magisk
+elif [[ -f /sdcard/magisk_repackage ]] ;then
+  logger "magisk repackaging required"
+  # After installation the manager may not be fully installed.  Wait for it to show then repackage
+  until [[ $(pm list packages com.topjohnwu.magisk) ]] ;do
+    sleep 10
+  done
+  r=0
+  while [[ $(pm list packages com.topjohnwu.magisk) ]] ;do
+    sleep 10
+    # if repackaging didnt take place in 200 seconds, try again
+    if ! (( $((r%20)) )); then
+      logger "attempting to repackage magisk"
+      repack_magisk
+    fi
+    r=$((r+1))
+  done
+  logger "magisk successfully repackaged"
+  rm -f /sdcard/magisk_repackage
+  sleep 10
+elif [[ -f /sdcard/magisk_update ]] ;then
+  while [[ $(pm list packages com.topjohnwu.magisk) ]] ;do
+    pm uninstall com.topjohnwu.magisk
+    logger "magisk uninstalled"
+    sleep 3
+  done
+  rm -f /sdcard/magisk_update
+elif [[ $(pm list packages com.topjohnwu.magisk) ]] ;then
+  logger "magisk installed and not repackaged, this should not happen"
+fi
+}
+
+install_gapps(){
+until /system/bin/curl -s -k -L --fail --show-error -o /sdcard/gapps.zip "$url_gapps" || { logger "download gapps failed, exit script" ; exit 1; } ;do
+   sleep 5
+done
+
+mkdir -p /cache/recovery
+touch /cache/recovery/command
+echo '--update_package=/sdcard/gapps.zip' >> /cache/recovery/command
+cachereboot=1
+}
+
+########## Execution
+
+wait_for_internet
+
+# verify download credential file and set download
+if [[ ! -f $aconf_download ]] ;then
+  logger "/data/local/aconf_download not found, exit script" && exit 1
+else
+  url=$(grep url $aconf_download | awk -F "=" '{ print $NF }')
+  authUser=$(grep authUser $aconf_download | awk -F "=" '{ print $NF }')
+  authPass=$(grep authPass $aconf_download | awk -F "=" '{ print $NF }')
+  discord_webhook=$(grep discord_webhook $aconf_download | awk -F "=" '{ print $NF }')
+  if [[ $authUser == "" ]] ;then
+    download="/system/bin/curl -s -k -L --fail --show-error -o"
+  else
+    download="/system/bin/curl -s -k -L --fail --show-error --user $authUser:$authPass -o"
+  fi
+fi
+
+# remove 55atlas if exists
+[ -f /system/etc/init.d/55atlas ] && rm -f /system/etc/init.d/55atlas
+
+
+if [[ -f /sdcard/new_install ]] ;then
+mount -o remount,rw /system
+mount -o remount,rw /system/etc/init.d
+# check mac for A95x
+  checkmac
+# check magisk
+  check_magisk
+
+# add atlas.sh
+  if [[ ! -f /system/bin/atlas.sh ]] ;then
+    until $download /system/bin/atlas.sh $url/scripts/atlas.sh || { logger "download atlas.sh failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+  fi
+  chmod +x /system/bin/atlas.sh
+  logger "downloaded atlas.sh"
+
+# download versions file
+  until $download $aconf_versions $url/versions || { logger "download versions file failed, exit script"; exit 1; } ;do
+    sleep 2
+  done
+  dos2unix $aconf_versions
+  logger "downloaded versions file"
+
+# add gapps to be installed
+  if [[ ! $(pm list packages android.vending) ]] ;then
+    install_gapps
+    logger "downloaded gapps and set to be installed"
+  fi
+
+#default stuff from mad rom, needed? doubt it will hurt
+  [[ -d /sdcard/TWRP ]] && rm -rf /sdcard/TWRP
+  [[ $(settings get global hdmi_control_enabled) != "0" ]] && settings put global hdmi_control_enabled 0
+  [[ $(settings get global stay_on_while_plugged_in) != 3 ]] && settings put global stay_on_while_plugged_in 3
+  ! settings get secure location_providers_allowed|grep -q gps && settings put secure location_providers_allowed +gps
+# time to reboot as magisk isn't installed
+  if (( "$cachereboot" )) ;then
+    logger "rebooting into recovery mode for required installations"
+    echo '--wipe_cache' >> /cache/recovery/command
+    reboot recovery
+  fi
+
+# Install Atlas
+  if [[ ! -d /data/data/com.pokemod.atlas/ ]] ;then
+    logger "starting install of atlas"
+    /system/bin/atlas.sh -ia
+  fi
+
+# Close new install and remove bootstrap, it served its purpose
+  if [[ -d /data/data/com.pokemod.atlas/ ]] ;then
+    mount -o remount,rw /system
+    mount -o remount,rw /system/etc/init.d
+    rm -f /sdcard/new_install
+    rm -f /system/etc/init.d/01atlasbootstrap
+    rm -f /sdcard/gapps.zip
+    logger "config done, now acting as 55atlas"
+  fi
+mount -o remount,ro /system
+mount -o remount,ro /system/etc/init.d
+fi
+
+
+# execute atlas.sh
+  /system/bin/atlas.sh -ua &
