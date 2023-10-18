@@ -1,11 +1,11 @@
 #!/system/bin/sh
-# version 2.1.32
+# version 2.1.33
 
 #Version checks
 Ver42atlas="1.5"
 Ver55atlas="1.0"
 VerMonitor="3.2.6"
-VerATVsender="1.7.9"
+VerATVsender="1.8.0"
 
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 
