@@ -276,7 +276,7 @@ if [ v$ainstalled != $aversions ] ;then
   logger "new atlas version detected, $ainstalled=>$aversions"
   ver_atlas_md5=$(grep 'atlas_md5' $aconf_versions | awk -F "=" '{ print $NF }')
   if [[ ! -z $ver_atlas_md5 ]] ;then
-    inst_atlas_md5=$(md5sum /data/app/com.pokemod.atlas-2/base.apk | awk '{print $1}')
+    inst_atlas_md5=$(md5sum /data/app/com.pokemod.atlas-*/base.apk | awk '{print $1}')
     if [[ $ver_atlas_md5 == $inst_atlas_md5 ]] ;then
       logger "New version but same md5 - skip install"
       atlas_install="skip"
