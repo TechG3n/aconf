@@ -1,5 +1,5 @@
 configparser==5.2.0
-Flask==2.1.1
+Flask==2.2.5
 PyMySQL==1.0.2
 requests==2.27.1
 mysql==0.0.3
