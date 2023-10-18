@@ -22,10 +22,15 @@ pokemongo_armeabi-v7a_0.235.0.apk
 
 ## ATV setup
 
-### 1. Adjusted MAD rom
-1. flash rom <https://github.com/dkmur/aconf/releases>  
-2. insert usb flasdrive containing `aconf_info` file (example in folder rom, make sure the file is called exactly that so NOT i.e. `aconf_info.txt`)  
-3. power on device and sit back watching you discord channel on progress of installation  
+### 1. Fresh A9 flashed ATV
+
+1. Flash correct rom
+2. Let the rom do the initial setup (might take 15min and several reboots)
+3. a. If your rom supports an Auto-Setup script use the one provided in jobs folder and rename it if needed
+   b. Use ADB to open a shell on the device and paste the commands from the jobs folder
+4. The Device should show up in the Atlas Dashboard; activate the license and give it a name
+5. The Device should show up in RDM/Flygon
+ 
 
 ### 2. Existing MAD ATV
 an example atlas install job can be found in jobs folder. Adjust url to point to your aconf directory and when used auth settings. Add job to MADmin and execute it. Don't worry if the job is reporting a failure, it's only because it includes a reboot and is taking too much time, but it does run successfully.
@@ -35,15 +40,15 @@ an example atlas install job can be found in jobs folder. Adjust url to point to
 - Your MAD instances have been restart in config only mode (using -cm).
 - You have removed 32bits and 64bits APKs from your Madmin Packages.
 
-### 3. Default MAD rom flashed (no MADmin needed)
-After flash power on atv so the mad scripts can install magisk and perform default settings. When that's done, after several reboots push the install of the atlas script manually by connecting to the device using ADB and using the following on command line (update `mydownloadfolder.com`to your own folder location + add your user and password ) :
+### 3. Generic ATV
+After initial setup and several reboots push the install of the atlas script manually by connecting to the device using ADB and using the following on command line (update `mydownloadfolder.com`to your own folder location + add your user and password) :
 
 ```
 su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/atlas.sh "$url_base/scripts/atlas.sh" && chmod +x /system/bin/atlas.sh ; mount -o remount,ro / && /system/bin/atlas.sh -ia'
 ```
 
 ### Logs
-Logging and any failure while executing script is logged to /sdcard/aconf.log
+Logging and any failure while executing script is logged to the /sdcard/ folder - `aconf.log` & `atlas_monitor.log` can be found there
 In case of issues always check there first
 
 
