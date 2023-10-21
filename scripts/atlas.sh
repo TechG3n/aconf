@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.33
+# version 2.1.34
 
 #Version checks
 Ver42atlas="1.5"
@@ -224,8 +224,14 @@ install_config(){
 until $download /data/local/tmp/atlas_config.json $url/atlas_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/atlas_config.json $url/atlas_config.json" >> $logfile ; logger "download atlas config file failed, exit script" ; exit 1; } ;do
   sleep 2
 done
-sed -i 's,dummy,'$origin',g' $aconf
-logger "atlas config installed"
+if [[ ! -z $origin ]] ;then
+  sed -i 's,dummy,'$origin',g' $aconf
+  logger "atlas config installed, set devicename to $origin"
+else
+  temporigin="TEMP-$(date +'%H_%M_%S')"
+  sed -i 's,dummy,'$temporigin',g' $aconf
+  logger "atlas config installed, set devicename to $temporigin"
+fi
 }
 
 update_atlas_config(){
