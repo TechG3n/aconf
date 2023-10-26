@@ -639,7 +639,7 @@ if [[ ! -z $proxy_address ]] ;then
         su -c am broadcast -a android.intent.action.PROXY_CHANGE
         logger "Set Proxy to $proxy_address"
       else
-        logger "Proxy not set, not in same network"
+        echo "`date +%Y-%m-%d_%T` atlas.sh: Proxy not set, not in same network" >> $logfile
       fi
     else
       settings put global http_proxy $proxy_address
