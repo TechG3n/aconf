@@ -37,9 +37,7 @@ while true
     atlas=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
     temperature=$(cat /sys/class/thermal/thermal_zone0/temp | cut -c -2)
     magisk=$(magisk -c | sed 's/:.*//')
-    magisk_modules=$(ls -1 /sbin/.magisk/img | xargs | sed -e 's/ /, /g' 2>/dev/null)
     macw=$([ -d /sys/class/net/wlan0 ] && ifconfig wlan0 |grep 'HWaddr' |awk '{ print ($NF) }' || echo 'na')
-    mace=$(ifconfig eth0 |grep 'HWaddr' |awk '{ print ($NF) }')
     ip=$(ifconfig wlan0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1 && ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
     ext_ip=$(curl -k -s https://ifconfig.me/)
     hostname=$(getprop net.hostname)
@@ -90,6 +88,8 @@ if [ $android_version -ge 9 ]; then
     #Still not sure about these
     diskSysPct=$(df -h | grep /dev/root | awk 'NR == 1 {sub("%", "", $5); print $5}')
     diskDataPct=$(df -h | grep /data/media | awk 'NR == 1 {sub("%", "", $5); print $5}')
+    magisk_modules=$(ls -1 /sbin/.magisk/modules/ | xargs | sed -e 's/ /, /g')
+    mace=$(ifconfig eth0 |grep 'HWaddr' |awk '{ print ($5) }')
 else
     cpuSys=$(top -n 1 | grep -m 1 "System" | awk '{print substr($2, 1, length($2)-2)}')
     cpuUser=$(top -n 1 | grep -m 1 "User" | awk '{print substr($2, 1, length($2)-2)}')
@@ -97,6 +97,8 @@ else
     cpuApct=$(dumpsys cpuinfo | grep 'com.pokemod.atlas' | awk '{print substr($1, 1, length($1)-1)}')
     diskSysPct=$(df -h | grep /sbin/.magisk/mirror/system | awk '{print substr($5, 1, length($5)-1)}')
     diskDataPct=$(df -h | grep /sbin/.magisk/mirror/data | awk '{print substr($5, 1, length($5)-1)}')
+    magisk_modules=$(ls -1 /sbin/.magisk/img | xargs | sed -e 's/ /, /g' 2>/dev/null)
+    mace=$(ifconfig eth0 |grep 'HWaddr' |awk '{ print ($NF) }')
 fi
 
 # corrections
