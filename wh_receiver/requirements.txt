@@ -5,4 +5,5 @@ requests==2.27.1
 mysql==0.0.3
 mysql-connector==2.2.9
 mysqlclient==2.1.0
+Werkzeug==2.3.7
 
