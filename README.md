@@ -2,11 +2,11 @@
 
 This tool was originally meant to easily convert MAD ATVs to RDM+Atlas devices but has been made more generic over time.  
 Today it will/can:
-- (still) allows for easy convertion from MAD
+- (still) allows for easy conversion from MAD
 - make use of default MAD rom (flash, power on for default installation, via command trigger aconf to finalize installation) 
-- default MAD roms have been adjusted, see releases to directly use aconf (flash, insert usb flashdrive, power on)
+- default MAD roms have been adjusted, see releases to directly use aconf (flash, insert usb flash drive, power on)
 - enable atlas monitor to act upon disturbances
-- enable atvdetails sender/receiver to have all version related info, cpu/mem and monitor stastics of atv stored to db
+- enable atvdetails sender/receiver to have all version related info, cpu/mem and monitor statistics of atv stored to db
 - automatic update of atlas, pogo and scripts
 
 ## Setup aconf server side
@@ -24,13 +24,13 @@ pokemongo_armeabi-v7a_0.235.0.apk
 
 ### 1. Adjusted MAD rom
 1. flash rom <https://github.com/dkmur/aconf/releases>  
-2. insert usb flasdrive containing `aconf_info` file (example in folder rom, make sure the file is called exactly that so NOT i.e. `aconf_info.txt`)  
+2. insert usb flash drive containing `aconf_info` file (example in folder rom, make sure the file is called exactly that so NOT i.e. `aconf_info.txt`)  
 3. power on device and sit back watching you discord channel on progress of installation  
 
 ### 2. Existing MAD ATV
 an example atlas install job can be found in jobs folder. Adjust url to point to your aconf directory and when used auth settings. Add job to MADmin and execute it. Don't worry if the job is reporting a failure, it's only because it includes a reboot and is taking too much time, but it does run successfully.
 
-`rgc=off` : setting this value to `on` will enable rgc on your devices on next reboot. Please be cautious as if you enable it and have a different version of PoGo in your Madmin packages, you will enter a boot loop as RGC will push the MAD version of the APK while this script will push the one in your directory. The recommandation is to keep if off during your migration, and only enable it when :
+`rgc=off` : setting this value to `on` will enable rgc on your devices on next reboot. Please be cautious as if you enable it and have a different version of PoGo in your Madmin packages, you will enter a boot loop as RGC will push the MAD version of the APK while this script will push the one in your directory. The recommendation is to keep if off during your migration, and only enable it when :
 - All your devices have been migrated (you don't use MAD anymore).
 - Your MAD instances have been restart in config only mode (using -cm).
 - You have removed 32bits and 64bits APKs from your Madmin Packages.
@@ -63,11 +63,11 @@ flush privileges;
 - Ensure firewall is not blocking host/port
 
 2. Prepare aconf settings and start sender:
-- Ajust versions file settings for atvdetails sender
+- Adjust versions file settings for atvdetails sender
 - Execute /system/bin/atlas.sh to update to latest version, add webhook sender and start it
 
 3. Grafana Installation:
-- To visualise the ATV information sent from aconf, set up Grafana.
+- To visualize the ATV information sent from aconf, set up Grafana.
 - More information here: https://grafana.com/grafana/download and https://grafana.com/docs/grafana/next/setup-grafana/installation/debian/#install-from-apt-repository
 Default port is 3000 and you can expose Grafana to the web for easy access.
 
