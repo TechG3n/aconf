@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.7.9
+# version 1.8.1
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -9,6 +9,7 @@ atlas_conf="/data/local/tmp/atlas_config.json"
 atlas_log="/data/local/tmp/atlas.log"
 aconf_log="/sdcard/aconf.log"
 monitor_log="/sdcard/atlas_monitor.log"
+android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 
 # initial sleep for reboot
 sleep 120
@@ -36,9 +37,7 @@ while true
     atlas=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
     temperature=$(cat /sys/class/thermal/thermal_zone0/temp | cut -c -2)
     magisk=$(magisk -c | sed 's/:.*//')
-    magisk_modules=$(ls -1 /sbin/.magisk/img | xargs | sed -e 's/ /, /g' 2>/dev/null)
     macw=$([ -d /sys/class/net/wlan0 ] && ifconfig wlan0 |grep 'HWaddr' |awk '{ print ($NF) }' || echo 'na')
-    mace=$(ifconfig eth0 |grep 'HWaddr' |awk '{ print ($NF) }')
     ip=$(ifconfig wlan0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1 && ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
     ext_ip=$(curl -k -s https://ifconfig.me/)
     hostname=$(getprop net.hostname)
@@ -50,15 +49,9 @@ while true
     memAv=$(cat /proc/meminfo | grep MemAvailable | awk '{print $2}')
     memPogo=$(dumpsys meminfo 'com.nianticlabs.pokemongo' | grep -m 1 "TOTAL" | awk '{print $2}')
     memAtlas=$(dumpsys meminfo 'com.pokemod.atlas:mapping' | grep -m 1 "TOTAL" | awk '{print $2}')
-    cpuSys=$(top -n 1 | grep -m 1 "System" | awk '{print substr($2, 1, length($2)-2)}')
-    cpuUser=$(top -n 1 | grep -m 1 "User" | awk '{print substr($2, 1, length($2)-2)}')
     cpuL5=$(dumpsys cpuinfo | grep "Load" | awk '{ print $2 }')
     cpuL10=$(dumpsys cpuinfo | grep "Load" | awk '{ print $4 }')
     cpuL15=$(dumpsys cpuinfo | grep "Load" | awk '{ print $6 }')
-    cpuPogoPct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo' | awk '{print substr($1, 1, length($1)-1)}')
-    cpuApct=$(dumpsys cpuinfo | grep 'com.pokemod.atlas' | awk '{print substr($1, 1, length($1)-1)}')
-    diskSysPct=$(df -h | grep /sbin/.magisk/mirror/system | awk '{print substr($5, 1, length($5)-1)}')
-    diskDataPct=$(df -h | grep /sbin/.magisk/mirror/data | awk '{print substr($5, 1, length($5)-1)}')
     numPogo=$(ls -l /sbin/.magisk/mirror/data/app/ | grep com.nianticlabs.pokemongo | wc -l)
 # aconf.log
     reboot=$(grep 'Device rebooted' $aconf_log | wc -l)
@@ -85,6 +78,28 @@ while true
     m_noRDM=$(grep 'something wrong with RDM' $monitor_log | wc -l)
     m_noFocus=$(grep 'Something is not right! Pogo is not in focus. Killing pogo and clearing junk' $monitor_log | wc -l)
     m_unknown=$(grep 'Something happened! Some kind of error' $monitor_log | wc -l)
+
+# version specific metrics
+if [ $android_version -ge 9 ]; then
+    cpuSys=$(top -n 1 | grep %sys | awk 'NR == 1 {sub(/%sys/, "", $4); print $4}')
+    cpuUser=$(top -n 1 | grep %user | awk 'NR == 1 {sub(/%user/, "", $2); print $2}')
+    cpuPogoPct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo' | awk '{print substr($1, 1, length($1)-1)}')
+    cpuApct=$(dumpsys cpuinfo | grep 'com.pokemod.atlas' | awk 'NR == 1 {sub(/%/, "", $1); print $1}')
+    #Still not sure about these
+    diskSysPct=$(df -h | grep /dev/root | awk 'NR == 1 {sub("%", "", $5); print $5}')
+    diskDataPct=$(df -h | grep /data/media | awk 'NR == 1 {sub("%", "", $5); print $5}')
+    magisk_modules=$(ls -1 /sbin/.magisk/modules/ | xargs | sed -e 's/ /, /g')
+    mace=$(ifconfig eth0 |grep 'HWaddr' |awk '{ print ($5) }')
+else
+    cpuSys=$(top -n 1 | grep -m 1 "System" | awk '{print substr($2, 1, length($2)-2)}')
+    cpuUser=$(top -n 1 | grep -m 1 "User" | awk '{print substr($2, 1, length($2)-2)}')
+    cpuPogoPct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo' | awk '{print substr($1, 1, length($1)-1)}')
+    cpuApct=$(dumpsys cpuinfo | grep 'com.pokemod.atlas' | awk '{print substr($1, 1, length($1)-1)}')
+    diskSysPct=$(df -h | grep /sbin/.magisk/mirror/system | awk '{print substr($5, 1, length($5)-1)}')
+    diskDataPct=$(df -h | grep /sbin/.magisk/mirror/data | awk '{print substr($5, 1, length($5)-1)}')
+    magisk_modules=$(ls -1 /sbin/.magisk/img | xargs | sed -e 's/ /, /g' 2>/dev/null)
+    mace=$(ifconfig eth0 |grep 'HWaddr' |awk '{ print ($NF) }')
+fi
 
 # corrections
 [[ -z $temperature ]] && temperature=0
