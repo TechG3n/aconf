@@ -12,7 +12,16 @@ Today it will/can:
 ## Setup aconf server side
 1. Clone aconf, the directory must be reachable from the web (and kept up-to-date)  
 2. It's highly recommended to add basic auth to the aconf directory. For more info see <https://ubiq.co/tech-blog/how-to-password-protect-directory-in-nginx/>  
-3. Copy versions.example and atlas_config.json.example and fill out the details. Make sure not to change `"deviceName":"dummy"`, deviceName will either be set to rgc origin in case of MAD atv ot it can be set after installation in atlas backend.  
+3. Copy versions.example and atlas_config.json.example and fill out the details. Make sure not to change `"deviceName":"dummy"`, deviceName will either be set to rgc origin in case of MAD atv or it will be set to a temporary name which can be changed in Atlas Dashboard
+Some hints for the versions file:
+```
+atlas_md5                        - the hash of the atlas.apk (In Case the APK changes but version number is still the same)
+gmo_errors                       - true/false - decides if a discord message will be send if a device got many gmo errors 
+play_integrity                   - true/false - If true, the APK verification will be disabled (needed to install atlas in A9 without manual interaction)
+loop_protect_enabled             - true/false - If true, atlas.sh will stop to reboot the device after 20 trys per day
+proxy_address                    - ip:port - if set, this address will be configured as system proxy
+set_proxy_only_in_same_network   - true/false - If true, only devices with the same subnet will set the proxy (if Proxy_address is 192.168.178.10, only devices with 192.168.178.X will set the proxy)
+```
 4. Add latest atlas version and supported pogo versions to apk folder, make sure to follow naming convention as per example below:  
 ```
 PokemodAtlas-Public-v22050101.apk
