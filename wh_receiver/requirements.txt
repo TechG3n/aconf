@@ -5,4 +5,4 @@ requests==2.31.0
 mysql==0.0.3
 mysql-connector-python==8.0.31
 mysqlclient==2.1.0
-Werkzeug==2.3.7
+Werkzeug==3.0.1
