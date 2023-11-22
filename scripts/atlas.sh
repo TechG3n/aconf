@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.35
+# version 2.1.36
 
 #Version checks
 Ver42atlas="1.5"
@@ -21,6 +21,7 @@ pdconf="/data/data/com.mad.pogodroid/shared_prefs/com.mad.pogodroid_preferences.
 rgcconf="/data/data/de.grennith.rgc.remotegpscontroller/shared_prefs/de.grennith.rgc.remotegpscontroller_preferences.xml"
 aconf="/data/local/tmp/atlas_config.json"
 aconf_versions="/data/local/aconf_versions"
+aconf_mac2name="/data/local/aconf_mac2name"
 [[ -f /data/local/aconf_download ]] && url=$(grep url /data/local/aconf_download | awk -F "=" '{ print $NF }')
 [[ -f /data/local/aconf_download ]] && aconf_user=$(grep authUser /data/local/aconf_download | awk -F "=" '{ print $NF }')
 [[ -f /data/local/aconf_download ]] && aconf_pass=$(grep authPass /data/local/aconf_download | awk -F "=" '{ print $NF }')
@@ -440,6 +441,21 @@ until $download $aconf_versions $url/versions || { echo "`date +%Y-%m-%d_%T` $do
 done
 dos2unix $aconf_versions
 echo "`date +%Y-%m-%d_%T` atlas.sh: downloaded latest versions file"  >> $logfile
+
+# download latest mac2name file
+until $download $aconf_mac2name $url/mac2name || { echo "`date +%Y-%m-%d_%T` $download $aconf_mac2name $url/mac2name" >> $logfile ; logger "download atlas mac2name file failed, skip naming" ; } ;do
+  sleep 2
+done
+dos2unix $aconf_mac2name
+echo "`date +%Y-%m-%d_%T` atlas.sh: downloaded latest mac2name file"  >> $logfile
+if [[ $origin = "" ]] ;then
+  mac=$(ifconfig wlan0 2>/dev/null | grep 'HWaddr' | awk '{print $5}' | cut -d ' ' -f1 && ifconfig eth0 2>/dev/null | grep 'HWaddr' | awk '{print $5}')
+  origin=$(grep -m 1 $mac $aconf_mac2name | cut -d ';' -f2)
+  if [[ $origin != "" ]] ;then
+    echo "`date +%Y-%m-%d_%T` atlas.sh: got origin name $origin from mac2name file"  >> $logfile
+  fi
+fi
+
 
 #update 42atlas if needed
 if [[ $(basename $0) = "atlas_new.sh" ]] ;then
