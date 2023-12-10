@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.36
+# version 2.1.37
 
 #Version checks
 Ver42atlas="1.5"
@@ -31,7 +31,7 @@ if [[ -z $discord_webhook ]] ;then
 fi
 
 if [[ -f /data/local/tmp/atlas_config.json ]] ;then
-#  origin=$(grep -w 'deviceName' $aconf | awk -F "\"" '{ print $4 }')
+# origin=$(grep -w 'deviceName' $aconf | awk -F "\"" '{ print $4 }')
   origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
 else
   if [[ -f /data/data/de.grennith.rgc.remotegpscontroller/shared_prefs/de.grennith.rgc.remotegpscontroller_preferences.xml ]] ;then
@@ -132,16 +132,16 @@ fi
   done
   chmod +x /system/bin/atlas_monitor.sh
   logger "atlas monitor installed"
-	
+
 
 if [ $android_version -ge 9 ]; then
-		cat <<EOF > /system/etc/init/atlas_monitor.rc
+                cat <<EOF > /system/etc/init/atlas_monitor.rc
 on property:sys.boot_completed=1
-		exec_background u:r:init:s0 root root -- /system/bin/atlas_monitor.sh
+                exec_background u:r:init:s0 root root -- /system/bin/atlas_monitor.sh
 EOF
-		chown root:root /system/etc/init/atlas_monitor.rc
-		chmod 644 /system/etc/init/atlas_monitor.rc
-		logger "atlas_monitor.rc installed"
+                chown root:root /system/etc/init/atlas_monitor.rc
+                chmod 644 /system/etc/init/atlas_monitor.rc
+                logger "atlas_monitor.rc installed"
 
 fi
 
@@ -451,6 +451,7 @@ echo "`date +%Y-%m-%d_%T` atlas.sh: downloaded latest mac2name file"  >> $logfil
 if [[ $origin = "" ]] ;then
   mac=$(ifconfig wlan0 2>/dev/null | grep 'HWaddr' | awk '{print $5}' | cut -d ' ' -f1 && ifconfig eth0 2>/dev/null | grep 'HWaddr' | awk '{print $5}')
   origin=$(grep -m 1 $mac $aconf_mac2name | cut -d ';' -f2)
+  hostname=$origin
   if [[ $origin != "" ]] ;then
     echo "`date +%Y-%m-%d_%T` atlas.sh: got origin name $origin from mac2name file"  >> $logfile
   fi
@@ -566,7 +567,7 @@ if [[ $origin != "" ]] ;then
     mount_system_ro
   else
     hostname=$(grep net.hostname /system/build.prop | awk 'BEGIN { FS = "=" } ; { print $2 }')
-    if [[ $hostname != $origin ]] ;then
+    if [[ $hostname != $origin ]] && [[ $origin != "dummy" ]] ;then
       mount_system_rw
       logger "changing hostname, from $hostname to $origin"
       sed -i -e "s/^net.hostname=.*/net.hostname=$origin/g" /system/build.prop
