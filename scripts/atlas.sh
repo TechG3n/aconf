@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.37
+# version 2.1.38
 
 #Version checks
 Ver42atlas="1.5"
@@ -257,7 +257,7 @@ fi
 update_all(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
 pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
-ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
+ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//' | sed 's/-fix//' )
 aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
 if [[ $pinstalled != $pversions ]] ;then
