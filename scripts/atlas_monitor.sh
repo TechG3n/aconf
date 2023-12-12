@@ -180,9 +180,9 @@ do
 
 	#get count of "[HEALTH CHECK] xx seconds since last ping." errors
 	lastlog=$(tail -n 200 /data/local/tmp/atlas.log)
-	healthcheckcount=$(echo "$lastlog" | grep -E '[[]HEALTH CHECK[]] (.*) seconds since last ping[.]' | wc -l)
+	healthcheckcount=$(echo "$lastlog" | grep -E '\[HEALTH CHECK\] ([0-9]+) seconds since last ping\.' | wc -l)
 	crithealthcount=$(echo "$lastlog" | grep -E '\[HEALTH CHECK\] ([0-9]+) seconds since last ping\.' | awk '$3 >= 30 {count++} END {print count}')
-	successcount=$(echo "$lastlog" | grep -E 'I [|] Worker' | wc -l)
+	successcount=$(echo "$lastlog" | grep -E 'I \| Worker' | wc -l)
 	if [ $healthcheckcount -ge 10 ] && [ $healthcheckcount -ge $successcount ] || [ $crithealthcount -ge 2 ] ; then
 		if [ $healthchecklock == 1 ]; then
 			#skip restart
