@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.2.6
+# version 3.2.7
 
 # Monitor by Oldmole && bbdoc
 
@@ -12,7 +12,7 @@ pogodead=0
 deviceonline="0"
 emptycheck=9
 updatecheck=0
-gmolock=0
+healthchecklock=0
 
 source /data/local/aconf_versions
 export useMonitor
@@ -178,22 +178,23 @@ do
 		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: no clue what happend, but its not good\"}" $discord_webhook &>/dev/null
 	fi
 
-	#get count of gmo errors
+	#get count of "[HEALTH CHECK] xx seconds since last ping." errors
 	lastlog=$(tail -n 200 /data/local/tmp/atlas.log)
-	gmoerrcount=$(echo "$lastlog" | grep -E 'empty GMO|GMO failure|GMO with no contents|GMO that is completely empty' | wc -l)
-	successcount=$(echo "$lastlog" | grep -E 'Job executed successfully' | wc -l)
-	if [ $gmoerrcount -ge 15 ] && [ $gmoerrcount -ge $successcount ]; then
-		if [ $gmolock == 1 ]; then
+	healthcheckcount=$(echo "$lastlog" | grep -E '[[]HEALTH CHECK[]] (.*) seconds since last ping[.]' | wc -l)
+	crithealthcount=$(echo "$lastlog" | grep -E '\[HEALTH CHECK\] ([0-9]+) seconds since last ping\.' | awk '$3 >= 30 {count++} END {print count}')
+	successcount=$(echo "$lastlog" | grep -E 'I [|] Worker' | wc -l)
+	if [ $healthcheckcount -ge 10 ] && [ $healthcheckcount -ge $successcount ] || [ $crithealthcount -ge 2 ] ; then
+		if [ $healthchecklock == 1 ]; then
 			#skip restart
-			gmolock=0
+			healthchecklock=0
 		else
 			stop_pogo
-			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Found $gmoerrcount GMO Errors and $successcount successfull jobs, restarting Pogo" >> $logfile
-			[[ ! -z $discord_webhook ]] && [[ $gmo_errors != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: Found $gmoerrcount GMO Errors and $successcount successfull jobs, restart pogo\"}" $discord_webhook &>/dev/null
-			gmolock=1
+			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Found $healthcheckcount Health Errors, $successcount successfull jobs and $crithealthcount crits - restarting Pogo" >> $logfile
+			[[ ! -z $discord_webhook ]] && [[ $healthcheck_errors != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: Found $healthcheckcount Health Errors, $successcount successfull jobs and $crithealthcount crits - restarting Pogo\"}" $discord_webhook &>/dev/null
+			healthchecklock=1
 		fi
 	else
-		gmolock=0
+		healthchecklock=0
 	fi
 
 	sleep $monitor_interval

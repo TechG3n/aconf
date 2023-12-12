@@ -25,7 +25,7 @@ pogo_died=true
 device_offline=true
 unable_check_status=true
 pogo_not_focused=false
-gmo_errors=true
+healthcheck_errors=true
 
 # Settings for Atlas.sh
 play_integrity=true
