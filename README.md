@@ -16,7 +16,7 @@ Today it will/can:
 Some hints for the versions file:
 ```
 atlas_md5                        - the hash of the atlas.apk (In Case the APK changes but version number is still the same)
-gmo_errors                       - true/false - decides if a discord message will be send if a device got many gmo errors 
+healthcheck_errors               - true/false - decides if a discord message will be send if a device got many health check errors 
 play_integrity                   - true/false - If true, the APK verification will be disabled (needed to install atlas in A9 without manual interaction)
 loop_protect_enabled             - true/false - If true, atlas.sh will stop to reboot the device after 20 trys per day
 proxy_address                    - ip:port - if set, this address will be configured as system proxy
