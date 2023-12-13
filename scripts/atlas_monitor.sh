@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.2.7
+# version 3.2.8
 
 # Monitor by Oldmole && bbdoc
 
@@ -183,7 +183,7 @@ do
 	healthcheckcount=$(echo "$lastlog" | grep -E '\[HEALTH CHECK\] ([0-9]+) seconds since last ping\.' | wc -l)
 	crithealthcount=$(echo "$lastlog" | grep -E '\[HEALTH CHECK\] ([0-9]+) seconds since last ping\.' | awk '$3 >= 30 {count++} END {print count}')
 	successcount=$(echo "$lastlog" | grep -E 'I \| Worker' | wc -l)
-	if [ $healthcheckcount -ge 10 ] && [ $healthcheckcount -ge $successcount ] || [ $crithealthcount -ge 4 ] ; then
+	if [ $healthcheckcount -ge 10 ] && [ $healthcheckcount -ge $successcount ] || [ $crithealthcount -ge 4 ] && [ $successcount -le 40 ] ; then
 		if [ $healthchecklock == 1 ]; then
 			#skip restart
 			healthchecklock=0
