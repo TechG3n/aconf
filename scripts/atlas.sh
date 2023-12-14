@@ -563,6 +563,10 @@ if [[ $origin != "" ]] ;then
   if [ $(cat /system/build.prop | grep net.hostname | wc -l) = 0 ]; then
     mount_system_rw
     logger "no hostname set, setting it to $origin"
+    if [ -n "$(tail -c 1 /system/build.prop)" ]; then
+      echo "" >> /system/build.prop
+      echo "alarm"
+    fi 
     echo "net.hostname=$origin" >> /system/build.prop
     mount_system_ro
   else
