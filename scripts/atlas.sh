@@ -565,7 +565,6 @@ if [[ $origin != "" ]] ;then
     logger "no hostname set, setting it to $origin"
     if [ -n "$(tail -c 1 /system/build.prop)" ]; then
       echo "" >> /system/build.prop
-      echo "alarm"
     fi 
     echo "net.hostname=$origin" >> /system/build.prop
     mount_system_ro
