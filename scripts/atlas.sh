@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.38
+# version 2.1.39
 
 #Version checks
 Ver42atlas="1.5"
@@ -563,6 +563,7 @@ if [[ $origin != "" ]] ;then
   if [ $(cat /system/build.prop | grep net.hostname | wc -l) = 0 ]; then
     mount_system_rw
     logger "no hostname set, setting it to $origin"
+    echo "" >> /system/build.prop
     echo "net.hostname=$origin" >> /system/build.prop
     mount_system_ro
   else
