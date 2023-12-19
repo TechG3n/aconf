@@ -21,6 +21,7 @@ play_integrity                   - true/false - If true, the APK verification wi
 loop_protect_enabled             - true/false - If true, atlas.sh will stop to reboot the device after 20 trys per day
 proxy_address                    - ip:port - if set, this address will be configured as system proxy
 set_proxy_only_in_same_network   - true/false - If true, only devices with the same subnet will set the proxy (if Proxy_address is 192.168.178.10, only devices with 192.168.178.X will set the proxy)
+PIF_module                       - the version of the PlayIntegrityFix Module 
 ```
 4. If you want to skip adding names manually on reflashed devices, copy and fill out mac2name.exmaple file 
 5. Add latest atlas version and supported pogo versions to apk folder, make sure to follow naming convention as per example below:  
@@ -29,6 +30,8 @@ PokemodAtlas-Public-v22050101.apk
 pokemongo_arm64-v8a_0.235.0.apk
 pokemongo_armeabi-v7a_0.235.0.apk
 ``` 
+6. Add desired PlayIntegrityFix Module to the module folder and put its version in the version file. For the name follow the naming convention of the example
+
 
 ## ATV setup
 
