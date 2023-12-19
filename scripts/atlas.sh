@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.40
+# version 2.1.41
 
 #Version checks
 Ver42atlas="1.5"
@@ -458,6 +458,28 @@ if [[ $origin = "" ]] ;then
 fi
 
 
+# update playintegrityfix magisk modul if needed
+versionsPIFv=$(grep 'PIF_module' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
+
+if [[ ! -z $versionsPIFv ]] ;then
+  # get installed version
+  instPIFv=$(grep 'version=' /data/adb/modules/playintegrityfix/module.prop | awk -F "=v" '{ print $NF }')
+  [ -z "$instPIFv" ] && instPIFv=0
+  if [[ $instPIFv != $versionsPIFv ]] ;then
+    /system/bin/rm -f /sdcard/Download/PIF_module.zip
+    until $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip" >> $logfile ; logger "download PIF_module failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    am force-stop com.pokemod.atlas
+    am force-stop com.nianticlabs.pokemongo
+    /sbin/magisk --install-module /sdcard/Download/PIF_module.zip
+    logger "Updated PIF module from $instPIFv to $versionsPIFv"
+    reboot_device
+  else
+    echo "`date +%Y-%m-%d_%T` atlas.sh: PIF module correct, proceed" >> $logfile
+  fi
+fi
+
 #update 42atlas if needed
 if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   if [[ -f /system/etc/init.d/42atlas ]] ;then
@@ -549,12 +571,12 @@ fi
 
 # prevent aconf causing reboot loop. Add bypass ?? <- done :)
 loop_protect_enabled=$(grep 'loop_protect_enabled' $aconf_versions | awk -F "=" '{ print $NF }')
-if [[ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ]] ;then
+if [[ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | grep -v "over 20 times" | wc -l) -gt 20 ]] ;then
   if [[ $loop_protect_enabled != "false" ]] ;then
-    logger "device reb00ted over 20 times today, atlas.sh signing out, see you tomorrow"
+    logger "device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"
     exit 1
   else
-    logger "device reb00ted over 20 times today, BUT loop protect is disabled, will continue - Don't forget to turn it back on!"
+    logger "device rebooted over 20 times today, BUT loop protect is disabled, will continue - Don't forget to turn it back on!"
   fi
 fi
 
