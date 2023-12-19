@@ -463,7 +463,7 @@ versionsPIFv=$(grep 'PIF_module' $aconf_versions | awk -F "=" '{ print $NF }' | 
 
 if [[ ! -z $versionsPIFv ]] ;then
   # get installed version
-  instPIFv=$(grep 'version=' /data/adb/modules/playintegrityfix/module.prop | awk -F "=v" '{ print $NF }')
+  instPIFv=$(grep 'version=' /data/adb/modules/playintegrityfix/module.prop || echo 0 | awk -F "=v" '{ print $NF }' )
   if [[ $instPIFv != $versionsPIFv ]] ;then
     /system/bin/rm -f /sdcard/Download/PIF_module.zip
     until $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip" >> $logfile ; logger "download PIF_module failed, exit script" ; exit 1; } ;do
