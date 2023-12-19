@@ -459,7 +459,7 @@ fi
 
 
 # update playintegrityfix magisk modul if needed
-versionsPIFv=$(grep 'PIF_module' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }' | sed 's/\"//g')
+versionsPIFv=$(grep 'PIF_module' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
 
 if [[ ! -z $versionsPIFv ]] ;then
   # get installed version
