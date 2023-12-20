@@ -458,28 +458,6 @@ if [[ $origin = "" ]] ;then
 fi
 
 
-# update playintegrityfix magisk modul if needed
-versionsPIFv=$(grep 'PIF_module' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
-
-if [[ ! -z $versionsPIFv ]] ;then
-  # get installed version
-  instPIFv=$(grep 'version=' /data/adb/modules/playintegrityfix/module.prop | awk -F "=v" '{ print $NF }')
-  [ -z "$instPIFv" ] && instPIFv=0
-  if [[ $instPIFv != $versionsPIFv ]] ;then
-    /system/bin/rm -f /sdcard/Download/PIF_module.zip
-    until $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip" >> $logfile ; logger "download PIF_module failed, exit script" ; exit 1; } ;do
-      sleep 2
-    done
-    am force-stop com.pokemod.atlas
-    am force-stop com.nianticlabs.pokemongo
-    /sbin/magisk --install-module /sdcard/Download/PIF_module.zip
-    logger "Updated PIF module from $instPIFv to $versionsPIFv"
-    reboot_device
-  else
-    echo "`date +%Y-%m-%d_%T` atlas.sh: PIF module correct, proceed" >> $logfile
-  fi
-fi
-
 #update 42atlas if needed
 if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   if [[ -f /system/etc/init.d/42atlas ]] ;then
@@ -692,6 +670,27 @@ if [[ ! -z $proxy_address ]] ;then
   fi
 fi
 
+# update playintegrityfix magisk modul if needed
+versionsPIFv=$(grep 'PIF_module' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
+
+if [[ ! -z $versionsPIFv ]] ;then
+  # get installed version
+  instPIFv=$(grep 'version=' /data/adb/modules/playintegrityfix/module.prop | awk -F "=v" '{ print $NF }')
+  [ -z "$instPIFv" ] && instPIFv=0
+  if [[ $instPIFv != $versionsPIFv ]] ;then
+    /system/bin/rm -f /sdcard/Download/PIF_module.zip
+    until $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip" >> $logfile ; logger "download PIF_module failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    am force-stop com.pokemod.atlas
+    am force-stop com.nianticlabs.pokemongo
+    /sbin/magisk --install-module /sdcard/Download/PIF_module.zip
+    logger "Updated PIF module from $instPIFv to $versionsPIFv"
+    reboot_device
+  else
+    echo "`date +%Y-%m-%d_%T` atlas.sh: PIF module correct, proceed" >> $logfile
+  fi
+fi
 
 for i in "$@" ;do
  case "$i" in
