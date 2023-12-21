@@ -686,7 +686,7 @@ if [[ ! -z $versionsPIFv ]] ;then
     am force-stop com.nianticlabs.pokemongo
     /sbin/magisk --install-module /sdcard/Download/PIF_module.zip
     logger "Updated PIF module from $instPIFv to $versionsPIFv"
-    reboot_device
+    reboot=1
   else
     echo "`date +%Y-%m-%d_%T` atlas.sh: PIF module correct, proceed" >> $logfile
   fi
