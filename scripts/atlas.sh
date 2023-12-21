@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.41
+# version 2.1.42
 
 #Version checks
 Ver42atlas="1.5"
@@ -648,6 +648,12 @@ fi
 proxy_address=$(grep 'proxy_address' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
 if [[ ! -z $proxy_address ]] ;then
   proxy_get=$(settings list global | grep "http_proxy=" | awk -F= '{ print $NF }')
+  if [ ! -z "$proxy_get" ] && [ "$proxy_get" != ":0" ] && [ "$proxy_address" = "remove" ]; then
+    settings put global http_proxy :0
+    sleep 2
+    su -c am broadcast -a android.intent.action.PROXY_CHANGE
+    logger "Removed local proxy"
+  fi
   if [ -z "$proxy_get" ] || [ "$proxy_get" = ":0" ]; then
     set_proxy_only_in_same_network=$(grep 'set_proxy_only_in_same_network' $aconf_versions | awk -F "=" '{ print $NF }')
     if [[ $set_proxy_only_in_same_network != "false" ]] ; then
@@ -667,7 +673,7 @@ if [[ ! -z $proxy_address ]] ;then
       su -c am broadcast -a android.intent.action.PROXY_CHANGE
       logger "Set Proxy to $proxy_address"
     fi
-  fi
+  fi 
 fi
 
 # update playintegrityfix magisk modul if needed

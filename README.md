@@ -19,7 +19,7 @@ atlas_md5                        - the hash of the atlas.apk (In Case the APK ch
 healthcheck_errors               - true/false - decides if a discord message will be send if a device got many health check errors 
 play_integrity                   - true/false - If true, the APK verification will be disabled (needed to install atlas in A9 without manual interaction)
 loop_protect_enabled             - true/false - If true, atlas.sh will stop to reboot the device after 20 trys per day
-proxy_address                    - ip:port - if set, this address will be configured as system proxy
+proxy_address                    - ip:port - if set, this address will be configured as system proxy. Use "remove" to remove proxy from all devices.
 set_proxy_only_in_same_network   - true/false - If true, only devices with the same subnet will set the proxy (if Proxy_address is 192.168.178.10, only devices with 192.168.178.X will set the proxy)
 PIF_module                       - the version of the PlayIntegrityFix Module 
 ```
