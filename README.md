@@ -60,6 +60,12 @@ After initial setup and several reboots push the install of the atlas script man
 ```
 su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/atlas.sh "$url_base/scripts/atlas.sh" && chmod +x /system/bin/atlas.sh ; mount -o remount,ro / && /system/bin/atlas.sh -ia'
 ```
+## Remove aconf
+To remove aconf from an ATV - just use this command via ADB:
+
+```
+su -c 'mount -o remount,rw / && rm -f /data/local/aconf_download /data/local/aconf_versions /data/local/aconf_mac2name /system/bin/atlas.sh /system/bin/atlas_new.sh /system/bin/atlas_monitor.sh /system/etc/init/55atlas.rc /system/etc/init/atlas_monitor.rc /system/etc/init.d/55atlas /sdcard/atlas_monitor.log /sdcard/aconf.log /sdcard/not_licensed && sync ; mount -o remount,ro / && pgrep -f -L9 /system/bin/ATVdetailsSender.sh && pgrep -f -L9 /system/bin/atlas_monitor.sh'
+```
 
 ### Logs
 Logging and any failure while executing script is logged to the /sdcard/ folder - `aconf.log` & `atlas_monitor.log` can be found there
