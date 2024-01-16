@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.46
+# version 2.1.48
 
 #Version checks
 Ver42atlas="1.5"
@@ -711,9 +711,11 @@ if [[ ! -z $versionsFingerPrintv ]] ;then
     until $download /sdcard/Download/pif.json $url/modules/pif.json || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pif.json $url/modules/pif.json" >> $logfile ; logger "download FingerPrint failed, exit script" ; exit 1; } ;do
       sleep 2
     done
+    cp /sdcard/Download/pif.json /data/adb/pif.json
     logger "Updated FingerPrint from $instFingerPrintv to $versionsFingerPrintv"
     echo $versionsFingerPrintv > /data/local/tmp/fingerprint.version
-    reboot=1
+    /system/bin/killall com.google.android.gms.unstable
+    #reboot=1
   else
     echo "`date +%Y-%m-%d_%T` atlas.sh: FingerPrint correct, proceed" >> $logfile
   fi
