@@ -33,3 +33,4 @@ loop_protect_enabled=true
 proxy_address=""
 set_proxy_only_in_same_network=true
 PIF_module="14.5"
+FingerPrintVersion="1"
