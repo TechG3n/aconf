@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.45
+# version 2.1.46
 
 #Version checks
 Ver42atlas="1.5"
@@ -706,7 +706,7 @@ if [[ ! -z $versionsFingerPrintv ]] ;then
   # get installed version
   instFingerPrintv=$(cat /data/local/tmp/fingerprint.version)
   [ -z "$instFingerPrintv" ] && instFingerPrintv=0
-  if [[ $instFingerPrintv != $versionsPIFv ]] ;then
+  if [[ $instFingerPrintv < $versionsPIFv ]] ;then
     /system/bin/rm -f /sdcard/Download/pif.json
     until $download /sdcard/Download/pif.json $url/modules/pif.json || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pif.json $url/modules/pif.json" >> $logfile ; logger "download FingerPrint failed, exit script" ; exit 1; } ;do
       sleep 2
