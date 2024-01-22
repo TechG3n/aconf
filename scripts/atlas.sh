@@ -1,10 +1,10 @@
 #!/system/bin/sh
-# version 2.1.38
+# version 2.1.52
 
 #Version checks
 Ver42atlas="1.5"
 Ver55atlas="1.0"
-VerMonitor="3.2.6"
+VerMonitor="3.2.9"
 VerATVsender="1.8.1"
 
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
@@ -549,12 +549,12 @@ fi
 
 # prevent aconf causing reboot loop. Add bypass ?? <- done :)
 loop_protect_enabled=$(grep 'loop_protect_enabled' $aconf_versions | awk -F "=" '{ print $NF }')
-if [[ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | wc -l) -gt 20 ]] ;then
+if [[ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | grep -v "over 20 times" | wc -l) -gt 20 ]] ;then
   if [[ $loop_protect_enabled != "false" ]] ;then
-    logger "device reb00ted over 20 times today, atlas.sh signing out, see you tomorrow"
+    logger "device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"
     exit 1
   else
-    logger "device reb00ted over 20 times today, BUT loop protect is disabled, will continue - Don't forget to turn it back on!"
+    logger "device rebooted over 20 times today, BUT loop protect is disabled, will continue - Don't forget to turn it back on!"
   fi
 fi
 
@@ -563,6 +563,9 @@ if [[ $origin != "" ]] ;then
   if [ $(cat /system/build.prop | grep net.hostname | wc -l) = 0 ]; then
     mount_system_rw
     logger "no hostname set, setting it to $origin"
+    if [ -n "$(tail -c 1 /system/build.prop)" ]; then
+      echo "" >> /system/build.prop
+    fi 
     echo "net.hostname=$origin" >> /system/build.prop
     mount_system_ro
   else
@@ -645,6 +648,12 @@ fi
 proxy_address=$(grep 'proxy_address' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
 if [[ ! -z $proxy_address ]] ;then
   proxy_get=$(settings list global | grep "http_proxy=" | awk -F= '{ print $NF }')
+  if [ ! -z "$proxy_get" ] && [ "$proxy_get" != ":0" ] && [ "$proxy_address" = "remove" ]; then
+    settings put global http_proxy :0
+    sleep 2
+    su -c am broadcast -a android.intent.action.PROXY_CHANGE
+    logger "Removed local proxy"
+  fi
   if [ -z "$proxy_get" ] || [ "$proxy_get" = ":0" ]; then
     set_proxy_only_in_same_network=$(grep 'set_proxy_only_in_same_network' $aconf_versions | awk -F "=" '{ print $NF }')
     if [[ $set_proxy_only_in_same_network != "false" ]] ; then
@@ -664,6 +673,51 @@ if [[ ! -z $proxy_address ]] ;then
       su -c am broadcast -a android.intent.action.PROXY_CHANGE
       logger "Set Proxy to $proxy_address"
     fi
+  fi 
+fi
+
+# update playintegrityfix magisk modul if needed
+versionsPIFv=$(grep 'PIF_module' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
+
+if [[ ! -z $versionsPIFv ]] ;then
+  # get installed version
+  instPIFv=$(grep 'version=' /data/adb/modules/playintegrityfix/module.prop | awk -F "=v" '{ print $NF }')
+  [ -z "$instPIFv" ] && instPIFv=0
+  if [[ $instPIFv != $versionsPIFv ]] ;then
+    /system/bin/rm -f /sdcard/Download/PIF_module.zip
+    until $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip" >> $logfile ; logger "download PIF_module failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    am force-stop com.pokemod.atlas
+    am force-stop com.nianticlabs.pokemongo
+    /sbin/magisk --install-module /sdcard/Download/PIF_module.zip
+    logger "Updated PIF module from $instPIFv to $versionsPIFv"
+    reboot=1
+  else
+    echo "`date +%Y-%m-%d_%T` atlas.sh: PIF module correct, proceed" >> $logfile
+  fi
+fi
+
+
+# update Fingerprint if needed
+versionsFingerPrintv=$(grep 'FingerPrintVersion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
+
+if [[ ! -z $versionsFingerPrintv ]] ;then
+  # get installed version
+  instFingerPrintv=$(cat /data/local/tmp/fingerprint.version)
+  [ -z "$instFingerPrintv" ] && instFingerPrintv=0
+  if [[ $instFingerPrintv -lt $versionsFingerPrintv ]] ;then
+    /system/bin/rm -f /sdcard/Download/pif.json
+    until $download /sdcard/Download/pif.json $url/modules/pif.json || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pif.json $url/modules/pif.json" >> $logfile ; logger "download FingerPrint failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    cp /sdcard/Download/pif.json /data/adb/pif.json
+    logger "Updated FingerPrint from $instFingerPrintv to $versionsFingerPrintv"
+    echo $versionsFingerPrintv > /data/local/tmp/fingerprint.version
+    /system/bin/killall com.google.android.gms.unstable
+    #reboot=1
+  else
+    echo "`date +%Y-%m-%d_%T` atlas.sh: FingerPrint correct, proceed" >> $logfile
   fi
 fi
 
