@@ -1,5 +1,6 @@
 #macaddress;hostname
 #get this from aconf SQL DB with "select MACe,MACw,devicename from ATVsummary"
+#use lowercase letters
 6a:7f:bd:d2:1e:4f;ATV1
 23:ef:58:91:ac:2d;Scanner2
 a7:04:36:c9:8e:5b;Android3
