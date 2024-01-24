@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.2.9
+# version 3.3.0
 #set -x
 
 # Monitor by Oldmole && bbdoc
@@ -14,6 +14,7 @@ deviceonline="0"
 emptycheck=9
 updatecheck=0
 healthchecklock=0
+stalllock=0
 
 source /data/local/aconf_versions
 export useMonitor
@@ -198,5 +199,19 @@ do
 		healthchecklock=0
 	fi
 
+	# Instance 2's loop has been stalled for over a minute.. Restarting instance...
+	stalled=$(echo "$lastlog" | grep -E 'loop has been stalled for over a minute' | wc -l )
+	if [ $stalled -ge 1 ]
+		if [[ $stalllock == 1 ]]; then
+			#skip restart
+			stalllock=0
+		else
+			echo "`date +%Y-%m-%d_%T` [MONITORBOT] One instance stalled - restarting atlas" >> $logfile
+			stop_start_atlas
+			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: One instance stalled - restarting atlas\"}" $discord_webhook &>/dev/null
+			stalllock=1
+		fi
+	fi
+		
 	sleep $monitor_interval
 done
