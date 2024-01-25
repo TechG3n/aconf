@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.3.0
+# version 3.3.1
 #set -x
 
 # Monitor by Oldmole && bbdoc
@@ -38,7 +38,7 @@ check_for_updates() {
 }
 
 stop_start_atlas () {
-	am force-stop com.nianticlabs.pokemongo &  rm -rf /data/data/com.nianticlabs.pokemongo/cache/* & am force-stop com.pokemod.atlas 
+	am force-stop com.nianticlabs.pokemongo &  rm -rf /data/data/com.nianticlabs.pokemongo/cache/* 2>/dev/null & am force-stop com.pokemod.atlas 
 	sleep 5
 	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of Atlas" >> $logfile
 
@@ -52,7 +52,7 @@ stop_start_atlas () {
 }
 
 stop_pogo () {
-	am force-stop com.nianticlabs.pokemongo & rm -rf /data/data/com.nianticlabs.pokemongo/cache/*
+	am force-stop com.nianticlabs.pokemongo & rm -rf /data/data/com.nianticlabs.pokemongo/cache/* 2>/dev/null
 	sleep 5
 	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Killing pogo and clearing junk" >> $logfile
 }
@@ -201,7 +201,7 @@ do
 
 	# Instance 2's loop has been stalled for over a minute.. Restarting instance...
 	stalled=$(echo "$lastlog" | grep -E 'loop has been stalled for over a minute' | wc -l )
-	if [ $stalled -ge 1 ]
+	if [ $stalled -ge 1 ]; then
 		if [[ $stalllock == 1 ]]; then
 			#skip restart
 			stalllock=0
@@ -211,6 +211,8 @@ do
 			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: One instance stalled - restarting atlas\"}" $discord_webhook &>/dev/null
 			stalllock=1
 		fi
+	else
+		stalllock=0
 	fi
 		
 	sleep $monitor_interval
