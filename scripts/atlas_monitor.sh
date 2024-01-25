@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.3.1
+# version 3.3.2
 #set -x
 
 # Monitor by Oldmole && bbdoc
@@ -202,17 +202,17 @@ do
 	# Instance 2's loop has been stalled for over a minute.. Restarting instance...
 	stalled=$(echo "$lastlog" | grep -E 'loop has been stalled for over a minute' | wc -l )
 	if [ $stalled -ge 1 ]; then
-		if [[ $stalllock == 1 ]]; then
+		if [[ $stalllock -ge 1 ]]; then
 			#skip restart
-			stalllock=0
+			stalllock=$((stalllock - 1))
 		else
 			echo "`date +%Y-%m-%d_%T` [MONITORBOT] One instance stalled - restarting atlas" >> $logfile
 			stop_start_atlas
 			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: One instance stalled - restarting atlas\"}" $discord_webhook &>/dev/null
-			stalllock=1
+			stalllock=2
 		fi
 	else
-		stalllock=0
+		stalllock=$((stalllock - 1))
 	fi
 		
 	sleep $monitor_interval
