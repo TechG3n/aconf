@@ -1,5 +1,7 @@
 versions
+mac2name
 atlas_config.json
+aegis_config.json
 wh_receiver/config.ini
 apk/*
 

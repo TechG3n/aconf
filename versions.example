@@ -1,6 +1,8 @@
 pogo=0.293.0
 atlas=v23120901
+aegis=
 atlas_md5=5c4d4c559c6fe78850a6e8d7eb4b40cf
+aegis_md5=
 rgc=off
 
 # Settings for Atlas monitor script
@@ -20,17 +22,20 @@ atvdetails_receiver_pass=""
 
 # Settings for Monitor Webhooks
 recreate_atlas_config=true
+recreate_aegis_config=true
 atlas_died=true
+aegis_died=true
 pogo_died=true
 device_offline=true
 unable_check_status=true
 pogo_not_focused=false
 healthcheck_errors=true
 
-# Settings for Atlas.sh
+# Settings for atlas.sh / aegis.sh
 play_integrity=true
 loop_protect_enabled=true
 proxy_address=""
 set_proxy_only_in_same_network=true
 PIF_module="14.5"
 FingerPrintVersion="1"
+CustomeJob="0"
