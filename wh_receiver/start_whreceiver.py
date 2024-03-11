@@ -3,7 +3,7 @@
 #
 __author__ = "GhostTalker and Apple314"
 __copyright__ = "Copyright 2022, The GhostTalker project"
-__version__ = "0.2.4"
+__version__ = "0.3.0"
 __status__ = "DEV"
 
 import os
@@ -142,6 +142,7 @@ def webhook():
         aegisSh = validate_string(request.json["aegisSh"])
         aegis55 = validate_string(request.json["aegis55"])
         aegis42 = validate_string(request.json["aegis42"])
+        monitor = validate_string(request.json["monitor"])
         pogo = validate_string(request.json["pogo"])
         atlas = validate_string(request.json["atlas"])
         aegis = validate_string(request.json["aegis"])

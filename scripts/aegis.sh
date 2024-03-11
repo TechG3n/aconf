@@ -644,38 +644,6 @@ if [[ $play_integrity != "false" ]] && [[ $pintegrity == 1 ]]; then
   logger "disabled PlayIntegrity APK verification"
 fi
 
-# set proxy server
-proxy_address=$(grep 'proxy_address' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
-if [[ ! -z $proxy_address ]] ;then
-  proxy_get=$(settings list global | grep "http_proxy=" | awk -F= '{ print $NF }')
-  if [ ! -z "$proxy_get" ] && [ "$proxy_get" != ":0" ] && [ "$proxy_address" = "remove" ]; then
-    settings put global http_proxy :0
-    sleep 2
-    su -c am broadcast -a android.intent.action.PROXY_CHANGE
-    logger "Removed local proxy"
-  fi
-  if [ -z "$proxy_get" ] || [ "$proxy_get" = ":0" ]; then
-    set_proxy_only_in_same_network=$(grep 'set_proxy_only_in_same_network' $aconf_versions | awk -F "=" '{ print $NF }')
-    if [[ $set_proxy_only_in_same_network != "false" ]] ; then
-      proxy_net=$(echo $proxy_address | awk -F'.' '{print $1"."$2"."$3}')
-      local_net=$(ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1 | awk -F'.' '{print $1"."$2"."$3}')
-      if [ "$proxy_net" == "$local_net" ]; then
-        settings put global http_proxy $proxy_address
-        sleep 2
-        su -c am broadcast -a android.intent.action.PROXY_CHANGE
-        logger "Set Proxy to $proxy_address"
-      else
-        echo "`date +%Y-%m-%d_%T` aegis.sh: Proxy not set, not in same network" >> $logfile
-      fi
-    else
-      settings put global http_proxy $proxy_address
-      sleep 2
-      su -c am broadcast -a android.intent.action.PROXY_CHANGE
-      logger "Set Proxy to $proxy_address"
-    fi
-  fi 
-fi
-
 # update playintegrityfix magisk modul if needed
 versionsPIFv=$(grep 'PIF_module' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
 

@@ -6,10 +6,14 @@ CREATE TABLE IF NOT EXISTS `ATVsummary` (
   `atlasSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `55atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `42atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `aegisSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `55aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `42aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `monitor` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `whversion` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pogo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `temperature` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `magisk` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `magisk_modules` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -43,6 +47,7 @@ CREATE TABLE IF NOT EXISTS `ATVstats` (
   `memAv` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `memPogo` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `memAtlas` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `memAegis` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cpuSys` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cpuUser` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cpuL5` float COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -63,11 +68,13 @@ CREATE TABLE IF NOT EXISTS `ATVlogs` (
   `a_injection` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `a_ptcLogin` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `a_atlasCrash` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `a_aegisCrash` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `a_rdmError` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_noInternet` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_noConfig` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_noLicense` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_atlasDied` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `m_aegisDied` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_pogoDied` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_deviceOffline` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_noRDM` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -90,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `version` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
+-- Update 1
 ALTER TABLE ATVsummary
 ADD COLUMN IF NOT EXISTS `42atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `55atlas`,
 ADD COLUMN IF NOT EXISTS `reboot` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -103,6 +110,26 @@ ADD COLUMN IF NOT EXISTS `playstore` varchar(40) COLLATE utf8mb4_unicode_ci DEFA
 ADD COLUMN IF NOT EXISTS `proxyinfo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ;
 
+-- Update 2 (aegis)
+ALTER TABLE ATVsummary
+ADD COLUMN IF NOT EXISTS `42aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `55aegis`,
+ADD COLUMN IF NOT EXISTS `aegisSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `55aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `42aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+;
+
+ALTER TABLEATVlogs
+ADD COLUMN IF NOT EXISTS `a_aegisCrash` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `m_aegisDied` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+;
+
+ALTER TABLE ATVstats
+ADD COLUMN IF NOT EXISTS `memAegis` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+;
+
+
+
 -- update version
 INSERT IGNORE INTO version values ('atlas_atvdetails',1);
-UPDATE version set version = 5 where version.key = 'atlas_atvdetails';
+UPDATE version set version = 6 where version.key = 'atlas_atvdetails';
