@@ -112,22 +112,8 @@ ADD COLUMN IF NOT EXISTS `proxyinfo` varchar(40) COLLATE utf8mb4_unicode_ci DEFA
 
 -- Update 2 (aegis)
 ALTER TABLE ATVsummary
-ADD COLUMN IF NOT EXISTS `42aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `55aegis`,
-ADD COLUMN IF NOT EXISTS `aegisSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-ADD COLUMN IF NOT EXISTS `55aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-ADD COLUMN IF NOT EXISTS `42aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-ADD COLUMN IF NOT EXISTS `aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+ADD COLUMN IF NOT EXISTS `MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ;
-
-ALTER TABLEATVlogs
-ADD COLUMN IF NOT EXISTS `a_aegisCrash` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-ADD COLUMN IF NOT EXISTS `m_aegisDied` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL
-;
-
-ALTER TABLE ATVstats
-ADD COLUMN IF NOT EXISTS `memAegis` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL
-;
-
 
 
 -- update version

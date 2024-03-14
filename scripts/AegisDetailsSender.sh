@@ -24,17 +24,18 @@ while true
     dos2unix $aegis_conf
 
 # generic
+    MITM="Aegis"
     RPL=$(($atvdetails_interval/60))
     deviceName=$(cat $aegis_conf | tr , '\n' | grep -w 'deviceName' | awk -F ":" '{ print $2 }' | tr -d \"})
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
-    aegisSh=$(head -2 /system/bin/aegis.sh | grep '# version' | awk '{ print $NF }')
-    aegis55=$([ -f /system/etc/init.d/55aegis ] && head -2 /system/etc/init.d/55aegis | grep '# version' | awk '{ print $NF }' || echo 'na')
-    aegis42=$([ -f /system/etc/init.d/42aegis ] && head -2 /system/etc/init.d/42aegis | grep '# version' | awk '{ print $NF }' || echo 'na')
+    MITMSh=$(head -2 /system/bin/aegis.sh | grep '# version' | awk '{ print $NF }')
+    MITM55=$([ -f /system/etc/init.d/55aegis ] && head -2 /system/etc/init.d/55aegis | grep '# version' | awk '{ print $NF }' || echo 'na')
+    MITM42=$([ -f /system/etc/init.d/42aegis ] && head -2 /system/etc/init.d/42aegis | grep '# version' | awk '{ print $NF }' || echo 'na')
     monitor=$([ -f /system/bin/aegis_monitor.sh ] && head -2 /system/bin/aegis_monitor.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     whversion=$([ -f /system/bin/ATVdetailsSender.sh ] && head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-    aegis=$(dumpsys package com.pokemod.aegis | grep versionName | head -n1 | sed 's/ *versionName=//')
+    MITMv=$(dumpsys package com.pokemod.aegis | grep versionName | head -n1 | sed 's/ *versionName=//')
     temperature=$(cat /sys/class/thermal/thermal_zone0/temp | cut -c -2)
     magisk=$(magisk -c | sed 's/:.*//')
     macw=$([ -d /sys/class/net/wlan0 ] && ifconfig wlan0 |grep 'HWaddr' |awk '{ print ($NF) }' || echo 'na')
@@ -49,7 +50,7 @@ while true
     memFree=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
     memAv=$(cat /proc/meminfo | grep MemAvailable | awk '{print $2}')
     memPogo=$(dumpsys meminfo 'com.nianticlabs.pokemongo' | grep -m 1 "TOTAL" | awk '{print $2}')
-    memAegis=$(dumpsys meminfo 'com.pokemod.aegis:mapping' | grep -m 1 "TOTAL" | awk '{print $2}')
+    memMITM=$(dumpsys meminfo 'com.pokemod.aegis:mapping' | grep -m 1 "TOTAL" | awk '{print $2}')
     cpuL5=$(dumpsys cpuinfo | grep "Load" | awk '{ print $2 }')
     cpuL10=$(dumpsys cpuinfo | grep "Load" | awk '{ print $4 }')
     cpuL15=$(dumpsys cpuinfo | grep "Load" | awk '{ print $6 }')
@@ -66,14 +67,14 @@ while true
     a_pogoStarted=$(grep 'Launched Pokemon Go' $aegis_log | wc -l)
     a_injection=$(grep 'Injected successfully' $aegis_log | wc -l)
     a_ptcLogin=$(grep 'Logged in using ptc' $aegis_log | wc -l)
-    a_aegisCrash=$(grep 'Agent has crashed or stopped responding' $aegis_log | wc -l)
+    a_MITMCrash=$(grep 'Agent has crashed or stopped responding' $aegis_log | wc -l)
     a_rdmError=$(grep 'Could not send heartbeat' $aegis_log | wc -l)
 
 # monitor.log
     m_noInternet=$(grep 'No internet' $monitor_log | wc -l)
     m_noConfig=$(grep 'aegis_config.json does not exist or is empty' $monitor_log | wc -l)
     m_noLicense=$(grep 'Device Lost Aegis License' $monitor_log | wc -l)
-    m_aegisDied=$(grep 'Aegis must be dead, rebooting device' $monitor_log | wc -l)
+    m_MITMDied=$(grep 'Aegis must be dead, rebooting device' $monitor_log | wc -l)
     m_pogoDied=$(grep 'Pogo must be dead, rebooting device' $monitor_log | wc -l)
     m_deviceOffline=$(grep 'Device must be offline. Running a stop mapping service of Aegis, killing pogo and clearing junk' $monitor_log | wc -l)
     m_noRDM=$(grep 'something wrong with RDM' $monitor_log | wc -l)
@@ -112,17 +113,18 @@ fi
 {
     "WHType": "ATVDetails",
 
+    "MITM": "${MITM}",
     "RPL": "${RPL}",
     "deviceName": "${deviceName}",
     "arch": "${arch}",
     "productmodel": "${productmodel}",
-    "aegisSh": "${aegisSh}",
-    "aegis55": "${aegis55}",
-    "aegis42": "${aegis42}",
+    "MITMSh": "${MITMSh}",
+    "MITM55": "${MITM55}",
+    "MITM42": "${MITM42}",
     "monitor": "${monitor}",
     "whversion": "${whversion}",
     "pogo": "${pogo}",
-    "aegis": "${aegis}",
+    "MITMv": "${MITMv}",
     "temperature": "${temperature}",
     "magisk": "${magisk}",
     "magisk_modules": "${magisk_modules}",
@@ -138,7 +140,7 @@ fi
     "memFree": "${memFree}",
     "memAv": "${memAv}",
     "memPogo": "${memPogo}",
-    "memAegis": "${memAegis}",
+    "memMITM": "${memMITM}",
     "cpuSys": "${cpuSys}",
     "cpuUser": "${cpuUser}",
     "cpuL5": "${cpuL5}",
@@ -161,13 +163,13 @@ fi
     "a_pogoStarted": "${a_pogoStarted}",
     "a_injection": "${a_injection}",
     "a_ptcLogin": "${a_ptcLogin}",
-    "a_aegisCrash": "${a_aegisCrash}",
+    "a_MITMCrash": "${a_MITMCrash}",
     "a_rdmError": "${a_rdmError}",
 
     "m_noInternet": "${m_noInternet}",
     "m_noConfig": "${m_noConfig}",
     "m_noLicense": "${m_noLicense}",
-    "m_aegisDied": "${m_aegisDied}",
+    "m_MITMDied": "${m_MITMDied}",
     "m_pogoDied": "${m_pogoDied}",
     "m_deviceOffline": "${m_deviceOffline}",
     "m_noRDM": "${m_noRDM}",

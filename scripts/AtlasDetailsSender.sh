@@ -24,17 +24,18 @@ while true
     dos2unix $atlas_conf
 
 # generic
+    MITM="Atlas"
     RPL=$(($atvdetails_interval/60))
     deviceName=$(cat $atlas_conf | tr , '\n' | grep -w 'deviceName' | awk -F ":" '{ print $2 }' | tr -d \"})
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
-    atlasSh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
-    atlas55=$([ -f /system/etc/init.d/55atlas ] && head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
-    atlas42=$([ -f /system/etc/init.d/42atlas ] && head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
+    MITMSh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
+    MITM55=$([ -f /system/etc/init.d/55atlas ] && head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
+    MITM42=$([ -f /system/etc/init.d/42atlas ] && head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
     monitor=$([ -f /system/bin/atlas_monitor.sh ] && head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     whversion=$([ -f /system/bin/ATVdetailsSender.sh ] && head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-    atlas=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
+    MITMv=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
     temperature=$(cat /sys/class/thermal/thermal_zone0/temp | cut -c -2)
     magisk=$(magisk -c | sed 's/:.*//')
     macw=$([ -d /sys/class/net/wlan0 ] && ifconfig wlan0 |grep 'HWaddr' |awk '{ print ($NF) }' || echo 'na')
@@ -49,7 +50,7 @@ while true
     memFree=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
     memAv=$(cat /proc/meminfo | grep MemAvailable | awk '{print $2}')
     memPogo=$(dumpsys meminfo 'com.nianticlabs.pokemongo' | grep -m 1 "TOTAL" | awk '{print $2}')
-    memAtlas=$(dumpsys meminfo 'com.pokemod.atlas:mapping' | grep -m 1 "TOTAL" | awk '{print $2}')
+    memMITM=$(dumpsys meminfo 'com.pokemod.atlas:mapping' | grep -m 1 "TOTAL" | awk '{print $2}')
     cpuL5=$(dumpsys cpuinfo | grep "Load" | awk '{ print $2 }')
     cpuL10=$(dumpsys cpuinfo | grep "Load" | awk '{ print $4 }')
     cpuL15=$(dumpsys cpuinfo | grep "Load" | awk '{ print $6 }')
@@ -66,14 +67,14 @@ while true
     a_pogoStarted=$(grep 'Launched Pokemon Go' $atlas_log | wc -l)
     a_injection=$(grep 'Injected successfully' $atlas_log | wc -l)
     a_ptcLogin=$(grep 'Logged in using ptc' $atlas_log | wc -l)
-    a_atlasCrash=$(grep 'Agent has crashed or stopped responding' $atlas_log | wc -l)
+    a_MITMCrash=$(grep 'Agent has crashed or stopped responding' $atlas_log | wc -l)
     a_rdmError=$(grep 'Could not send heartbeat' $atlas_log | wc -l)
 
 # monitor.log
     m_noInternet=$(grep 'No internet' $monitor_log | wc -l)
     m_noConfig=$(grep 'atlas_config.json does not exist or is empty' $monitor_log | wc -l)
     m_noLicense=$(grep 'Device Lost Atlas License' $monitor_log | wc -l)
-    m_atlasDied=$(grep 'Atlas must be dead, rebooting device' $monitor_log | wc -l)
+    m_MITMDied=$(grep 'Atlas must be dead, rebooting device' $monitor_log | wc -l)
     m_pogoDied=$(grep 'Pogo must be dead, rebooting device' $monitor_log | wc -l)
     m_deviceOffline=$(grep 'Device must be offline. Running a stop mapping service of Atlas, killing pogo and clearing junk' $monitor_log | wc -l)
     m_noRDM=$(grep 'something wrong with RDM' $monitor_log | wc -l)
@@ -112,17 +113,18 @@ fi
 {
     "WHType": "ATVDetails",
 
+    "MITM": "${MITM}",
     "RPL": "${RPL}",
     "deviceName": "${deviceName}",
     "arch": "${arch}",
     "productmodel": "${productmodel}",
-    "atlasSh": "${atlasSh}",
-    "atlas55": "${atlas55}",
-    "atlas42": "${atlas42}",
+    "atlasSh": "${MITMSh}",
+    "MITM55": "${MITM55}",
+    "MITM42": "${MITM42}",
     "monitor": "${monitor}",
     "whversion": "${whversion}",
     "pogo": "${pogo}",
-    "atlas": "${atlas}",
+    "MITMv": "${MITMv}",
     "temperature": "${temperature}",
     "magisk": "${magisk}",
     "magisk_modules": "${magisk_modules}",
@@ -138,7 +140,7 @@ fi
     "memFree": "${memFree}",
     "memAv": "${memAv}",
     "memPogo": "${memPogo}",
-    "memAtlas": "${memAtlas}",
+    "memMITM": "${memMITM}",
     "cpuSys": "${cpuSys}",
     "cpuUser": "${cpuUser}",
     "cpuL5": "${cpuL5}",
@@ -161,13 +163,13 @@ fi
     "a_pogoStarted": "${a_pogoStarted}",
     "a_injection": "${a_injection}",
     "a_ptcLogin": "${a_ptcLogin}",
-    "a_atlasCrash": "${a_atlasCrash}",
+    "a_MITMCrash": "${a_MITMCrash}",
     "a_rdmError": "${a_rdmError}",
 
     "m_noInternet": "${m_noInternet}",
     "m_noConfig": "${m_noConfig}",
     "m_noLicense": "${m_noLicense}",
-    "m_atlasDied": "${m_atlasDied}",
+    "m_MITMDied": "${m_MITMDied}",
     "m_pogoDied": "${m_pogoDied}",
     "m_deviceOffline": "${m_deviceOffline}",
     "m_noRDM": "${m_noRDM}",
