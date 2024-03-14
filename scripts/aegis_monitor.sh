@@ -40,7 +40,7 @@ check_for_updates() {
 stop_start_aegis () {
 	am force-stop com.nianticlabs.pokemongo &  rm -rf /data/data/com.nianticlabs.pokemongo/cache/* 2>/dev/null & am force-stop com.pokemod.aegis 
 	sleep 5
-	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of Atlas" >> $logfile
+	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of Aegis" >> $logfile
 
 	if [ $android_version -ge 9 ]; then
 		am start-foreground-service com.pokemod.aegis/com.pokemod.aegis.services.MappingService
@@ -88,7 +88,7 @@ do
 
         updatecheck=$(($updatecheck+1))
         if [[ $updatecheck -gt $update_check ]] ;then
-		echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Atlas and Pogo for update" >> $logfile
+		echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Aegis and Pogo for update" >> $logfile
 		updatecheck=0
 		check_for_updates
 	fi
@@ -112,28 +112,28 @@ do
 	devicestatus=$(echo $?)
 	emptycheck="9$devicestatus"
 
-	not_licensed=$(tail -n 100 /data/local/tmp/aegis.log | grep -c "Not licensed")
+	not_licensed=$(tail -n 100 /data/local/tmp/aegis.log | grep -c -E "Not licensed|doesn't have a valid license")
 
 	if [ -f /sdcard/not_licensed ] && [ $not_licensed -gt 0 ]
 	then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Still unlicensed, exiting" >> $logfile
 	elif [ $not_licensed -gt 0 ]
 	then
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device Lost Atlas License" >> $logfile
-		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: UNLICENSED !!! Check Atlas Dashboard\"}" $discord_webhook &>/dev/null
+		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device Lost Aegis License" >> $logfile
+		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: UNLICENSED !!! Check Aegis Dashboard\"}" $discord_webhook &>/dev/null
 		[[ $useSender == "true" ]] && send_webhook "Lost Licence" "No action"
 		touch /sdcard/not_licensed
 
 	elif [ -f /sdcard/not_licensed ] && [ $not_licensed -eq 0 ]
 	then
 	    echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device got License again. Recovering" >> $logfile
-        [[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: Device got Atlas license again\"}" $discord_webhook &>/dev/null
+        [[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: Device got Aegis license again\"}" $discord_webhook &>/dev/null
 		rm /sdcard/not_licensed
 
         elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $aegisdead == 2 ]
         then
-			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Atlas must be dead, rebooting device" >> $logfile
-			[[ $useSender == "true" ]] && send_webhook "Atlas Dead" "Reboot"
+			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Aegis must be dead, rebooting device" >> $logfile
+			[[ $useSender == "true" ]] && send_webhook "Aegis Dead" "Reboot"
 			[[ ! -z $discord_webhook ]] && [[ $aegis_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: aegis died, reboot\"}" $discord_webhook &>/dev/null
 			reboot
         elif [ $emptycheck != 9 ] && [ $pogodead == 2 ]
@@ -145,7 +145,7 @@ do
 
 	elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $aegisdead != 2 ]
 	then
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device must be offline. Running a stop mapping service of Atlas, killing pogo and clearing junk" >> $logfile
+		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device must be offline. Running a stop mapping service of Aegis, killing pogo and clearing junk" >> $logfile
 		[[ $useSender == "true" ]] && send_webhook "Device Offline" "Kill Pogo and Clear Junk"
 		[[ ! -z $discord_webhook ]] && [[ $device_offline != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: device offline, restarting aegis and pogo\"}" $discord_webhook &>/dev/null
 		stop_start_aegis
@@ -159,7 +159,7 @@ do
 
 	elif [ $deviceonline == $devicestatus ]
 	then
-		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Atlas mapping service is running" >> $logfile
+		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Aegis mapping service is running" >> $logfile
 		aegisdead=0
 		focusedapp=$(dumpsys window windows | grep -E 'mFocusedApp'| cut -d / -f 1 | cut -d " " -f 7)
 		if [ "$focusedapp" != "com.nianticlabs.pokemongo" ]

@@ -1,8 +1,8 @@
-pogo=0.293.0
+pogo=0.299.1
 atlas=v23120901
-aegis=
+aegis=v24030601
 atlas_md5=5c4d4c559c6fe78850a6e8d7eb4b40cf
-aegis_md5=
+aegis_md5=b97ab22da280eab5b66e436746c1436e
 rgc=off
 
 # Settings for Atlas monitor script

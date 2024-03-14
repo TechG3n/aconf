@@ -1,8 +1,8 @@
 {
-        "authBearer":"YOUR_RDM_SECRET",
-        "deviceAuthToken":"YOUR_ATLAS_AUTH_TOKEN",
+        "authBearer":"YOUR_Rotom_SECRET",
+        "deviceAuthToken":"YOUR_AEGIS_AUTH_TOKEN",
         "deviceName":"dummy",
-        "email":"YOUR_ATLAS_REGISTRATION_EMAIL",
-        "rdmUrl":"http(s)://YOUR_RDM_URL:9001",
+        "email":"YOUR_AEGIS_REGISTRATION_EMAIL",
+        "rotomUrl":"http(s)://YOUR_Rotom_URL:9001",
         "runOnBoot":true
 }

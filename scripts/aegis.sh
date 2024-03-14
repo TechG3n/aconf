@@ -158,7 +158,7 @@ aversions=$(grep 'aegis' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF
 
 # download aegis
 /system/bin/rm -f /sdcard/Download/aegis.apk
-until $download /sdcard/Download/aegis.apk $url/apk/Pokemodaegis-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/aegis.apk $url/apk/Pokemodaegis-Public-$aversions.apk" >> $logfile ; logger "download aegis failed, exit script" ; exit 1; } ;do
+until $download /sdcard/Download/aegis.apk $url/apk/PokemodAegis-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/aegis.apk $url/apk/PokemodAegis-Public-$aversions.apk" >> $logfile ; logger "download aegis failed, exit script" ; exit 1; } ;do
   sleep 2
 done
 
