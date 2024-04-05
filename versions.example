@@ -1,8 +1,8 @@
-pogo=0.299.1
-atlas=v23120901
-aegis=v24030601
-atlas_md5=5c4d4c559c6fe78850a6e8d7eb4b40cf
-aegis_md5=b97ab22da280eab5b66e436746c1436e
+pogo=0.307.1
+atlas=v24040401-rev2
+aegis=v24040401-rev3
+atlas_md5=35d5c450a5faa64cf217aba6a90998e4
+aegis_md5=b6ad9acd83485f0c42be0c19f13d64b4
 rgc=off
 
 # Settings for Atlas monitor script
@@ -31,7 +31,7 @@ unable_check_status=true
 pogo_not_focused=false
 healthcheck_errors=true
 
-# Settings for atlas.sh / aegis.sh
+# Settings for Atlas.sh / Aegis.sh
 play_integrity=true
 loop_protect_enabled=true
 proxy_address=""
