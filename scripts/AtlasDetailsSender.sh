@@ -118,7 +118,7 @@ fi
     "deviceName": "${deviceName}",
     "arch": "${arch}",
     "productmodel": "${productmodel}",
-    "atlasSh": "${MITMSh}",
+    "MITMSh": "${MITMSh}",
     "MITM55": "${MITM55}",
     "MITM42": "${MITM42}",
     "monitor": "${monitor}",

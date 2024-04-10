@@ -142,7 +142,6 @@ def webhook():
         monitor = validate_string(request.json["monitor"])
         pogo = validate_string(request.json["pogo"])
         MITMv = validate_string(request.json["MITMv"])
-        aegis = validate_string(request.json["aegis"])
         temperature = validate_string(request.json["temperature"])
         magisk = validate_string(request.json["magisk"])
         magisk_modules = validate_string(request.json["magisk_modules"])

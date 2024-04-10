@@ -4,5 +4,6 @@
         "deviceName":"dummy",
         "email":"YOUR_ATLAS_REGISTRATION_EMAIL",
         "rdmUrl":"http(s)://YOUR_RDM_URL:9001",
+        "ptcAuthUrl":"user:pass@sub.dom.de",
         "runOnBoot":true
 }
