@@ -1,0 +1,12 @@
+#!/system/bin/sh
+# version 1.1
+
+#Create logfile
+if [ ! -e /sdcard/aconf.log ] ;then
+    touch /sdcard/aconf.log
+fi
+echo "" >> /sdcard/aconf.log
+echo "`date +%Y-%m-%d_%T` Device rebooted" >> /sdcard/aconf.log
+
+# execute atlas.sh
+sh -x /system/bin/cosmog.sh -ua
