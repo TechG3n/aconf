@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.3.2
+# version 3.3.3
 #set -x
 
 # Monitor by Oldmole && bbdoc
@@ -171,8 +171,21 @@ do
 			pogodead=$((pogodead+1))
 			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
 		else
-			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo in focus, all good" >> $logfile
-			pogodead=0
+			focusedwin=$(dumpsys window windows | grep -E 'mCurrentFocus'| cut -d " " -f 5-8 | rev | cut -c 2- | rev)
+			if [ "$focusedwin" = "Application Not Responding: com.nianticlabs.pokemongo" ]
+			then
+				echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something is not right! Pogo is Not Responding. Killing pogo by sending Enter" >> $logfile
+				[[ $useSender == "true" ]] && send_webhook "Pogo not responding" "Kill Pogo by sending Enter"
+				[[ ! -z $discord_webhook ]] && [[ $pogo_not_focused != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: pogo not responding, Killing pogo by sending Enter\"}" $discord_webhook &>/dev/null
+				#Send Enter to force close Pogo with 'Not responding' PopUp
+				input keyevent KEYCODE_ENTER
+				pogodead=$((pogodead+1))
+				[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo not responding. Sending Enter Done" >> $logfile	
+
+			else
+				[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo in focus, all good" >> $logfile
+				pogodead=0
+			fi
 		fi
 	else
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something happened! Some kind of error" >> $logfile
