@@ -1,10 +1,10 @@
 #!/system/bin/sh
-# version 2.1.52
+# version 2.1.56
 
 #Version checks
 Ver42atlas="1.5"
 Ver55atlas="1.0"
-VerMonitor="3.2.9"
+VerMonitor="3.3.2"
 VerATVsender="1.8.1"
 
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
@@ -718,6 +718,27 @@ if [[ ! -z $versionsFingerPrintv ]] ;then
     #reboot=1
   else
     echo "`date +%Y-%m-%d_%T` atlas.sh: FingerPrint correct, proceed" >> $logfile
+  fi
+fi
+
+
+# start custom job if set
+versionsCJv=$(grep 'CustomeJob' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
+
+if [[ ! -z $versionsCJv ]] && [[ "$versionsCJv" != "0" ]] ;then
+  # get installed version
+  instCJv=$(head -2 /data/local/tmp/aconf-cj.sh 2>/dev/null | grep '# version' | awk '{ print $NF }')
+  [ -z "$instCJv" ] && instCJv=0
+  if [[ $instCJv -lt $versionsCJv ]] ;then
+    /system/bin/rm -f /data/local/tmp/aconf-cj.sh
+    until $download /data/local/tmp/aconf-cj.sh $url/jobs/customJob.sh || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/aconf-cj.sh $url/jobs/customJob.sh" >> $logfile ; logger "download CustomJob failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    logger "Updated CustomJob from $instCJv to $versionsCJv. Starting it"
+    chmod +x /data/local/tmp/aconf-cj.sh
+    /data/local/tmp/aconf-cj.sh >/dev/null 2>&1 &
+  else
+    echo "`date +%Y-%m-%d_%T` atlas.sh: CustomJob Up2Date, proceed" >> $logfile
   fi
 fi
 
