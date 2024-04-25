@@ -1,17 +1,17 @@
-# Atlas and Aegis Configuration Tool
+# Multi Mitm Configuration Tool
 
-This tool was originally meant to easily convert MAD ATVs to RDM+Atlas devices but has been made more generic over time.  
-Today it will/can:
-- Setup and monitor devices with Atlas or Aegis - a mixed setup is possible too
+This tool will help you install your favorite mitm(s) on different ATVs and keep them up2date & running.
+Once set up, you don't need ADB/SSH access to the devices. 
+- Setup and monitor devices with Atlas, Aegis or cosmog - a mixed setup is possible too
 - (still) allows for easy conversion from MAD
-- enable atlas monitor to act upon disturbances
+- enable a mitm dependend monitor to act upon disturbances
 - enable atvdetails sender/receiver to have all version related info, cpu/mem and monitor statistics of atv stored to db
-- automatic update of atlas/aegis, pogo and scripts
+- automatic update of mitm, pogo and scripts
 
 ## Setup aconf server side
 1. Clone aconf, the directory must be reachable from the web (and kept up-to-date)  
 2. It's highly recommended to add basic auth to the aconf directory. For more info see <https://ubiq.co/tech-blog/how-to-password-protect-directory-in-nginx/>  
-3. Copy versions.example and atlas_config.json.example and/or aegis_config.json.example and fill out the details. Make sure not to change `"deviceName":"dummy"`, deviceName will either be set to rgc origin in case of MAD atv or it will be set to a temporary name which can be changed in Atlas Dashboard
+3. Copy versions.example and [mitm]_config.json.example and fill out the details. Make sure not to change `"deviceName":"dummy"`, deviceName will either be set to rgc origin in case of MAD atv or it will be set to a temporary name which can be changed in Atlas Dashboard
 Some hints for the versions file:
 ```
 atlas_md5                        - the hash of the atlas.apk (In Case the APK changes but version number is still the same)
@@ -20,17 +20,21 @@ play_integrity                   - true/false - If true, the APK verification wi
 loop_protect_enabled             - true/false - If true, atlas.sh/aegis.sh will stop to reboot the device after 20 trys per day
 proxy_address                    - ip:port - if set, this address will be configured as system proxy. Use "remove" to remove proxy from all devices.
 set_proxy_only_in_same_network   - true/false - If true, only devices with the same subnet will set the proxy (if Proxy_address is 192.168.178.10, only devices with 192.168.178.X will set the proxy)
-PIF_module                       - the version of the PlayIntegrityFix Module 
+PIF_module                       - the version of the PlayIntegrityFix Module
+cosmog_libVerion                 - version of the lib needed by cosmog
 ```
 4. If you want to skip adding names manually on reflashed devices, copy and fill out mac2name.exmaple file 
 5. Add latest atlas/aegis version and supported pogo versions to apk folder, make sure to follow naming convention as per example below:  
 ```
 PokemodAtlas-Public-v22050101.apk
 PokemodAegis-Public-v22050101.apk
+cosmog-1.2.2.apk
 pokemongo_arm64-v8a_0.235.0.apk
 pokemongo_armeabi-v7a_0.235.0.apk
 ``` 
 6. Add desired PlayIntegrityFix Module and Fingerprint to the module folder and put its version in the version file. For the name follow the naming convention of the example
+
+7. If you want to use cosmog, put the lib file in the modules folder and name it `libNianticLabsPlugin.so_0.307.1` (change lib ver if needed)
 
 
 ## ATV setup
@@ -44,14 +48,18 @@ pokemongo_armeabi-v7a_0.235.0.apk
    b. Use ADB to open a shell on the device and paste on of the comands. Replace mydownloadfolder witrh your url and username:password with the correct values.
       For Atlas:
       ```
-su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/atlas.sh "$url_base/scripts/atlas.sh" && chmod +x /system/bin/atlas.sh ; mount -o remount,ro / && /system/bin/atlas.sh -ia'
-```
+      su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/atlas.sh "$url_base/scripts/atlas.sh" && chmod +x /system/bin/atlas.sh ; mount -o remount,ro / && /system/bin/atlas.sh -ia'
+      ```
 
       For Aegis:
       ```
-su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/aegis.sh "$url_base/scripts/aegis.sh" && chmod +x /system/bin/aegis.sh ; mount -o remount,ro / && /system/bin/aegis.sh -ia'
-```
+      su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/aegis.sh "$url_base/scripts/aegis.sh" && chmod +x /system/bin/aegis.sh ; mount -o remount,ro / && /system/bin/aegis.sh -ia'
+      ```
 
+      For Cosmog:
+      ```
+      su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/cosmog.sh "$url_base/scripts/cosmog.sh" && chmod +x /system/bin/cosmog.sh ; mount -o remount,ro / && /system/bin/cosmog.sh -ia'
+      ```
 4. The Device should show up in the Atlas/Aegis Dashboard; activate the license and give it a name
 5. The Device should show up in RDM/Rotom
 

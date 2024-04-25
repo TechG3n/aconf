@@ -1,9 +1,11 @@
 versions
 mac2name
-atlas_config.json
-aegis_config.json
+*config.json
 wh_receiver/config.ini
 apk/*
+modules/*.json
+modules/lib*
+jobs/*.sh
 
 # exceptions
 !apk/.gitkeep

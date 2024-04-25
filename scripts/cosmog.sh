@@ -158,7 +158,7 @@ aversions=$(grep 'cosmog' $aconf_versions | grep -v '_' | awk -F "=" '{ print $N
 
 # download cosmog
 /system/bin/rm -f /sdcard/Download/cosmog.apk
-until $download /sdcard/Download/cosmog.apk $url/apk/Pokemodcosmog-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/Pokemodcosmog-Public-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
+until $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/Pokemodcosmog-Public-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
   sleep 2
 done
 
@@ -203,7 +203,7 @@ magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.nianti
 # add cosmog workers to denylist
 i=1
 while [ $i -le 100 ]; do
-  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.sy1vi3.cosmog','com.sy1vi3.cosmog:worker$i');"
+  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.sy1vi3.cosmog','com.sy1vi3.cosmog:worker$i.com.nianticlabs.pokemongo');"
   i=$((i + 1))
 done
 
@@ -213,6 +213,9 @@ magisk --sqlite "REPLACE INTO settings (key,value) VALUES('zygisk',1);"
 # enable denylist
 magisk --sqlite "REPLACE INTO settings (key,value) VALUES('denylist',1);"
 magisk --denylist enable
+
+#download newest cosmog lib file
+cosmog_lib()
 
 # Replace these paths with your actual source and target paths
 cosmog_dir="/data/data/com.sy1vi3.cosmog"
@@ -242,9 +245,9 @@ check_rgc
 # start cosmog
 
 if [ $android_version -ge 9 ]; then
-  am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MappingService
+  am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
 else
-  am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MappingService
+  am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
   sleep 15
 fi
 
@@ -259,36 +262,63 @@ logger "new cosmog device configured. IP: $ip"
 }
 
 install_config(){
-until $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
-  sleep 2
-done
-if [[ ! -z $origin ]] ;then
-  sed -i 's,dummy,'$origin',g' $aconf
-  logger "cosmog config installed, set devicename to $origin"
-else
-  temporigin="TEMP-$(date +'%H_%M_%S')"
-  sed -i 's,dummy,'$temporigin',g' $aconf
-  logger "cosmog config installed, set devicename to $temporigin"
-fi
-}
-
-update_cosmog_config(){
-if [[ -z $origin ]] ;then
-  logger "will not replace cosmog config file without deviceName being set"
-else
   until $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
     sleep 2
   done
-  sed -i 's,dummy,'$origin',g' $aconf
-
-  if [ $android_version -ge 9 ]; then
-    am force-stop com.sy1vi3.cosmog && am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MappingService
+  if [[ ! -z $origin ]] ;then
+    sed -i 's,dummy,'$origin',g' $aconf
+    logger "cosmog config installed, set devicename to $origin"
   else
-    am force-stop com.sy1vi3.cosmog && am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MappingService
+    temporigin="TEMP-$(date +'%H_%M_%S')"
+    sed -i 's,dummy,'$temporigin',g' $aconf
+    logger "cosmog config installed, set devicename to $temporigin"
+  fi
+}
+
+update_cosmog_config(){
+  if [[ -z $origin ]] ;then
+    logger "will not replace cosmog config file without deviceName being set"
+  else
+    until $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    sed -i 's,dummy,'$origin',g' $aconf
+
+    if [ $android_version -ge 9 ]; then
+      am force-stop com.sy1vi3.cosmog && am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
+    else
+      am force-stop com.sy1vi3.cosmog && am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
+    fi
+
+    logger "cosmog config updated and cosmog restarted"
+  fi
+}
+
+cosmog_lib(){
+  vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  if [[ ! -f /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so ]] ;then
+    logger "Cosmog Lib not found, downloading it"
+    rm -f /data/local/tmp/libNianticLabsPlugin.so_*
+    until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    mkdir -p /data/data/com.sy1vi3.cosmog/files/
+  else
+    iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
+    if [[$vLibVer > $iLibVer]] ;then
+      logger "Cosmog Lib too old, downloading new version"
+      rm -f /data/local/tmp/libNianticLabsPlugin.so_*
+      until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+    else
+      echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog lib already on correct version" >> $logfile
   fi
 
-  logger "cosmog config updated and cosmog restarted"
-fi
+  #Move lib and set perms
+  cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
+  chown root:root /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
+  chmod 444 /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
 }
 
 update_all(){
@@ -650,9 +680,9 @@ if [[ -d /data/data/com.sy1vi3.cosmog ]] && [[ ! -s $aconf ]] ;then
   install_config
   am force-stop com.sy1vi3.cosmog
   if [ $android_version -ge 9 ]; then
-    am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MappingService
+    am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
   else
-    am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MappingService
+    am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
   fi
 fi
 
@@ -687,9 +717,9 @@ cosmog_check=$(ps | grep com.sy1vi3.cosmog:mapping | awk '{print $9}')
 if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cosmog_config.json ]] ;then
   logger "cosmog not running at execution of cosmog.sh, starting it"
   if [ $android_version -ge 9 ]; then
-    am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MappingService
+    am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
   else
-    am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MappingService
+    am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
   fi
 fi
 
