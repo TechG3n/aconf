@@ -43,14 +43,10 @@ pokemongo_armeabi-v7a_0.235.0.apk
 3. a. If your rom supports an Auto-Setup script use the one provided in jobs folder and rename it if needed
    b. Use ADB to open a shell on the device and paste on of the comands. Replace mydownloadfolder witrh your url and username:password with the correct values.
       For Atlas:
-```
-su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/atlas.sh "$url_base/scripts/atlas.sh" && chmod +x /system/bin/atlas.sh ; mount -o remount,ro / && /system/bin/atlas.sh -ia'
-```
+```su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/atlas.sh "$url_base/scripts/atlas.sh" && chmod +x /system/bin/atlas.sh ; mount -o remount,ro / && /system/bin/atlas.sh -ia'```
 
       For Aegis:
-```
-su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/aegis.sh "$url_base/scripts/aegis.sh" && chmod +x /system/bin/aegis.sh ; mount -o remount,ro / && /system/bin/aegis.sh -ia'
-```
+```su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/aegis.sh "$url_base/scripts/aegis.sh" && chmod +x /system/bin/aegis.sh ; mount -o remount,ro / && /system/bin/aegis.sh -ia'```
 
 4. The Device should show up in the Atlas/Aegis Dashboard; activate the license and give it a name
 5. The Device should show up in RDM/Rotom
