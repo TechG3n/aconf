@@ -41,6 +41,7 @@ pokemongo_armeabi-v7a_0.235.0.apk
 1. Flash correct rom
 2. Let the rom do the initial setup (might take 15min and several reboots)
 3. a. If your rom supports an Auto-Setup script use the one provided in jobs folder and rename it if needed.
+   
 OR b. Use ADB to open a shell on the device and paste on of the comands. Replace mydownloadfolder witrh your url and username:password with the correct values.
    
 For Atlas:
