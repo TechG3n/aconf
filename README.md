@@ -34,7 +34,7 @@ pokemongo_armeabi-v7a_0.235.0.apk
 ``` 
 6. Add desired PlayIntegrityFix Module and Fingerprint to the module folder and put its version in the version file. For the name follow the naming convention of the example
 
-7. If you want to use cosmog, put the lib file in the modules folder and name it `libNianticLabsPlugin.so_0.307.1` (change lib ver if needed)
+7. If you want to use cosmog, put the lib file [get it here](https://github.com/sy1vi3/joltik.git) in the modules folder and name it `libNianticLabsPlugin.so_0.307.1` (change lib ver if needed) 
 
 
 ## ATV setup
@@ -60,7 +60,7 @@ pokemongo_armeabi-v7a_0.235.0.apk
       ```
       su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/cosmog.sh "$url_base/scripts/cosmog.sh" && chmod +x /system/bin/cosmog.sh ; mount -o remount,ro / && /system/bin/cosmog.sh -ia'
       ```
-4. The Device should show up in the Atlas/Aegis Dashboard; activate the license and give it a name
+4. The Device should show up in the MTIMs Dashboard; activate the license and give it a name
 5. The Device should show up in RDM/Rotom
 
 

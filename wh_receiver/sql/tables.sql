@@ -1,3 +1,5 @@
+-- Version 0.7
+
 CREATE TABLE IF NOT EXISTS `ATVsummary` (
   `timestamp` datetime NOT NULL,
   `deviceName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
