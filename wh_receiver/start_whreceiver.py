@@ -3,7 +3,7 @@
 #
 __author__ = "GhostTalker and Apple314"
 __copyright__ = "Copyright 2022, The GhostTalker project"
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __status__ = "DEV"
 
 import os
@@ -198,12 +198,12 @@ def webhook():
                 deviceName, \
                 arch, \
                 productmodel, \
-                atlasSh, \
-                55atlas, \
-                42atlas, \
+                MITMSh, \
+                55MITM, \
+                42MITM, \
                 monitor, \
                 pogo, \
-                atlas, \
+                MITM, \
                 temperature, \
                 magisk, \
                 magisk_modules, \
@@ -230,12 +230,12 @@ def webhook():
                 deviceName = VALUES(deviceName), \
                 arch = VALUES(arch), \
                 productmodel = VALUES(productmodel), \
-                atlasSh = VALUES(MITMSh), \
-                55atlas = VALUES(55MITM), \
-                42atlas = VALUES(42MITM), \
+                MITMSh = VALUES(MITMSh), \
+                55MITM = VALUES(55MITM), \
+                42MITM = VALUES(42MITM), \
                 monitor = VALUES(monitor), \
                 pogo = VALUES(pogo), \
-                atlas = VALUES(MITMv), \
+                MITM = VALUES(MITMv), \
                 temperature = VALUES(temperature), \
                 magisk = VALUES(magisk), \
                 magisk_modules = VALUES(magisk_modules), \

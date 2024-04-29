@@ -3,12 +3,10 @@ CREATE TABLE IF NOT EXISTS `ATVsummary` (
   `deviceName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `arch` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `productmodel` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `atlasSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `55atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `42atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `aegisSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `55aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `42aegis` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `MITMSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `55MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `42MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `monitor` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `whversion` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pogo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -112,10 +110,13 @@ ADD COLUMN IF NOT EXISTS `proxyinfo` varchar(40) COLLATE utf8mb4_unicode_ci DEFA
 
 -- Update 2 (aegis)
 ALTER TABLE ATVsummary
-ADD COLUMN IF NOT EXISTS `MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+ADD COLUMN IF NOT EXISTS `MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `MITMSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `55MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `42MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ;
 
 
 -- update version
 INSERT IGNORE INTO version values ('atlas_atvdetails',1);
-UPDATE version set version = 6 where version.key = 'atlas_atvdetails';
+UPDATE version set version = 7 where version.key = 'atlas_atvdetails';
