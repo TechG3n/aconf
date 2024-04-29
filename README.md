@@ -10,7 +10,7 @@ Once set up, you don't need ADB/SSH access to the devices.
 
 ## Setup aconf server side
 1. Clone aconf, the directory must be reachable from the web (and kept up-to-date)  
-2. It's highly recommended to add basic auth to the aconf directory. For more info see <https://ubiq.co/tech-blog/how-to-password-protect-directory-in-nginx/>  
+2. It's highly recommended to add basic auth to the aconf directory. For more info see [here](https://ubiq.co/tech-blog/how-to-password-protect-directory-in-nginx/)
 3. Copy versions.example and [mitm]_config.json.example and fill out the details. Make sure not to change `"deviceName":"dummy"`, deviceName will either be set to rgc origin in case of MAD atv or it will be set to a temporary name which can be changed in Atlas Dashboard
 Some hints for the versions file:
 ```
@@ -34,7 +34,7 @@ pokemongo_armeabi-v7a_0.235.0.apk
 ``` 
 6. Add desired PlayIntegrityFix Module and Fingerprint to the module folder and put its version in the version file. For the name follow the naming convention of the example
 
-7. If you want to use cosmog, put the lib file [get it here](https://github.com/sy1vi3/joltik.git) in the modules folder and name it `libNianticLabsPlugin.so_0.307.1` (change lib ver if needed) 
+7. If you want to use cosmog, put the lib file [(get it here)](https://github.com/sy1vi3/joltik.git) in the modules folder and name it `libNianticLabsPlugin.so_0.307.1` (change lib ver if needed) 
 
 
 ## ATV setup
@@ -68,7 +68,7 @@ pokemongo_armeabi-v7a_0.235.0.apk
 To remove aconf from an ATV - just use this command via ADB:
 
 ```
-su -c 'mount -o remount,rw / && rm -f /data/local/aconf_download /data/local/aconf_versions /data/local/aconf_mac2name /system/bin/a???s.sh /system/bin/a???s_new.sh /system/bin/a???s_monitor.sh /system/etc/init/55a???s.rc /system/etc/init/a???s_monitor.rc /system/etc/init.d/55a???s /sdcard/a???s_monitor.log /sdcard/aconf.log /sdcard/not_licensed && sync ; mount -o remount,ro / && pgrep -f -L9 /system/bin/ATVdetailsSender.sh && pgrep -f -L9 /system/bin/a???s_monitor.sh'
+su -c 'mount -o remount,rw / && rm -f /data/local/aconf_download /data/local/aconf_versions /data/local/aconf_mac2name /system/bin/a???s.sh /system/bin/cosmog.sh /system/bin/a???s_new.sh /system/bin/cosmog_new.sh /system/bin/a???s_monitor.sh /system/bin/cosmog_monitor.sh /system/etc/init/55a???s.rc /system/etc/init/55cosmog.rc /system/etc/init/a???s_monitor.rc /system/etc/init/cosmog_monitor.rc /system/etc/init.d/55a???s /system/etc/init.d/55cosmog /sdcard/*_monitor.log /sdcard/aconf.log /sdcard/not_licensed && sync ; mount -o remount,ro / && pgrep -f -L9 /system/bin/ATVdetailsSender.sh && pgrep -f -L9 /system/bin/a???s_monitor.sh'
 ```
 
 ### Logs
