@@ -3,7 +3,7 @@
 #
 __author__ = "GhostTalker and Apple314"
 __copyright__ = "Copyright 2022, The GhostTalker project"
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __status__ = "DEV"
 
 import os
