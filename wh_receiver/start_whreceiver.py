@@ -3,7 +3,7 @@
 #
 __author__ = "GhostTalker and Apple314"
 __copyright__ = "Copyright 2022, The GhostTalker project"
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __status__ = "DEV"
 
 import os
@@ -260,7 +260,7 @@ def webhook():
         data1 = (str(timestamp), str(MITM), str(deviceName), str(arch), str(productmodel), str(MITMSh), str(MITM55), str(MITM42), str(monitor), str(pogo), str(MITMv), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(playstore), str(proxyinfo), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo), str(reboot), str(authBearer), str(token), str(email), str(rdmUrl), str(onBoot) )
 
         insert_stmt2 = (
-            "INSERT INTO ATVstats (timestamp, RPL, deviceName, temperature, memTot, memFree, memAv, memPogo, mematlas, cpuSys, cpuUser, cpuL5, cpuL10, cpuL15, cpuPogoPct, cpuApct, diskSysPct, diskDataPct)"
+            "INSERT INTO ATVstats (timestamp, RPL, deviceName, temperature, memTot, memFree, memAv, memPogo, memMITM, cpuSys, cpuUser, cpuL5, cpuL10, cpuL15, cpuPogoPct, cpuApct, diskSysPct, diskDataPct)"
             "VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )"
         )
 
@@ -274,12 +274,12 @@ def webhook():
                 a_pogoStarted, \
                 a_injection, \
                 a_ptcLogin, \
-                a_atlasCrash, \
+                a_MITMCrash, \
                 a_rdmError, \
                 m_noInternet, \
                 m_noConfig, \
                 m_noLicense, \
-                m_atlasDied, \
+                m_MITMDied, \
                 m_pogoDied, \
                 m_deviceOffline, \
                 m_noRDM, \
@@ -292,12 +292,12 @@ def webhook():
                 a_pogoStarted = VALUES(a_pogoStarted), \
                 a_injection = VALUES(a_injection), \
                 a_ptcLogin = VALUES(a_ptcLogin), \
-                a_atlasCrash = VALUES(a_MITMCrash), \
+                a_MITMCrash = VALUES(a_MITMCrash), \
                 a_rdmError = VALUES(a_rdmError), \
                 m_noInternet = VALUES(m_noInternet), \
                 m_noConfig = VALUES(m_noConfig), \
                 m_noLicense = VALUES(m_noLicense), \
-                m_atlasDied = VALUES(m_MITMDied), \
+                m_MITMDied = VALUES(m_MITMDied), \
                 m_pogoDied = VALUES(m_pogoDied), \
                 m_deviceOffline = VALUES(m_deviceOffline), \
                 m_noRDM = VALUES(m_noRDM), \
