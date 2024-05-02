@@ -1,9 +1,9 @@
 #!/system/bin/sh
-# version 2.2.0
+# version 2.2.1
 
 #Version checks
-Ver42aegis="1.5"
-Ver55aegis="1.0"
+Ver42aegis="1.6"
+Ver55aegis="1.1"
 VerMonitor="3.4.0"
 VerATVsender="1.9.0"
 
