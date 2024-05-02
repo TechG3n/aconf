@@ -203,7 +203,7 @@ def webhook():
                 42MITM, \
                 monitor, \
                 pogo, \
-                MITM, \
+                MITMv, \
                 temperature, \
                 magisk, \
                 magisk_modules, \
@@ -235,7 +235,7 @@ def webhook():
                 42MITM = VALUES(42MITM), \
                 monitor = VALUES(monitor), \
                 pogo = VALUES(pogo), \
-                MITM = VALUES(MITMv), \
+                MITMv = VALUES(MITMv), \
                 temperature = VALUES(temperature), \
                 magisk = VALUES(magisk), \
                 magisk_modules = VALUES(magisk_modules), \
