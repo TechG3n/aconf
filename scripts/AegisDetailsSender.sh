@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.9.0
+# version 1.9.1
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -33,7 +33,7 @@ while true
     MITM55=$([ -f /system/etc/init.d/55aegis ] && head -2 /system/etc/init.d/55aegis | grep '# version' | awk '{ print $NF }' || echo 'na')
     MITM42=$([ -f /system/etc/init.d/42aegis ] && head -2 /system/etc/init.d/42aegis | grep '# version' | awk '{ print $NF }' || echo 'na')
     monitor=$([ -f /system/bin/aegis_monitor.sh ] && head -2 /system/bin/aegis_monitor.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
-    whversion=$([ -f /system/bin/ATVdetailsSender.sh ] && head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
+    whversion=$([ -f /system/bin/AegisDetailsSender.sh ] && head -2 /system/bin/AegisDetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
     MITMv=$(dumpsys package com.pokemod.aegis | grep versionName | head -n1 | sed 's/ *versionName=//')
     temperature=$(cat /sys/class/thermal/thermal_zone0/temp | cut -c -2)
