@@ -146,10 +146,10 @@ EOF
 fi
 
 # install cosmogDetails sender
-  until $download /system/bin/cosmogDetailsSender.sh $url/scripts/cosmogDetailsSender.sh || { logger "download cosmogDetailsSender.sh failed, exit script" ; exit 1; } ;do
+  until $download /system/bin/CosmogDetailsSender.sh $url/scripts/CosmogDetailsSender.sh || { logger "download CosmogDetailsSender.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
-  chmod +x /system/bin/cosmogDetailsSender.sh
+  chmod +x /system/bin/CosmogDetailsSender.sh
   logger "cosmogDetails sender installed"
   mount_system_ro
 
@@ -313,6 +313,7 @@ cosmog_lib(){
       done
     else
       echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog lib already on correct version" >> $logfile
+    fi
   fi
 
   #Move lib and set perms
@@ -615,25 +616,25 @@ fi
 
 #update cosmogDetails sender if needed
 if [[ $(basename $0) = "cosmog_new.sh" ]] ;then
-  [ -f /system/bin/cosmogDetailsSender.sh ] && oldSender=$(head -2 /system/bin/cosmogDetailsSender.sh | grep '# version' | awk '{ print $NF }') || oldSender="0"
+  [ -f /system/bin/CosmogDetailsSender.sh ] && oldSender=$(head -2 /system/bin/CosmogDetailsSender.sh | grep '# version' | awk '{ print $NF }') || oldSender="0"
   if [ $VerATVsender != $oldSender ] ;then
     mount_system_rw
-    until $download /system/bin/cosmogDetailsSender.sh $url/scripts/cosmogDetailsSender.sh || { logger "download cosmogDetailsSender.sh failed, exit script" ; exit 1; } ;do
+    until $download /system/bin/CosmogDetailsSender.sh $url/scripts/CosmogDetailsSender.sh || { logger "download CosmogDetailsSender.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    chmod +x /system/bin/cosmogDetailsSender.sh
+    chmod +x /system/bin/CosmogDetailsSender.sh
     mount_system_ro
-    newSender=$(head -2 /system/bin/cosmogDetailsSender.sh | grep '# version' | awk '{ print $NF }')
+    newSender=$(head -2 /system/bin/CosmogDetailsSender.sh | grep '# version' | awk '{ print $NF }')
     logger "cosmogDetails sender updated $oldSender => $newSender"
 
     # restart cosmogDetails sender
-    if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/cosmogDetailsSender.sh ] ;then
-      checkSender=$(pgrep -f /system/bin/cosmogDetailsSender.sh)
+    if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/CosmogDetailsSender.sh ] ;then
+      checkSender=$(pgrep -f /system/bin/CosmogDetailsSender.sh)
       if [ ! -z $checkSender ] ;then
         kill -9 $checkSender
         sleep 2
       fi
-      /system/bin/cosmogDetailsSender.sh >/dev/null 2>&1 &
+      /system/bin/CosmogDetailsSender.sh >/dev/null 2>&1 &
       logger "cosmogDetails sender (re)started"
     fi
   fi
@@ -704,10 +705,10 @@ if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gs
 fi
 
 # enable cosmogDetails sender
-if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsub(/ /,""); print }') == "true" ]] && [ -f /system/bin/cosmogDetailsSender.sh ] ;then
-  checkSender=$(pgrep -f /system/bin/cosmogDetailsSender.sh)
+if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsub(/ /,""); print }') == "true" ]] && [ -f /system/bin/CosmogDetailsSender.sh ] ;then
+  checkSender=$(pgrep -f /system/bin/CosmogDetailsSender.sh)
   if [ -z $checkSender ] ;then
-    /system/bin/cosmogDetailsSender.sh >/dev/null 2>&1 &
+    /system/bin/CosmogDetailsSender.sh >/dev/null 2>&1 &
     echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmogDetails sender started" >> $logfile
   fi
 fi
