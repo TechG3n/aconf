@@ -19,7 +19,7 @@ logfile="/sdcard/aconf.log"
 pdconf="/data/data/com.mad.pogodroid/shared_prefs/com.mad.pogodroid_preferences.xml"
 [[ -d /data/data/de.grennith.rgc.remotegpscontroller ]] && ruser=$(ls -la /data/data/de.grennith.rgc.remotegpscontroller/ |head -n2 | tail -n1 | awk '{print $3}')
 rgcconf="/data/data/de.grennith.rgc.remotegpscontroller/shared_prefs/de.grennith.rgc.remotegpscontroller_preferences.xml"
-aconf="/data/local/tmp/cosmog_config.json"
+aconf="/data/local/tmp/cosmog.json"
 aconf_versions="/data/local/aconf_versions"
 aconf_mac2name="/data/local/aconf_mac2name"
 [[ -f /data/local/aconf_download ]] && url=$(grep url /data/local/aconf_download | awk -F "=" '{ print $NF }')
@@ -30,7 +30,7 @@ if [[ -z $discord_webhook ]] ;then
   discord_webhook=$(grep discord_webhook /data/local/aconf_download | awk -F "=" '{ print $NF }' | sed -e 's/^"//' -e 's/"$//')
 fi
 
-if [[ -f /data/local/tmp/cosmog_config.json ]] ;then
+if [[ -f /data/local/tmp/cosmog.json ]] ;then
 # origin=$(grep -w 'deviceName' $aconf | awk -F "\"" '{ print $4 }')
   origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
 else
@@ -262,7 +262,7 @@ logger "new cosmog device configured. IP: $ip"
 }
 
 install_config(){
-  until $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
+  until $download /data/local/tmp/cosmog.json $url/cosmog_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cosmog.json $url/cosmog_config.json" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   if [[ ! -z $origin ]] ;then
@@ -279,7 +279,7 @@ update_cosmog_config(){
   if [[ -z $origin ]] ;then
     logger "will not replace cosmog config file without deviceName being set"
   else
-    until $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
+    until $download /data/local/tmp/cosmog.json $url/cosmog_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cosmog.json $url/cosmog_config.json" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     sed -i 's,dummy,'$origin',g' $aconf
@@ -299,7 +299,7 @@ cosmog_lib(){
   if [[ ! -f /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so ]] ;then
     logger "Cosmog Lib not found, downloading it"
     rm -f /data/local/tmp/libNianticLabsPlugin.so_*
-    until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
+    until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     mkdir -p /data/data/com.sy1vi3.cosmog/files/
@@ -308,7 +308,7 @@ cosmog_lib(){
     if [[$vLibVer > $iLibVer]] ;then
       logger "Cosmog Lib too old, downloading new version"
       rm -f /data/local/tmp/libNianticLabsPlugin.so_*
-      until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cosmog_config.json $url/cosmog_config.json" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
+      until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
         sleep 2
       done
     else
@@ -715,7 +715,7 @@ fi
 
 # check cosmog running
 cosmog_check=$(ps | grep com.sy1vi3.cosmog:mapping | awk '{print $9}')
-if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cosmog_config.json ]] ;then
+if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cosmog.json ]] ;then
   logger "cosmog not running at execution of cosmog.sh, starting it"
   if [ $android_version -ge 9 ]; then
     am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
