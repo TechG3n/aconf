@@ -1,11 +1,11 @@
 #!/system/bin/sh
-# version 3.4.0
+# version 3.4.1
 #set -x
 
 # Monitor by Oldmole && bbdoc
 
 logfile="/sdcard/cosmog_monitor.log"
-aconf="/data/local/tmp/cosmog_config.json"
+aconf="/data/local/tmp/cosmog.json"
 origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 cosmogdead=0
@@ -42,11 +42,7 @@ stop_start_cosmog () {
 	sleep 5
 	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of cosmog" >> $logfile
 
-	if [ $android_version -ge 9 ]; then
-		am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MappingService
-	else
-		am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MappingService
-	fi
+	am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
 	
 	sleep 1
 }
@@ -93,11 +89,11 @@ do
 		check_for_updates
 	fi
 
-	if [ -d /data/data/com.sy1vi3.cosmog ] && [ -s /data/local/tmp/cosmog_config.json ]
+	if [ -d /data/data/com.sy1vi3.cosmog ] && [ -s /data/local/tmp/cosmog.json ]
 	then
-		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog_config.json looks good" >> $logfile
+		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog.json looks good" >> $logfile
 	else
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog_config.json does not exist or is empty! Let's fix that" >> $logfile
+		echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog.json does not exist or is empty! Let's fix that" >> $logfile
 		[[ ! -z $discord_webhook ]] && [[ $recreate_cosmog_config != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: re-creating cosmog config\"}" $discord_webhook &>/dev/null
 		/system/bin/cosmog.sh -ic
 		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Fixed config" >> $logfile
@@ -105,114 +101,6 @@ do
 		sleep $monitor_interval
 		continue
 
-	fi
-
-
-	dumpsys activity services | grep -e "MappingService" > /dev/null 2>&1
-	devicestatus=$(echo $?)
-	emptycheck="9$devicestatus"
-
-	not_licensed=$(tail -n 100 /data/local/tmp/cosmog.log | grep -c -E "Not licensed|doesn't have a valid license")
-
-	if [ -f /sdcard/not_licensed ] && [ $not_licensed -gt 0 ]
-	then
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Still unlicensed, exiting" >> $logfile
-	elif [ $not_licensed -gt 0 ]
-	then
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device Lost cosmog License" >> $logfile
-		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: UNLICENSED !!! Check cosmog Dashboard\"}" $discord_webhook &>/dev/null
-		[[ $useSender == "true" ]] && send_webhook "Lost Licence" "No action"
-		touch /sdcard/not_licensed
-
-	elif [ -f /sdcard/not_licensed ] && [ $not_licensed -eq 0 ]
-	then
-	    echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device got License again. Recovering" >> $logfile
-        [[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: Device got cosmog license again\"}" $discord_webhook &>/dev/null
-		rm /sdcard/not_licensed
-
-        elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $cosmogdead == 2 ]
-        then
-			echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog must be dead, rebooting device" >> $logfile
-			[[ $useSender == "true" ]] && send_webhook "cosmog Dead" "Reboot"
-			[[ ! -z $discord_webhook ]] && [[ $cosmog_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: cosmog died, reboot\"}" $discord_webhook &>/dev/null
-			reboot
-        elif [ $emptycheck != 9 ] && [ $pogodead == 2 ]
-        then
-            echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo must be dead, rebooting device" >> $logfile
-			[[ $useSender == "true" ]] && send_webhook "Pogo Dead" "Reboot"
-   	        [[ ! -z $discord_webhook ]] && [[ $pogo_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: pogo died, reboot\"}" $discord_webhook &>/dev/null
-            reboot
-
-	elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $cosmogdead != 2 ]
-	then
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device must be offline. Running a stop mapping service of cosmog, killing pogo and clearing junk" >> $logfile
-		[[ $useSender == "true" ]] && send_webhook "Device Offline" "Kill Pogo and Clear Junk"
-		[[ ! -z $discord_webhook ]] && [[ $device_offline != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: device offline, restarting cosmog and pogo\"}" $discord_webhook &>/dev/null
-		stop_start_cosmog
-		cosmogdead=$((cosmogdead+1))
-		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
-
-	elif [ $emptycheck == 9 ]
-	then
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Couldn't check status, something wrong with RDM?" >> $logfile
-		[[ ! -z $discord_webhook ]] && [[ $unable_check_status != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: unable to check status\"}" $discord_webhook &>/dev/null
-
-	elif [ $deviceonline == $devicestatus ]
-	then
-		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog mapping service is running" >> $logfile
-		cosmogdead=0
-		focusedapp=$(dumpsys window windows | grep -E 'mFocusedApp'| cut -d / -f 1 | cut -d " " -f 7)
-		if [ "$focusedapp" != "com.nianticlabs.pokemongo" ]
-		then
-			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something is not right! Pogo is not in focus. Killing pogo and clearing junk" >> $logfile
-		    [[ $useSender == "true" ]] && send_webhook "Pogo not in Focus" "Kill Pogo and Clear Junk"
-			[[ ! -z $discord_webhook ]] && [[ $pogo_not_focused != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: pogo not in focus, Killing and clearing junk\"}" $discord_webhook &>/dev/null
-			stop_pogo
-			pogodead=$((pogodead+1))
-			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
-		else
-			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo in focus, all good" >> $logfile
-			pogodead=0
-		fi
-	else
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something happened! Some kind of error" >> $logfile
-		[[ $useSender == "true" ]] && send_webhook "Unknown Error" "No action"
-		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: no clue what happend, but its not good\"}" $discord_webhook &>/dev/null
-	fi
-
-	#get count of "[HEALTH CHECK] xx seconds since last ping." errors
-	lastlog=$(tail -n 200 /data/local/tmp/cosmog.log)
-	healthcheckcount=$(echo "$lastlog" | grep -E '\[HEALTH CHECK\] ([0-9]+) seconds since last ping\.' | wc -l)
-	crithealthcount=$(echo "$lastlog" | grep -E '\[HEALTH CHECK\] ([0-9]+) seconds since last ping\.' | awk '{if ($3 >= 30) count++} END {print count+0}')
-	successcount=$(echo "$lastlog" | grep -E 'I \| Worker' | wc -l)
-	if [ $healthcheckcount -ge 10 ] && [ $healthcheckcount -ge $successcount ] || [ $crithealthcount -ge 4 ] && [ $successcount -le 40 ] ; then
-		if [[ $healthchecklock == 1 ]]; then
-			#skip restart
-			healthchecklock=0
-		else
-			stop_pogo
-			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Found $healthcheckcount Health Errors, $successcount successfull jobs and $crithealthcount crits - restarting Pogo" >> $logfile
-			[[ ! -z $discord_webhook ]] && [[ $healthcheck_errors != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: Found $healthcheckcount Health Errors, $successcount successfull jobs and $crithealthcount crits - restarting Pogo\"}" $discord_webhook &>/dev/null
-			healthchecklock=1
-		fi
-	else
-		healthchecklock=0
-	fi
-
-	# Instance 2's loop has been stalled for over a minute.. Restarting instance...
-	stalled=$(echo "$lastlog" | grep -E 'loop has been stalled for over a minute' | wc -l )
-	if [ $stalled -ge 1 ]; then
-		if [[ $stalllock -ge 1 ]]; then
-			#skip restart
-			stalllock=$((stalllock - 1))
-		else
-			echo "`date +%Y-%m-%d_%T` [MONITORBOT] One instance stalled - restarting cosmog" >> $logfile
-			stop_start_cosmog
-			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: One instance stalled - restarting cosmog\"}" $discord_webhook &>/dev/null
-			stalllock=2
-		fi
-	else
-		stalllock=$((stalllock - 1))
 	fi
 		
 	sleep $monitor_interval
