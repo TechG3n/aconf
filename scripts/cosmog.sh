@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.2.3
+# version 2.2.4
 
 #Version checks
 Ver42cosmog="1.6"
@@ -108,13 +108,13 @@ setup_initd_dir() {
 install_cosmog(){
   mount_system_rw
   setup_initd_dir
-if [ ! -f /system/etc/init.d/42cosmog ] ;then
-  until $download /system/etc/init.d/55cosmog $url/scripts/55cosmog || { logger "download 55cosmog failed, exit script" ; exit 1; } ;do
-    sleep 2
-  done
-  chmod +x /system/etc/init.d/55cosmog
-  logger "55cosmog installed"
-fi
+  if [ ! -f /system/etc/init.d/42cosmog ] ;then
+    until $download /system/etc/init.d/55cosmog $url/scripts/55cosmog || { logger "download 55cosmog failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    chmod +x /system/etc/init.d/55cosmog
+    logger "55cosmog installed"
+  fi
 
 if [ $android_version -ge 9 ]; then
     cat <<EOF > /system/etc/init/55cosmog.rc
@@ -286,7 +286,7 @@ update_cosmog_config(){
 
 cosmog_lib(){
   vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
-  if [[ ! -d /data/data/com.sy1vi3.cosmog/files ]]
+  if [[ ! -d /data/data/com.sy1vi3.cosmog/files ]] ;then
     mkdir -p /data/data/com.sy1vi3.cosmog/files/
   fi
   if [[ ! -f /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so ]] ;then
