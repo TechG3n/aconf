@@ -1,10 +1,10 @@
 #!/system/bin/sh
-# version 2.2.2
+# version 2.2.3
 
 #Version checks
 Ver42cosmog="1.6"
 Ver55cosmog="1.1"
-VerMonitor="3.4.0"
+VerMonitor="3.4.1"
 VerATVsender="1.9.1"
 
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
@@ -187,10 +187,9 @@ logger "cosmog installed"
 
 # Grant su access + settings
 auid="$(dumpsys package com.sy1vi3.cosmog | grep userId | awk -F'=' '{print $2}')"
-magisk --sqlite "DELETE from policies WHERE package_name='com.sy1vi3.cosmog'"
-magisk --sqlite "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES($auid,'com.sy1vi3.cosmog',2,0,1,1)"
-pm grant com.sy1vi3.cosmog android.permission.READ_EXTERNAL_STORAGE
-pm grant com.sy1vi3.cosmog android.permission.WRITE_EXTERNAL_STORAGE
+magisk --sqlite "REPLACE INTO policies (uid,policy,until,logging,notification) VALUES($auid,2,0,1,0)"
+#pm grant com.sy1vi3.cosmog android.permission.READ_EXTERNAL_STORAGE
+#pm grant com.sy1vi3.cosmog android.permission.WRITE_EXTERNAL_STORAGE
 logger "cosmog granted su and settings set"
 
 # add common packages to denylist
@@ -243,13 +242,8 @@ downgrade_pogo
 check_rgc
 
 # start cosmog
-
-if [ $android_version -ge 9 ]; then
-  am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
-else
-  am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
-  sleep 15
-fi
+am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
+sleep 10
 
 # Set for reboot device
 reboot=1
@@ -284,11 +278,7 @@ update_cosmog_config(){
     done
     sed -i 's,dummy,'$origin',g' $aconf
 
-    if [ $android_version -ge 9 ]; then
-      am force-stop com.sy1vi3.cosmog && am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
-    else
-      am force-stop com.sy1vi3.cosmog && am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
-    fi
+    am force-stop com.sy1vi3.cosmog && am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
 
     logger "cosmog config updated and cosmog restarted"
   fi
@@ -296,13 +286,15 @@ update_cosmog_config(){
 
 cosmog_lib(){
   vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  if [[ ! -d /data/data/com.sy1vi3.cosmog/files ]]
+    mkdir -p /data/data/com.sy1vi3.cosmog/files/
+  fi
   if [[ ! -f /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so ]] ;then
     logger "Cosmog Lib not found, downloading it"
     rm -f /data/local/tmp/libNianticLabsPlugin.so_*
     until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    mkdir -p /data/data/com.sy1vi3.cosmog/files/
   else
     iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
     if [[$vLibVer > $iLibVer]] ;then
@@ -347,7 +339,7 @@ else
  echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo already on correct version" >> $logfile
 fi
 
-if [ v$ainstalled != $aversions ] ;then
+if [ $ainstalled != $aversions ] ;then
   logger "new cosmog version detected, $ainstalled=>$aversions"
   ver_cosmog_md5=$(grep 'cosmog_md5' $aconf_versions | awk -F "=" '{ print $NF }')
   if [[ ! -z $ver_cosmog_md5 ]] ;then
@@ -467,7 +459,7 @@ fi
 
 opengl_warning() {
   # Fetch OpenGL version and extract major version directly
-  opengl_version=$(adb -s $i shell dumpsys SurfaceFlinger | grep "OpenGL" | sed -n 's/.*OpenGL ES \([0-9]\+\).*/\1/p')
+  opengl_version=$(dumpsys SurfaceFlinger | grep "OpenGL" | sed -n 's/.*OpenGL ES \([0-9]\+\).*/\1/p')
 
   # Check if major_version was successfully extracted
   if [[ -z "$opengl_version" ]]; then
@@ -680,11 +672,8 @@ check_rgc
 if [[ -d /data/data/com.sy1vi3.cosmog ]] && [[ ! -s $aconf ]] ;then
   install_config
   am force-stop com.sy1vi3.cosmog
-  if [ $android_version -ge 9 ]; then
-    am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
-  else
-    am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
-  fi
+  sleep 1
+  am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
 fi
 
 # check 16/42mad pogo autoupdate disabled
@@ -717,11 +706,7 @@ fi
 cosmog_check=$(ps | grep com.sy1vi3.cosmog:mapping | awk '{print $9}')
 if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cosmog.json ]] ;then
   logger "cosmog not running at execution of cosmog.sh, starting it"
-  if [ $android_version -ge 9 ]; then
-    am start-foreground-service com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
-  else
-    am startservice com.sy1vi3.cosmog/com.sy1vi3.cosmog.services.MainActivity
-  fi
+  am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
 fi
 
 # check if playstore is enabled
