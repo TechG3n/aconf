@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.2.4
+# version 2.2.5
 
 #Version checks
 Ver42cosmog="1.6"
@@ -214,7 +214,7 @@ magisk --sqlite "REPLACE INTO settings (key,value) VALUES('denylist',1);"
 magisk --denylist enable
 
 #download newest cosmog lib file
-cosmog_lib()
+cosmog_lib
 
 # Replace these paths with your actual source and target paths
 cosmog_dir="/data/data/com.sy1vi3.cosmog"
@@ -232,11 +232,11 @@ chmod -R "$perms" "$files_dir"
 # download cosmog config file and adjust orgin to rgc setting
 install_config
 
-# supress 'pink screen'
-opengl_warning
-
 # check pogo version else remove+install
 downgrade_pogo
+
+# supress 'pink screen'
+opengl_warning
 
 # check if rgc is to be enabled or disabled
 check_rgc
@@ -285,14 +285,14 @@ update_cosmog_config(){
 }
 
 cosmog_lib(){
-  vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
   if [[ ! -d /data/data/com.sy1vi3.cosmog/files ]] ;then
     mkdir -p /data/data/com.sy1vi3.cosmog/files/
   fi
   if [[ ! -f /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so ]] ;then
     logger "Cosmog Lib not found, downloading it"
     rm -f /data/local/tmp/libNianticLabsPlugin.so_*
-    until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
+    until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog lib file failed, exit script" ; exit 1; } ;do
       sleep 2
     done
   else
@@ -300,7 +300,7 @@ cosmog_lib(){
     if [[$vLibVer > $iLibVer]] ;then
       logger "Cosmog Lib too old, downloading new version"
       rm -f /data/local/tmp/libNianticLabsPlugin.so_*
-      until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
+      until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog lib file failed, exit script" ; exit 1; } ;do
         sleep 2
       done
     else
@@ -459,7 +459,7 @@ fi
 
 opengl_warning() {
   # Fetch OpenGL version and extract major version directly
-  opengl_version=$(dumpsys SurfaceFlinger | grep "OpenGL" | sed -n 's/.*OpenGL ES \([0-9]\+\).*/\1/p')
+  opengl_version=$(dumpsys SurfaceFlinger | grep -o "OpenGL ES [0-9]*\.[0-9]*" | sed -n 's/OpenGL ES \([0-9]*\)\..*/\1/p')
 
   # Check if major_version was successfully extracted
   if [[ -z "$opengl_version" ]]; then
@@ -479,6 +479,7 @@ opengl_warning() {
 
       # Push XML file to the device
       chown root:root /data/local/tmp/warning.xml
+      mkdir -p /data/data/com.nianticlabs.pokemongo/shared_prefs/
       cp /data/local/tmp/warning.xml /data/data/com.nianticlabs.pokemongo/shared_prefs/com.nianticproject.holoholo.libholoholo.unity.UnityMainActivity.xml
   fi
 }
