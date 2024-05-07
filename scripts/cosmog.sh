@@ -1,10 +1,10 @@
 #!/system/bin/sh
-# version 2.2.5
+# version 2.2.6
 
 #Version checks
 Ver42cosmog="1.6"
 Ver55cosmog="1.1"
-VerMonitor="3.4.1"
+VerMonitor="3.4.2"
 VerATVsender="1.9.1"
 
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
@@ -704,7 +704,7 @@ if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsu
 fi
 
 # check cosmog running
-cosmog_check=$(ps | grep com.sy1vi3.cosmog:mapping | awk '{print $9}')
+cosmog_check=$(ps -e | grep com.sy1vi3.cosmog | awk '{print $9}')
 if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cosmog.json ]] ;then
   logger "cosmog not running at execution of cosmog.sh, starting it"
   am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity

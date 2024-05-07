@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.4.1
+# version 3.4.2
 #set -x
 
 # Monitor by Oldmole && bbdoc
@@ -103,5 +103,11 @@ do
 
 	fi
 		
+	cosmog_check=$(ps -e | grep com.sy1vi3.cosmog | awk '{print $9}')
+	if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cosmog.json ]] ;then
+		echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog not running, starting it" >> $logfile
+		am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
+	fi
+	
 	sleep $monitor_interval
 done
