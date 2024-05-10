@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.2.6
+# version 2.2.7
 
 #Version checks
 Ver42cosmog="1.6"
@@ -158,7 +158,7 @@ aversions=$(grep 'cosmog' $aconf_versions | grep -v '_' | awk -F "=" '{ print $N
 
 # download cosmog
 /system/bin/rm -f /sdcard/Download/cosmog.apk
-until $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/Pokemodcosmog-Public-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
+until $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
   sleep 2
 done
 
@@ -350,7 +350,7 @@ if [ $ainstalled != $aversions ] ;then
     else
       logger "New version, new md5 - start install"
       /system/bin/rm -f /sdcard/Download/cosmog.apk
-      until $download /sdcard/Download/cosmog.apk $url/apk/Pokemodcosmog-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/Pokemodcosmog-Public-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
+      until $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
         sleep 2
       done
       # set cosmog to be installed
@@ -359,7 +359,7 @@ if [ $ainstalled != $aversions ] ;then
   else
     logger "No md5 found, install new version regardless"
     /system/bin/rm -f /sdcard/Download/cosmog.apk
-    until $download /sdcard/Download/cosmog.apk $url/apk/Pokemodcosmog-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/Pokemodcosmog-Public-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
+    until $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     # set cosmog to be installed
