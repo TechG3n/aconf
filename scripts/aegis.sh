@@ -2,8 +2,8 @@
 # version 2.2.2
 
 #Version checks
-Ver42atlas="1.6"
-Ver55atlas="1.1"
+Ver42aegis="1.6"
+Ver55aegis="1.1"
 VerMonitor="3.4.0"
 VerATVsender="1.9.1"
 
@@ -19,7 +19,7 @@ logfile="/sdcard/aconf.log"
 pdconf="/data/data/com.mad.pogodroid/shared_prefs/com.mad.pogodroid_preferences.xml"
 [[ -d /data/data/de.grennith.rgc.remotegpscontroller ]] && ruser=$(ls -la /data/data/de.grennith.rgc.remotegpscontroller/ |head -n2 | tail -n1 | awk '{print $3}')
 rgcconf="/data/data/de.grennith.rgc.remotegpscontroller/shared_prefs/de.grennith.rgc.remotegpscontroller_preferences.xml"
-aconf="/data/local/tmp/atlas_config.json"
+aconf="/data/local/tmp/aegis_config.json"
 aconf_versions="/data/local/aconf_versions"
 aconf_mac2name="/data/local/aconf_mac2name"
 [[ -f /data/local/aconf_download ]] && url=$(grep url /data/local/aconf_download | awk -F "=" '{ print $NF }')
@@ -30,23 +30,23 @@ if [[ -z $discord_webhook ]] ;then
   discord_webhook=$(grep discord_webhook /data/local/aconf_download | awk -F "=" '{ print $NF }' | sed -e 's/^"//' -e 's/"$//')
 fi
 
-if [[ -f /data/local/tmp/atlas_config.json ]] ;then
+if [[ -f /data/local/tmp/aegis_config.json ]] ;then
 # origin=$(grep -w 'deviceName' $aconf | awk -F "\"" '{ print $4 }')
   origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
 else
   if [[ -f /data/data/de.grennith.rgc.remotegpscontroller/shared_prefs/de.grennith.rgc.remotegpscontroller_preferences.xml ]] ;then
     origin=$(grep -w 'websocket_origin' $rgcconf | sed -e 's/    <string name="websocket_origin">\(.*\)<\/string>/\1/')
   else
-    echo "`date +%Y-%m-%d_%T` atlas.sh: cannot find origin, that can't be right" >> $logfile
+    echo "`date +%Y-%m-%d_%T` aegis.sh: cannot find origin, that can't be right" >> $logfile
   fi
 fi
 
 # stderr to logfile
 exec 2>> $logfile
 
-# add atlas.sh command to log
+# add aegis.sh command to log
 echo "" >> $logfile
-echo "`date +%Y-%m-%d_%T` atlas.sh: executing $(basename $0) $@" >> $logfile
+echo "`date +%Y-%m-%d_%T` aegis.sh: executing $(basename $0) $@" >> $logfile
 # echo "`date +%Y-%m-%d_%T` download folder set to $url, user is $aconf_user with pass $aconf_pass" >> $logfile
 
 
@@ -55,14 +55,14 @@ echo "`date +%Y-%m-%d_%T` atlas.sh: executing $(basename $0) $@" >> $logfile
 # logger
 logger() {
 if [[ ! -z $discord_webhook ]] ;then
-  echo "`date +%Y-%m-%d_%T` atlas.sh: $1" >> $logfile
+  echo "`date +%Y-%m-%d_%T` aegis.sh: $1" >> $logfile
   if [[ -z $origin ]] ;then
-    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas.sh\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aegis.sh\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
   else
-    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"atlas.sh\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aegis.sh\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
   fi
 else
-  echo "`date +%Y-%m-%d_%T` atlas.sh: $1" >> $logfile
+  echo "`date +%Y-%m-%d_%T` aegis.sh: $1" >> $logfile
 fi
 }
 
@@ -105,60 +105,60 @@ setup_initd_dir() {
   fi
 }
 
-install_atlas(){
+install_aegis(){
   mount_system_rw
   setup_initd_dir
-if [ ! -f /system/etc/init.d/42atlas ] ;then
-  until $download /system/etc/init.d/55atlas $url/scripts/55atlas || { logger "download 55atlas failed, exit script" ; exit 1; } ;do
+if [ ! -f /system/etc/init.d/42aegis ] ;then
+  until $download /system/etc/init.d/55aegis $url/scripts/55aegis || { logger "download 55aegis failed, exit script" ; exit 1; } ;do
     sleep 2
   done
-  chmod +x /system/etc/init.d/55atlas
-  logger "55atlas installed"
+  chmod +x /system/etc/init.d/55aegis
+  logger "55aegis installed"
 fi
 
 if [ $android_version -ge 9 ]; then
-    cat <<EOF > /system/etc/init/55atlas.rc
+    cat <<EOF > /system/etc/init/55aegis.rc
 on property:sys.boot_completed=1
-    exec_background u:r:init:s0 root root -- /system/etc/init.d/55atlas
+    exec_background u:r:init:s0 root root -- /system/etc/init.d/55aegis
 EOF
-    chown root:root /system/etc/init/55atlas.rc
-    chmod 644 /system/etc/init/55atlas.rc
-    logger "55atlas.rc installed"
+    chown root:root /system/etc/init/55aegis.rc
+    chmod 644 /system/etc/init/55aegis.rc
+    logger "55aegis.rc installed"
 fi
 
-# install atlas monitor
-  until $download /system/bin/atlas_monitor.sh $url/scripts/atlas_monitor.sh || { logger "download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
+# install aegis monitor
+  until $download /system/bin/aegis_monitor.sh $url/scripts/aegis_monitor.sh || { logger "download aegis_monitor.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
-  chmod +x /system/bin/atlas_monitor.sh
-  logger "atlas monitor installed"
+  chmod +x /system/bin/aegis_monitor.sh
+  logger "aegis monitor installed"
 
 
 if [ $android_version -ge 9 ]; then
-                cat <<EOF > /system/etc/init/atlas_monitor.rc
+                cat <<EOF > /system/etc/init/aegis_monitor.rc
 on property:sys.boot_completed=1
-                exec_background u:r:init:s0 root root -- /system/bin/atlas_monitor.sh
+                exec_background u:r:init:s0 root root -- /system/bin/aegis_monitor.sh
 EOF
-                chown root:root /system/etc/init/atlas_monitor.rc
-                chmod 644 /system/etc/init/atlas_monitor.rc
-                logger "atlas_monitor.rc installed"
+                chown root:root /system/etc/init/aegis_monitor.rc
+                chmod 644 /system/etc/init/aegis_monitor.rc
+                logger "aegis_monitor.rc installed"
 
 fi
 
-# install AtlasDetails sender
-  until $download /system/bin/AtlasDetailsSender.sh $url/scripts/AtlasDetailsSender.sh || { logger "download AtlasDetailsSender.sh failed, exit script" ; exit 1; } ;do
+# install AegisDetails sender
+  until $download /system/bin/AegisDetailsSender.sh $url/scripts/AegisDetailsSender.sh || { logger "download AegisDetailsSender.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
-  chmod +x /system/bin/AtlasDetailsSender.sh
-  logger "AtlasDetails sender installed"
+  chmod +x /system/bin/AegisDetailsSender.sh
+  logger "AegisDetails sender installed"
   mount_system_ro
 
 # get version
-aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+aversions=$(grep 'aegis' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
-# download atlas
-/system/bin/rm -f /sdcard/Download/atlas.apk
-until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
+# download aegis
+/system/bin/rm -f /sdcard/Download/aegis.apk
+until $download /sdcard/Download/aegis.apk $url/apk/PokemodAegis-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/aegis.apk $url/apk/PokemodAegis-Public-$aversions.apk" >> $logfile ; logger "download aegis failed, exit script" ; exit 1; } ;do
   sleep 2
 done
 
@@ -180,20 +180,20 @@ touch /sdcard/disableautopogoupdate
 am force-stop com.nianticlabs.pokemongo
 pm clear com.nianticlabs.pokemongo
 
-# Install atlas
-/system/bin/pm install -r /sdcard/Download/atlas.apk
-/system/bin/rm -f /sdcard/Download/atlas.apk
-logger "atlas installed"
+# Install aegis
+/system/bin/pm install -r /sdcard/Download/aegis.apk
+/system/bin/rm -f /sdcard/Download/aegis.apk
+logger "aegis installed"
 
 # Grant su access + settings
-auid="$(dumpsys package com.pokemod.atlas | grep userId | awk -F'=' '{print $2}')"
-magisk --sqlite "DELETE from policies WHERE package_name='com.pokemod.atlas'"
-magisk --sqlite "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES($auid,'com.pokemod.atlas',2,0,1,0)"
-pm grant com.pokemod.atlas android.permission.READ_EXTERNAL_STORAGE
-pm grant com.pokemod.atlas android.permission.WRITE_EXTERNAL_STORAGE
-logger "atlas granted su and settings set"
+auid="$(dumpsys package com.pokemod.aegis | grep userId | awk -F'=' '{print $2}')"
+magisk --sqlite "DELETE from policies WHERE package_name='com.pokemod.aegis'"
+magisk --sqlite "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES($auid,'com.pokemod.aegis',2,0,1,0)"
+pm grant com.pokemod.aegis android.permission.READ_EXTERNAL_STORAGE
+pm grant com.pokemod.aegis android.permission.WRITE_EXTERNAL_STORAGE
+logger "aegis granted su and settings set"
 
-# download atlas config file and adjust orgin to rgc setting
+# download aegis config file and adjust orgin to rgc setting
 install_config
 
 # check pogo version else remove+install
@@ -202,12 +202,12 @@ downgrade_pogo
 # check if rgc is to be enabled or disabled
 check_rgc
 
-# start atlas
+# start aegis
 
 if [ $android_version -ge 9 ]; then
-  am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+  am start-foreground-service com.pokemod.aegis/com.pokemod.aegis.services.MappingService
 else
-  am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+  am startservice com.pokemod.aegis/com.pokemod.aegis.services.MappingService
   sleep 15
 fi
 
@@ -217,48 +217,48 @@ reboot=1
 ## Send final webhook
 # discord_config_wh=$(grep 'discord_webhook' $aconf_versions | awk -F "=" '{ print $NF }')
 ip=$(ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
-logger "new atlas device configured. IP: $ip"
+logger "new aegis device configured. IP: $ip"
 
 }
 
 install_config(){
-until $download /data/local/tmp/atlas_config.json $url/atlas_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/atlas_config.json $url/atlas_config.json" >> $logfile ; logger "download atlas config file failed, exit script" ; exit 1; } ;do
+until $download /data/local/tmp/aegis_config.json $url/aegis_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/aegis_config.json $url/aegis_config.json" >> $logfile ; logger "download aegis config file failed, exit script" ; exit 1; } ;do
   sleep 2
 done
 if [[ ! -z $origin ]] ;then
   sed -i 's,dummy,'$origin',g' $aconf
-  logger "atlas config installed, set devicename to $origin"
+  logger "aegis config installed, set devicename to $origin"
 else
   temporigin="TEMP-$(date +'%H_%M_%S')"
   sed -i 's,dummy,'$temporigin',g' $aconf
-  logger "atlas config installed, set devicename to $temporigin"
+  logger "aegis config installed, set devicename to $temporigin"
 fi
 }
 
-update_atlas_config(){
+update_aegis_config(){
 if [[ -z $origin ]] ;then
-  logger "will not replace atlas config file without deviceName being set"
+  logger "will not replace aegis config file without deviceName being set"
 else
-  until $download /data/local/tmp/atlas_config.json $url/atlas_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/atlas_config.json $url/atlas_config.json" >> $logfile ; logger "download atlas config file failed, exit script" ; exit 1; } ;do
+  until $download /data/local/tmp/aegis_config.json $url/aegis_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/aegis_config.json $url/aegis_config.json" >> $logfile ; logger "download aegis config file failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   sed -i 's,dummy,'$origin',g' $aconf
 
   if [ $android_version -ge 9 ]; then
-    am force-stop com.pokemod.atlas && am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+    am force-stop com.pokemod.aegis && am start-foreground-service com.pokemod.aegis/com.pokemod.aegis.services.MappingService
   else
-    am force-stop com.pokemod.atlas && am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+    am force-stop com.pokemod.aegis && am startservice com.pokemod.aegis/com.pokemod.aegis.services.MappingService
   fi
 
-  logger "atlas config updated and atlas restarted"
+  logger "aegis config updated and aegis restarted"
 fi
 }
 
 update_all(){
 pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
 pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
-ainstalled=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//' | sed 's/-fix//' )
-aversions=$(grep 'atlas' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+ainstalled=$(dumpsys package com.pokemod.aegis | grep versionName | head -n1 | sed 's/ *versionName=//' | sed 's/-fix//' )
+aversions=$(grep 'aegis' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
 if [[ $pinstalled != $pversions ]] ;then
   if [[ $(echo "$pinstalled" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') -gt $(echo "$pversions" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') ]]; then
@@ -276,47 +276,47 @@ if [[ $pinstalled != $pversions ]] ;then
   fi
 else
  pogo_install="skip"
- echo "`date +%Y-%m-%d_%T` atlas.sh: pogo already on correct version" >> $logfile
+ echo "`date +%Y-%m-%d_%T` aegis.sh: pogo already on correct version" >> $logfile
 fi
 
 if [ v$ainstalled != $aversions ] ;then
-  logger "new atlas version detected, $ainstalled=>$aversions"
-  ver_atlas_md5=$(grep 'atlas_md5' $aconf_versions | awk -F "=" '{ print $NF }')
-  if [[ ! -z $ver_atlas_md5 ]] ;then
-    inst_atlas_md5=$(md5sum /data/app/com.pokemod.atlas-*/base.apk | awk '{print $1}')
-    if [[ $ver_atlas_md5 == $inst_atlas_md5 ]] ;then
+  logger "new aegis version detected, $ainstalled=>$aversions"
+  ver_aegis_md5=$(grep 'aegis_md5' $aconf_versions | awk -F "=" '{ print $NF }')
+  if [[ ! -z $ver_aegis_md5 ]] ;then
+    inst_aegis_md5=$(md5sum /data/app/com.pokemod.aegis-*/base.apk | awk '{print $1}')
+    if [[ $ver_aegis_md5 == $inst_aegis_md5 ]] ;then
       logger "New version but same md5 - skip install"
-      atlas_install="skip"
+      aegis_install="skip"
     else
       logger "New version, new md5 - start install"
-      /system/bin/rm -f /sdcard/Download/atlas.apk
-      until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
+      /system/bin/rm -f /sdcard/Download/aegis.apk
+      until $download /sdcard/Download/aegis.apk $url/apk/PokemodAegis-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/aegis.apk $url/apk/PokemodAegis-Public-$aversions.apk" >> $logfile ; logger "download aegis failed, exit script" ; exit 1; } ;do
         sleep 2
       done
-      # set atlas to be installed
-      atlas_install="install"
+      # set aegis to be installed
+      aegis_install="install"
     fi
   else
     logger "No md5 found, install new version regardless"
-    /system/bin/rm -f /sdcard/Download/atlas.apk
-    until $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/atlas.apk $url/apk/PokemodAtlas-Public-$aversions.apk" >> $logfile ; logger "download atlas failed, exit script" ; exit 1; } ;do
+    /system/bin/rm -f /sdcard/Download/aegis.apk
+    until $download /sdcard/Download/aegis.apk $url/apk/PokemodAegis-Public-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/aegis.apk $url/apk/PokemodAegis-Public-$aversions.apk" >> $logfile ; logger "download aegis failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    # set atlas to be installed
-    atlas_install="install"
+    # set aegis to be installed
+    aegis_install="install"
   fi
 else
- atlas_install="skip"
- echo "`date +%Y-%m-%d_%T` atlas.sh: atlas already on correct version" >> $logfile
+ aegis_install="skip"
+ echo "`date +%Y-%m-%d_%T` aegis.sh: aegis already on correct version" >> $logfile
 fi
 
-if [ ! -z "$atlas_install" ] && [ ! -z "$pogo_install" ] ;then
-  echo "`date +%Y-%m-%d_%T` atlas.sh: all updates checked and downloaded if needed" >> $logfile
-  if [ "$atlas_install" = "install" ] ;then
-    Logger "Updating atlas"
-    # install atlas
-    /system/bin/pm install -r /sdcard/Download/atlas.apk || { logger "install atlas failed, downgrade perhaps? Exit script" ; exit 1; }
-    /system/bin/rm -f /sdcard/Download/atlas.apk
+if [ ! -z "$aegis_install" ] && [ ! -z "$pogo_install" ] ;then
+  echo "`date +%Y-%m-%d_%T` aegis.sh: all updates checked and downloaded if needed" >> $logfile
+  if [ "$aegis_install" = "install" ] ;then
+    Logger "Updating aegis"
+    # install aegis
+    /system/bin/pm install -r /sdcard/Download/aegis.apk || { logger "install aegis failed, downgrade perhaps? Exit script" ; exit 1; }
+    /system/bin/rm -f /sdcard/Download/aegis.apk
     reboot=1
   fi
   if [ "$pogo_install" = "install" ] ;then
@@ -326,8 +326,8 @@ if [ ! -z "$atlas_install" ] && [ ! -z "$pogo_install" ] ;then
     /system/bin/rm -f /sdcard/Download/pogo.apk
     reboot=1
   fi
-  if [ "$atlas_install" != "install" ] && [ "$pogo_install" != "install" ] ; then
-    echo "`date +%Y-%m-%d_%T` atlas.sh: updates checked, nothing to install" >> $logfile
+  if [ "$aegis_install" != "install" ] && [ "$pogo_install" != "install" ] ; then
+    echo "`date +%Y-%m-%d_%T` aegis.sh: updates checked, nothing to install" >> $logfile
   fi
 fi
 }
@@ -373,27 +373,27 @@ if [[ $pinstalled != $pversions ]] ;then
   /system/bin/rm -f /sdcard/Download/pogo.apk
   logger "pogo removed and installed, now $pversions"
 else
-  echo "`date +%Y-%m-%d_%T` atlas.sh: pogo version correct, proceed" >> $logfile
+  echo "`date +%Y-%m-%d_%T` aegis.sh: pogo version correct, proceed" >> $logfile
 fi
 }
 
 send_logs(){
 if [[ -z $webhook ]] ;then
-  echo "`date +%Y-%m-%d_%T` atlas.sh: no webhook set in job" >> $logfile
+  echo "`date +%Y-%m-%d_%T` aegis.sh: no webhook set in job" >> $logfile
 else
   # aconf log
   curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"aconf.log for $origin\"}" -F "file1=@$logfile" $webhook &>/dev/null
   # monitor log
-  [[ -f /sdcard/atlas_monitor.log ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"atlas_monitor.log for $origin\"}" -F "file1=@/sdcard/atlas_monitor.log" $webhook &>/dev/null
-  # atlas log
-  cp /data/local/tmp/atlas.log /sdcard/atlas.log
-  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"atlas.log for $origin\"}" -F "file1=@/sdcard/atlas.log" $webhook &>/dev/null
-  rm /sdcard/atlas.log
+  [[ -f /sdcard/aegis_monitor.log ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"aegis_monitor.log for $origin\"}" -F "file1=@/sdcard/aegis_monitor.log" $webhook &>/dev/null
+  # aegis log
+  cp /data/local/tmp/aegis.log /sdcard/aegis.log
+  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"aegis.log for $origin\"}" -F "file1=@/sdcard/aegis.log" $webhook &>/dev/null
+  rm /sdcard/aegis.log
   #logcat
   logcat -d > /sdcard/logcat.txt
   curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"logcat.txt for $origin\"}" -F "file1=@/sdcard/logcat.txt" $webhook &>/dev/null
   rm -f /sdcard/logcat.txt
-  echo "`date +%Y-%m-%d_%T` atlas.sh: sending logs to discord" >> $logfile
+  echo "`date +%Y-%m-%d_%T` aegis.sh: sending logs to discord" >> $logfile
 fi
 }
 
@@ -403,7 +403,7 @@ fi
 until ping -c1 8.8.8.8 >/dev/null 2>/dev/null || ping -c1 1.1.1.1 >/dev/null 2>/dev/null; do
     sleep 10
 done
-echo "`date +%Y-%m-%d_%T` atlas.sh: internet connection available" >> $logfile
+echo "`date +%Y-%m-%d_%T` aegis.sh: internet connection available" >> $logfile
 
 # verify download credential file and set download
 if [[ ! -f /data/local/aconf_download ]] ;then
@@ -416,132 +416,132 @@ else
   fi
 fi
 
-#download latest atlas.sh
-if [[ $(basename $0) != "atlas_new.sh" ]] ;then
+#download latest aegis.sh
+if [[ $(basename $0) != "aegis_new.sh" ]] ;then
   mount_system_rw
-  oldsh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
-  until $download /system/bin/atlas_new.sh $url/scripts/atlas.sh || { logger "download atlas.sh failed, exit script" ; exit 1; } ;do
+  oldsh=$(head -2 /system/bin/aegis.sh | grep '# version' | awk '{ print $NF }')
+  until $download /system/bin/aegis_new.sh $url/scripts/aegis.sh || { logger "download aegis.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
-  chmod +x /system/bin/atlas_new.sh
-  newsh=$(head -2 /system/bin/atlas_new.sh | grep '# version' | awk '{ print $NF }')
+  chmod +x /system/bin/aegis_new.sh
+  newsh=$(head -2 /system/bin/aegis_new.sh | grep '# version' | awk '{ print $NF }')
   if [[ $oldsh != $newsh ]] ;then
-    logger "atlas.sh updated $oldsh=>$newsh, restarting script"
+    logger "aegis.sh updated $oldsh=>$newsh, restarting script"
 #   folder=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-    cp /system/bin/atlas_new.sh /system/bin/atlas.sh
+    cp /system/bin/aegis_new.sh /system/bin/aegis.sh
     mount_system_ro
-    /system/bin/atlas_new.sh $@
+    /system/bin/aegis_new.sh $@
     exit 1
   fi
 fi
 
 # download latest version file
-until $download $aconf_versions $url/versions || { echo "`date +%Y-%m-%d_%T` $download $aconf_versions $url/versions" >> $logfile ; logger "download atlas versions file failed, exit script" ; exit 1; } ;do
+until $download $aconf_versions $url/versions || { echo "`date +%Y-%m-%d_%T` $download $aconf_versions $url/versions" >> $logfile ; logger "download aegis versions file failed, exit script" ; exit 1; } ;do
   sleep 2
 done
 dos2unix $aconf_versions
-echo "`date +%Y-%m-%d_%T` atlas.sh: downloaded latest versions file"  >> $logfile
+echo "`date +%Y-%m-%d_%T` aegis.sh: downloaded latest versions file"  >> $logfile
 
 # download latest mac2name file
-until $download $aconf_mac2name $url/mac2name || { echo "`date +%Y-%m-%d_%T` $download $aconf_mac2name $url/mac2name" >> $logfile ; logger "download atlas mac2name file failed, skip naming" ; } ;do
+until $download $aconf_mac2name $url/mac2name || { echo "`date +%Y-%m-%d_%T` $download $aconf_mac2name $url/mac2name" >> $logfile ; logger "download aegis mac2name file failed, skip naming" ; } ;do
   sleep 2
 done
 dos2unix $aconf_mac2name
-echo "`date +%Y-%m-%d_%T` atlas.sh: downloaded latest mac2name file"  >> $logfile
+echo "`date +%Y-%m-%d_%T` aegis.sh: downloaded latest mac2name file"  >> $logfile
 if [[ $origin = "" ]] ;then
   mac=$(ifconfig wlan0 2>/dev/null | grep 'HWaddr' | awk '{print $5}' | cut -d ' ' -f1 && ifconfig eth0 2>/dev/null | grep 'HWaddr' | awk '{print $5}')
   origin=$(grep -m 1 $mac $aconf_mac2name | cut -d ';' -f2)
   hostname=$origin
   if [[ $origin != "" ]] ;then
-    echo "`date +%Y-%m-%d_%T` atlas.sh: got origin name $origin from mac2name file"  >> $logfile
+    echo "`date +%Y-%m-%d_%T` aegis.sh: got origin name $origin from mac2name file"  >> $logfile
   fi
 fi
 
 
-#update 42atlas if needed
-if [[ $(basename $0) = "atlas_new.sh" ]] ;then
-  if [[ -f /system/etc/init.d/42atlas ]] ;then
-    old42=$(head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }')
-    if [ $Ver42atlas != $old42 ] ;then
+#update 42aegis if needed
+if [[ $(basename $0) = "aegis_new.sh" ]] ;then
+  if [[ -f /system/etc/init.d/42aegis ]] ;then
+    old42=$(head -2 /system/etc/init.d/42aegis | grep '# version' | awk '{ print $NF }')
+    if [ $Ver42aegis != $old42 ] ;then
       mount_system_rw
       setup_initd_dir
-      until $download /system/etc/init.d/42atlas $url/scripts/42atlas || { logger "download 42atlas failed, exit script" ; exit 1; } ;do
+      until $download /system/etc/init.d/42aegis $url/scripts/42aegis || { logger "download 42aegis failed, exit script" ; exit 1; } ;do
         sleep 2
       done
-      chmod +x /system/etc/init.d/42atlas
+      chmod +x /system/etc/init.d/42aegis
       mount_system_ro
-      new42=$(head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }')
-      logger "42atlas updated $old42=>$new42"
+      new42=$(head -2 /system/etc/init.d/42aegis | grep '# version' | awk '{ print $NF }')
+      logger "42aegis updated $old42=>$new42"
     fi
   fi
 fi
 
-#update 55atlas if needed
-if [[ $(basename $0) = "atlas_new.sh" ]] ;then
-  if [[ -f /system/etc/init.d/55atlas ]] ;then
-    old55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
-    if [ $Ver55atlas != $old55 ] ;then
+#update 55aegis if needed
+if [[ $(basename $0) = "aegis_new.sh" ]] ;then
+  if [[ -f /system/etc/init.d/55aegis ]] ;then
+    old55=$(head -2 /system/etc/init.d/55aegis | grep '# version' | awk '{ print $NF }')
+    if [ $Ver55aegis != $old55 ] ;then
       mount_system_rw
       setup_initd_dir
-      until $download /system/etc/init.d/55atlas $url/scripts/55atlas || { logger "download 55atlas failed, exit script" ; exit 1; } ;do
+      until $download /system/etc/init.d/55aegis $url/scripts/55aegis || { logger "download 55aegis failed, exit script" ; exit 1; } ;do
         sleep 2
       done
-      chmod +x /system/etc/init.d/55atlas
+      chmod +x /system/etc/init.d/55aegis
       mount_system_ro
-      new55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
-      logger "55atlas updated $old55=>$new55"
+      new55=$(head -2 /system/etc/init.d/55aegis | grep '# version' | awk '{ print $NF }')
+      logger "55aegis updated $old55=>$new55"
     fi
   fi
 fi
 
-#update atlas monitor if needed
-if [[ $(basename $0) = "atlas_new.sh" ]] ;then
-  [ -f /system/bin/atlas_monitor.sh ] && oldMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }') || oldMonitor="0"
+#update aegis monitor if needed
+if [[ $(basename $0) = "aegis_new.sh" ]] ;then
+  [ -f /system/bin/aegis_monitor.sh ] && oldMonitor=$(head -2 /system/bin/aegis_monitor.sh | grep '# version' | awk '{ print $NF }') || oldMonitor="0"
   if [ $VerMonitor != $oldMonitor ] ;then
     mount_system_rw
-    until $download /system/bin/atlas_monitor.sh $url/scripts/atlas_monitor.sh || { logger "download atlas_monitor.sh failed, exit script" ; exit 1; } ;do
+    until $download /system/bin/aegis_monitor.sh $url/scripts/aegis_monitor.sh || { logger "download aegis_monitor.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    chmod +x /system/bin/atlas_monitor.sh
+    chmod +x /system/bin/aegis_monitor.sh
     mount_system_ro
-    newMonitor=$(head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }')
-    logger "atlas monitor updated $oldMonitor => $newMonitor"
+    newMonitor=$(head -2 /system/bin/aegis_monitor.sh | grep '# version' | awk '{ print $NF }')
+    logger "aegis monitor updated $oldMonitor => $newMonitor"
 
-    # restart atlas monitor
-    if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/atlas_monitor.sh ] ;then
-      checkMonitor=$(pgrep -f /system/bin/atlas_monitor.sh)
+    # restart aegis monitor
+    if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/aegis_monitor.sh ] ;then
+      checkMonitor=$(pgrep -f /system/bin/aegis_monitor.sh)
       if [ ! -z $checkMonitor ] ;then
         kill -9 $checkMonitor
         sleep 2
-        /system/bin/atlas_monitor.sh >/dev/null 2>&1 &
-        logger "atlas monitor restarted"
+        /system/bin/aegis_monitor.sh >/dev/null 2>&1 &
+        logger "aegis monitor restarted"
       fi
     fi
   fi
 fi
 
-#update AtlasDetails sender if needed
-if [[ $(basename $0) = "atlas_new.sh" ]] ;then
-  [ -f /system/bin/AtlasDetailsSender.sh ] && oldSender=$(head -2 /system/bin/AtlasDetailsSender.sh | grep '# version' | awk '{ print $NF }') || oldSender="0"
+#update AegisDetails sender if needed
+if [[ $(basename $0) = "aegis_new.sh" ]] ;then
+  [ -f /system/bin/AegisDetailsSender.sh ] && oldSender=$(head -2 /system/bin/AegisDetailsSender.sh | grep '# version' | awk '{ print $NF }') || oldSender="0"
   if [ $VerATVsender != $oldSender ] ;then
     mount_system_rw
-    until $download /system/bin/AtlasDetailsSender.sh $url/scripts/AtlasDetailsSender.sh || { logger "download AtlasDetailsSender.sh failed, exit script" ; exit 1; } ;do
+    until $download /system/bin/AegisDetailsSender.sh $url/scripts/AegisDetailsSender.sh || { logger "download AegisDetailsSender.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    chmod +x /system/bin/AtlasDetailsSender.sh
+    chmod +x /system/bin/AegisDetailsSender.sh
     mount_system_ro
-    newSender=$(head -2 /system/bin/AtlasDetailsSender.sh | grep '# version' | awk '{ print $NF }')
-    logger "AtlasDetails sender updated $oldSender => $newSender"
+    newSender=$(head -2 /system/bin/AegisDetailsSender.sh | grep '# version' | awk '{ print $NF }')
+    logger "AegisDetails sender updated $oldSender => $newSender"
 
-    # restart AtlasDetails sender
-    if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/AtlasDetailsSender.sh ] ;then
-      checkSender=$(pgrep -f /system/bin/AtlasDetailsSender.sh)
+    # restart AegisDetails sender
+    if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/AegisDetailsSender.sh ] ;then
+      checkSender=$(pgrep -f /system/bin/AegisDetailsSender.sh)
       if [ ! -z $checkSender ] ;then
         kill -9 $checkSender
         sleep 2
       fi
-      /system/bin/AtlasDetailsSender.sh >/dev/null 2>&1 &
-      logger "AtlasDetails sender (re)started"
+      /system/bin/AegisDetailsSender.sh >/dev/null 2>&1 &
+      logger "AegisDetails sender (re)started"
     fi
   fi
 fi
@@ -551,7 +551,7 @@ fi
 loop_protect_enabled=$(grep 'loop_protect_enabled' $aconf_versions | awk -F "=" '{ print $NF }')
 if [[ $(cat /sdcard/aconf.log | grep `date +%Y-%m-%d` | grep rebooted | grep -v "over 20 times" | wc -l) -gt 20 ]] ;then
   if [[ $loop_protect_enabled != "false" ]] ;then
-    logger "device rebooted over 20 times today, atlas.sh signing out, see you tomorrow"
+    logger "device rebooted over 20 times today, aegis.sh signing out, see you tomorrow"
     exit 1
   else
     logger "device rebooted over 20 times today, BUT loop protect is disabled, will continue - Don't forget to turn it back on!"
@@ -582,14 +582,14 @@ fi
 # check rgc enable/disable
 check_rgc
 
-# check atlas config file exists
-if [[ -d /data/data/com.pokemod.atlas ]] && [[ ! -s $aconf ]] ;then
+# check aegis config file exists
+if [[ -d /data/data/com.pokemod.aegis ]] && [[ ! -s $aconf ]] ;then
   install_config
-  am force-stop com.pokemod.atlas
+  am force-stop com.pokemod.aegis
   if [ $android_version -ge 9 ]; then
-    am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+    am start-foreground-service com.pokemod.aegis/com.pokemod.aegis.services.MappingService
   else
-    am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+    am startservice com.pokemod.aegis/com.pokemod.aegis.services.MappingService
   fi
 fi
 
@@ -601,32 +601,32 @@ if [[ $2 == https://* ]] ;then
   webhook=$2
 fi
 
-# enable atlas monitor
-if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsub(/ /,""); print }') == "true" ]] && [ -f /system/bin/atlas_monitor.sh ] ;then
-  checkMonitor=$(pgrep -f /system/bin/atlas_monitor.sh)
+# enable aegis monitor
+if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsub(/ /,""); print }') == "true" ]] && [ -f /system/bin/aegis_monitor.sh ] ;then
+  checkMonitor=$(pgrep -f /system/bin/aegis_monitor.sh)
   if [ -z $checkMonitor ] ;then
-    /system/bin/atlas_monitor.sh >/dev/null 2>&1 &
-    echo "`date +%Y-%m-%d_%T` atlas.sh: atlas monitor enabled" >> $logfile
+    /system/bin/aegis_monitor.sh >/dev/null 2>&1 &
+    echo "`date +%Y-%m-%d_%T` aegis.sh: aegis monitor enabled" >> $logfile
   fi
 fi
 
-# enable AtlasDetails sender
-if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsub(/ /,""); print }') == "true" ]] && [ -f /system/bin/AtlasDetailsSender.sh ] ;then
-  checkSender=$(pgrep -f /system/bin/AtlasDetailsSender.sh)
+# enable AegisDetails sender
+if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsub(/ /,""); print }') == "true" ]] && [ -f /system/bin/AegisDetailsSender.sh ] ;then
+  checkSender=$(pgrep -f /system/bin/AegisDetailsSender.sh)
   if [ -z $checkSender ] ;then
-    /system/bin/AtlasDetailsSender.sh >/dev/null 2>&1 &
-    echo "`date +%Y-%m-%d_%T` atlas.sh: AtlasDetails sender started" >> $logfile
+    /system/bin/AegisDetailsSender.sh >/dev/null 2>&1 &
+    echo "`date +%Y-%m-%d_%T` aegis.sh: AegisDetails sender started" >> $logfile
   fi
 fi
 
-# check atlas running
-atlas_check=$(ps | grep com.pokemod.atlas:mapping | awk '{print $9}')
-if [[ -z $atlas_check ]] && [[ -f /data/local/tmp/atlas_config.json ]] ;then
-  logger "atlas not running at execution of atlas.sh, starting it"
+# check aegis running
+aegis_check=$(ps | grep com.pokemod.aegis:mapping | awk '{print $9}')
+if [[ -z $aegis_check ]] && [[ -f /data/local/tmp/aegis_config.json ]] ;then
+  logger "aegis not running at execution of aegis.sh, starting it"
   if [ $android_version -ge 9 ]; then
-    am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+    am start-foreground-service com.pokemod.aegis/com.pokemod.aegis.services.MappingService
   else
-    am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+    am startservice com.pokemod.aegis/com.pokemod.aegis.services.MappingService
   fi
 fi
 
@@ -644,38 +644,6 @@ if [[ $play_integrity != "false" ]] && [[ $pintegrity == 1 ]]; then
   logger "disabled PlayIntegrity APK verification"
 fi
 
-# set proxy server
-proxy_address=$(grep 'proxy_address' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
-if [[ ! -z $proxy_address ]] ;then
-  proxy_get=$(settings list global | grep "http_proxy=" | awk -F= '{ print $NF }')
-  if [ ! -z "$proxy_get" ] && [ "$proxy_get" != ":0" ] && [ "$proxy_address" = "remove" ]; then
-    settings put global http_proxy :0
-    sleep 2
-    su -c am broadcast -a android.intent.action.PROXY_CHANGE
-    logger "Removed local proxy"
-  fi
-  if [ -z "$proxy_get" ] || [ "$proxy_get" = ":0" ]; then
-    set_proxy_only_in_same_network=$(grep 'set_proxy_only_in_same_network' $aconf_versions | awk -F "=" '{ print $NF }')
-    if [[ $set_proxy_only_in_same_network != "false" ]] ; then
-      proxy_net=$(echo $proxy_address | awk -F'.' '{print $1"."$2"."$3}')
-      local_net=$(ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1 | awk -F'.' '{print $1"."$2"."$3}')
-      if [ "$proxy_net" == "$local_net" ]; then
-        settings put global http_proxy $proxy_address
-        sleep 2
-        su -c am broadcast -a android.intent.action.PROXY_CHANGE
-        logger "Set Proxy to $proxy_address"
-      else
-        echo "`date +%Y-%m-%d_%T` atlas.sh: Proxy not set, not in same network" >> $logfile
-      fi
-    else
-      settings put global http_proxy $proxy_address
-      sleep 2
-      su -c am broadcast -a android.intent.action.PROXY_CHANGE
-      logger "Set Proxy to $proxy_address"
-    fi
-  fi 
-fi
-
 # update playintegrityfix magisk modul if needed
 versionsPIFv=$(grep 'PIF_module' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
 
@@ -688,13 +656,13 @@ if [[ ! -z $versionsPIFv ]] ;then
     until $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip" >> $logfile ; logger "download PIF_module failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    am force-stop com.pokemod.atlas
+    am force-stop com.pokemod.aegis
     am force-stop com.nianticlabs.pokemongo
     /sbin/magisk --install-module /sdcard/Download/PIF_module.zip
     logger "Updated PIF module from $instPIFv to $versionsPIFv"
     reboot=1
   else
-    echo "`date +%Y-%m-%d_%T` atlas.sh: PIF module correct, proceed" >> $logfile
+    echo "`date +%Y-%m-%d_%T` aegis.sh: PIF module correct, proceed" >> $logfile
   fi
 fi
 
@@ -717,7 +685,7 @@ if [[ ! -z $versionsFingerPrintv ]] ;then
     /system/bin/killall com.google.android.gms.unstable
     #reboot=1
   else
-    echo "`date +%Y-%m-%d_%T` atlas.sh: FingerPrint correct, proceed" >> $logfile
+    echo "`date +%Y-%m-%d_%T` aegis.sh: FingerPrint correct, proceed" >> $logfile
   fi
 fi
 
@@ -738,21 +706,21 @@ if [[ ! -z $versionsCJv ]] && [[ "$versionsCJv" != "0" ]] ;then
     chmod +x /data/local/tmp/aconf-cj.sh
     /data/local/tmp/aconf-cj.sh >/dev/null 2>&1 &
   else
-    echo "`date +%Y-%m-%d_%T` atlas.sh: CustomJob Up2Date, proceed" >> $logfile
+    echo "`date +%Y-%m-%d_%T` aegis.sh: CustomJob Up2Date, proceed" >> $logfile
   fi
 fi
 
 
 for i in "$@" ;do
  case "$i" in
- -ia) install_atlas ;;
+ -ia) install_aegis ;;
  -ic) install_config ;;
  -ua) update_all ;;
- -uac) update_atlas_config ;;
+ -uac) update_aegis_config ;;
  -dp) downgrade_pogo;;
  -cr) check_rgc;;
  -sl) send_logs;;
-# consider adding: downgrade atlas, update donwload link
+# consider adding: downgrade aegis, update donwload link
  esac
 done
 

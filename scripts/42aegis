@@ -27,20 +27,20 @@ wait_for_internet(){
 until ping -c1 8.8.8.8 >/dev/null 2>/dev/null || ping -c1 1.1.1.1 >/dev/null 2>/dev/null; do
     sleep 10
 done
-echo "`date +%Y-%m-%d_%T` 42atlas: internet connection available" >> $logfile
+echo "`date +%Y-%m-%d_%T` 42aegis: internet connection available" >> $logfile
 }
 
 # logger
 logger() {
 if [[ ! -z $discord_webhook ]] ;then
-  echo "`date +%Y-%m-%d_%T` 42atlas: $1" >> $logfile
+  echo "`date +%Y-%m-%d_%T` 42aegis: $1" >> $logfile
   if [[ -z $origin ]] ;then
-    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42atlas\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42aegis\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
   else
-    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42atlas\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42aegis\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
   fi
 else
-  echo "`date +%Y-%m-%d_%T` 42atlas: $1" >> $logfile
+  echo "`date +%Y-%m-%d_%T` 42aegis: $1" >> $logfile
 fi
 }
 
@@ -185,8 +185,8 @@ else
   fi
 fi
 
-# remove 55atlas if exists
-[ -f /system/etc/init.d/55atlas ] && rm -f /system/etc/init.d/55atlas
+# remove 55aegis if exists
+[ -f /system/etc/init.d/55aegis ] && rm -f /system/etc/init.d/55aegis
 
 
 if [[ -f /sdcard/new_install ]] ;then
@@ -197,14 +197,14 @@ mount -o remount,rw /system/etc/init.d
 # check magisk
   check_magisk
 
-# add atlas.sh
-  if [[ ! -f /system/bin/atlas.sh ]] ;then
-    until $download /system/bin/atlas.sh $url/scripts/atlas.sh || { logger "download atlas.sh failed, exit script" ; exit 1; } ;do
+# add aegis.sh
+  if [[ ! -f /system/bin/aegis.sh ]] ;then
+    until $download /system/bin/aegis.sh $url/scripts/aegis.sh || { logger "download aegis.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
   fi
-  chmod +x /system/bin/atlas.sh
-  logger "downloaded atlas.sh"
+  chmod +x /system/bin/aegis.sh
+  logger "downloaded aegis.sh"
 
 # download versions file
   until $download $aconf_versions $url/versions || { logger "download versions file failed, exit script"; exit 1; } ;do
@@ -231,25 +231,25 @@ mount -o remount,rw /system/etc/init.d
     reboot recovery
   fi
 
-# Install Atlas
-  if [[ ! -d /data/data/com.pokemod.atlas/ ]] ;then
-    logger "starting install of atlas"
-    /system/bin/atlas.sh -ia
+# Install Aegis
+  if [[ ! -d /data/data/com.pokemod.aegis/ ]] ;then
+    logger "starting install of aegis"
+    /system/bin/aegis.sh -ia
   fi
 
 # Close new install and remove bootstrap, it served its purpose
-  if [[ -d /data/data/com.pokemod.atlas/ ]] ;then
+  if [[ -d /data/data/com.pokemod.aegis/ ]] ;then
     mount -o remount,rw /system
     mount -o remount,rw /system/etc/init.d
     rm -f /sdcard/new_install
-    rm -f /system/etc/init.d/01atlasbootstrap
+    rm -f /system/etc/init.d/01aegisbootstrap
     rm -f /sdcard/gapps.zip
-    logger "config done, now acting as 55atlas"
+    logger "config done, now acting as 55aegis"
   fi
 mount -o remount,ro /system
 mount -o remount,ro /system/etc/init.d
 fi
 
 
-# execute atlas.sh
-  /system/bin/atlas.sh -ua &
+# execute aegis.sh
+  /system/bin/aegis.sh -ua &

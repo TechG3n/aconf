@@ -1,15 +1,14 @@
 #!/system/bin/sh
 # version 3.4.0
-
 #set -x
 
 # Monitor by Oldmole && bbdoc
 
-logfile="/sdcard/atlas_monitor.log"
-aconf="/data/local/tmp/atlas_config.json"
+logfile="/sdcard/aegis_monitor.log"
+aconf="/data/local/tmp/aegis_config.json"
 origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
-atlasdead=0
+aegisdead=0
 pogodead=0
 deviceonline="0"
 emptycheck=9
@@ -25,9 +24,9 @@ export update_check_interval
 export debug
 update_check=$((update_check_interval/monitor_interval))
 
-#Create logfile, stolen from atlas.sh
-if [ ! -e /sdcard/atlas_monitor.log ] ;then
-	touch /sdcard/atlas_monitor.log
+#Create logfile, stolen from aegis.sh
+if [ ! -e /sdcard/aegis_monitor.log ] ;then
+	touch /sdcard/aegis_monitor.log
 fi
 
 # stderr to logfile
@@ -35,18 +34,18 @@ exec 2>> $logfile
 
 check_for_updates() {
 	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Checking for updates" >> $logfile
-	/system/bin/atlas.sh -ua
+	/system/bin/aegis.sh -ua
 }
 
-stop_start_atlas () {
-	am force-stop com.nianticlabs.pokemongo &  rm -rf /data/data/com.nianticlabs.pokemongo/cache/* 2>/dev/null & am force-stop com.pokemod.atlas 
+stop_start_aegis () {
+	am force-stop com.nianticlabs.pokemongo &  rm -rf /data/data/com.nianticlabs.pokemongo/cache/* 2>/dev/null & am force-stop com.pokemod.aegis 
 	sleep 5
-	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of Atlas" >> $logfile
+	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of Aegis" >> $logfile
 
 	if [ $android_version -ge 9 ]; then
-		am start-foreground-service com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+		am start-foreground-service com.pokemod.aegis/com.pokemod.aegis.services.MappingService
 	else
-		am startservice com.pokemod.atlas/com.pokemod.atlas.services.MappingService
+		am startservice com.pokemod.aegis/com.pokemod.aegis.services.MappingService
 	fi
 	
 	sleep 1
@@ -67,17 +66,17 @@ send_webhook () {
             "deviceName": "${origin}",
             "issue": "${issue}",
             "action": "${action}",
-            "script": "atlas_monitor.sh"
+            "script": "aegis_monitor.sh"
         }
 DATA
 }
 
 
-echo "`date +%Y-%m-%d_%T` [MONITORBOT] Starting atlas data monitor in 5 mins, loop is $monitor_interval seconds" >> $logfile
+echo "`date +%Y-%m-%d_%T` [MONITORBOT] Starting aegis data monitor in 5 mins, loop is $monitor_interval seconds" >> $logfile
 sleep 300
 while :
 do
-	[[ $useMonitor == "false" ]] && echo "`date +%Y-%m-%d_%T` atlas_monitor stopped" >> $logfile && exit 1
+	[[ $useMonitor == "false" ]] && echo "`date +%Y-%m-%d_%T` aegis_monitor stopped" >> $logfile && exit 1
 
 	until ping -c1 8.8.8.8 >/dev/null 2>/dev/null
 	do
@@ -89,20 +88,20 @@ do
 
         updatecheck=$(($updatecheck+1))
         if [[ $updatecheck -gt $update_check ]] ;then
-		echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Atlas and Pogo for update" >> $logfile
+		echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Aegis and Pogo for update" >> $logfile
 		updatecheck=0
 		check_for_updates
 	fi
 
-	if [ -d /data/data/com.pokemod.atlas ] && [ -s /data/local/tmp/atlas_config.json ]
+	if [ -d /data/data/com.pokemod.aegis ] && [ -s /data/local/tmp/aegis_config.json ]
 	then
-		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] atlas_config.json looks good" >> $logfile
+		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] aegis_config.json looks good" >> $logfile
 	else
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] atlas_config.json does not exist or is empty! Let's fix that" >> $logfile
-		[[ ! -z $discord_webhook ]] && [[ $recreate_atlas_config != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: re-creating atlas config\"}" $discord_webhook &>/dev/null
-		/system/bin/atlas.sh -ic
+		echo "`date +%Y-%m-%d_%T` [MONITORBOT] aegis_config.json does not exist or is empty! Let's fix that" >> $logfile
+		[[ ! -z $discord_webhook ]] && [[ $recreate_aegis_config != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: re-creating aegis config\"}" $discord_webhook &>/dev/null
+		/system/bin/aegis.sh -ic
 		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Fixed config" >> $logfile
-		stop_start_atlas
+		stop_start_aegis
 		sleep $monitor_interval
 		continue
 
@@ -113,29 +112,29 @@ do
 	devicestatus=$(echo $?)
 	emptycheck="9$devicestatus"
 
-	not_licensed=$(tail -n 100 /data/local/tmp/atlas.log | grep -c "Not licensed")
+	not_licensed=$(tail -n 100 /data/local/tmp/aegis.log | grep -c -E "Not licensed|doesn't have a valid license")
 
 	if [ -f /sdcard/not_licensed ] && [ $not_licensed -gt 0 ]
 	then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Still unlicensed, exiting" >> $logfile
 	elif [ $not_licensed -gt 0 ]
 	then
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device Lost Atlas License" >> $logfile
-		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: UNLICENSED !!! Check Atlas Dashboard\"}" $discord_webhook &>/dev/null
+		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device Lost Aegis License" >> $logfile
+		[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: UNLICENSED !!! Check Aegis Dashboard\"}" $discord_webhook &>/dev/null
 		[[ $useSender == "true" ]] && send_webhook "Lost Licence" "No action"
 		touch /sdcard/not_licensed
 
 	elif [ -f /sdcard/not_licensed ] && [ $not_licensed -eq 0 ]
 	then
 	    echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device got License again. Recovering" >> $logfile
-        [[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: Device got Atlas license again\"}" $discord_webhook &>/dev/null
+        [[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: Device got Aegis license again\"}" $discord_webhook &>/dev/null
 		rm /sdcard/not_licensed
 
-        elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead == 2 ]
+        elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $aegisdead == 2 ]
         then
-			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Atlas must be dead, rebooting device" >> $logfile
-			[[ $useSender == "true" ]] && send_webhook "Atlas Dead" "Reboot"
-			[[ ! -z $discord_webhook ]] && [[ $atlas_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: atlas died, reboot\"}" $discord_webhook &>/dev/null
+			echo "`date +%Y-%m-%d_%T` [MONITORBOT] Aegis must be dead, rebooting device" >> $logfile
+			[[ $useSender == "true" ]] && send_webhook "Aegis Dead" "Reboot"
+			[[ ! -z $discord_webhook ]] && [[ $aegis_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: aegis died, reboot\"}" $discord_webhook &>/dev/null
 			reboot
         elif [ $emptycheck != 9 ] && [ $pogodead == 2 ]
         then
@@ -144,13 +143,13 @@ do
    	        [[ ! -z $discord_webhook ]] && [[ $pogo_died != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: pogo died, reboot\"}" $discord_webhook &>/dev/null
             reboot
 
-	elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $atlasdead != 2 ]
+	elif [ $emptycheck != 9 ] && [ $devicestatus != $deviceonline ] && [ $aegisdead != 2 ]
 	then
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device must be offline. Running a stop mapping service of Atlas, killing pogo and clearing junk" >> $logfile
+		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Device must be offline. Running a stop mapping service of Aegis, killing pogo and clearing junk" >> $logfile
 		[[ $useSender == "true" ]] && send_webhook "Device Offline" "Kill Pogo and Clear Junk"
-		[[ ! -z $discord_webhook ]] && [[ $device_offline != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: device offline, restarting atlas and pogo\"}" $discord_webhook &>/dev/null
-		stop_start_atlas
-		atlasdead=$((atlasdead+1))
+		[[ ! -z $discord_webhook ]] && [[ $device_offline != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: device offline, restarting aegis and pogo\"}" $discord_webhook &>/dev/null
+		stop_start_aegis
+		aegisdead=$((aegisdead+1))
 		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
 
 	elif [ $emptycheck == 9 ]
@@ -160,8 +159,8 @@ do
 
 	elif [ $deviceonline == $devicestatus ]
 	then
-		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Atlas mapping service is running" >> $logfile
-		atlasdead=0
+		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Aegis mapping service is running" >> $logfile
+		aegisdead=0
 		focusedapp=$(dumpsys window windows | grep -E 'mFocusedApp'| cut -d / -f 1 | cut -d " " -f 7)
 		if [ "$focusedapp" != "com.nianticlabs.pokemongo" ]
 		then
@@ -172,21 +171,8 @@ do
 			pogodead=$((pogodead+1))
 			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Done" >> $logfile
 		else
-			focusedwin=$(dumpsys window windows | grep -E 'mCurrentFocus'| cut -d " " -f 5-8 | rev | cut -c 2- | rev)
-			if [ "$focusedwin" = "Application Not Responding: com.nianticlabs.pokemongo" ]
-			then
-				echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something is not right! Pogo is Not Responding. Killing pogo by sending Enter" >> $logfile
-				[[ $useSender == "true" ]] && send_webhook "Pogo not responding" "Kill Pogo by sending Enter"
-				[[ ! -z $discord_webhook ]] && [[ $pogo_not_focused != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: pogo not responding, Killing pogo by sending Enter\"}" $discord_webhook &>/dev/null
-				#Send Enter to force close Pogo with 'Not responding' PopUp
-				input keyevent KEYCODE_ENTER
-				pogodead=$((pogodead+1))
-				[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo not responding. Sending Enter Done" >> $logfile	
-
-			else
-				[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo in focus, all good" >> $logfile
-				pogodead=0
-			fi
+			[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Pogo in focus, all good" >> $logfile
+			pogodead=0
 		fi
 	else
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] Something happened! Some kind of error" >> $logfile
@@ -195,7 +181,7 @@ do
 	fi
 
 	#get count of "[HEALTH CHECK] xx seconds since last ping." errors
-	lastlog=$(tail -n 200 /data/local/tmp/atlas.log)
+	lastlog=$(tail -n 200 /data/local/tmp/aegis.log)
 	healthcheckcount=$(echo "$lastlog" | grep -E '\[HEALTH CHECK\] ([0-9]+) seconds since last ping\.' | wc -l)
 	crithealthcount=$(echo "$lastlog" | grep -E '\[HEALTH CHECK\] ([0-9]+) seconds since last ping\.' | awk '{if ($3 >= 30) count++} END {print count+0}')
 	successcount=$(echo "$lastlog" | grep -E 'I \| Worker' | wc -l)
@@ -220,9 +206,9 @@ do
 			#skip restart
 			stalllock=$((stalllock - 1))
 		else
-			echo "`date +%Y-%m-%d_%T` [MONITORBOT] One instance stalled - restarting atlas" >> $logfile
-			stop_start_atlas
-			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: One instance stalled - restarting atlas\"}" $discord_webhook &>/dev/null
+			echo "`date +%Y-%m-%d_%T` [MONITORBOT] One instance stalled - restarting aegis" >> $logfile
+			stop_start_aegis
+			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: One instance stalled - restarting aegis\"}" $discord_webhook &>/dev/null
 			stalllock=2
 		fi
 	else

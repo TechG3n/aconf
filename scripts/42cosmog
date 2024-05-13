@@ -27,20 +27,20 @@ wait_for_internet(){
 until ping -c1 8.8.8.8 >/dev/null 2>/dev/null || ping -c1 1.1.1.1 >/dev/null 2>/dev/null; do
     sleep 10
 done
-echo "`date +%Y-%m-%d_%T` 42atlas: internet connection available" >> $logfile
+echo "`date +%Y-%m-%d_%T` 42cosmog: internet connection available" >> $logfile
 }
 
 # logger
 logger() {
 if [[ ! -z $discord_webhook ]] ;then
-  echo "`date +%Y-%m-%d_%T` 42atlas: $1" >> $logfile
+  echo "`date +%Y-%m-%d_%T` 42cosmog: $1" >> $logfile
   if [[ -z $origin ]] ;then
-    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42atlas\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42cosmog\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
   else
-    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42atlas\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"42cosmog\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
   fi
 else
-  echo "`date +%Y-%m-%d_%T` 42atlas: $1" >> $logfile
+  echo "`date +%Y-%m-%d_%T` 42cosmog: $1" >> $logfile
 fi
 }
 
@@ -185,8 +185,8 @@ else
   fi
 fi
 
-# remove 55atlas if exists
-[ -f /system/etc/init.d/55atlas ] && rm -f /system/etc/init.d/55atlas
+# remove 55cosmog if exists
+[ -f /system/etc/init.d/55cosmog ] && rm -f /system/etc/init.d/55cosmog
 
 
 if [[ -f /sdcard/new_install ]] ;then
@@ -197,14 +197,14 @@ mount -o remount,rw /system/etc/init.d
 # check magisk
   check_magisk
 
-# add atlas.sh
-  if [[ ! -f /system/bin/atlas.sh ]] ;then
-    until $download /system/bin/atlas.sh $url/scripts/atlas.sh || { logger "download atlas.sh failed, exit script" ; exit 1; } ;do
+# add cosmog.sh
+  if [[ ! -f /system/bin/cosmog.sh ]] ;then
+    until $download /system/bin/cosmog.sh $url/scripts/cosmog.sh || { logger "download cosmog.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
   fi
-  chmod +x /system/bin/atlas.sh
-  logger "downloaded atlas.sh"
+  chmod +x /system/bin/cosmog.sh
+  logger "downloaded cosmog.sh"
 
 # download versions file
   until $download $aconf_versions $url/versions || { logger "download versions file failed, exit script"; exit 1; } ;do
@@ -231,25 +231,25 @@ mount -o remount,rw /system/etc/init.d
     reboot recovery
   fi
 
-# Install Atlas
-  if [[ ! -d /data/data/com.pokemod.atlas/ ]] ;then
-    logger "starting install of atlas"
-    /system/bin/atlas.sh -ia
+# Install cosmog
+  if [[ ! -d /data/data/com.pokemod.cosmog/ ]] ;then
+    logger "starting install of cosmog"
+    /system/bin/cosmog.sh -ia
   fi
 
 # Close new install and remove bootstrap, it served its purpose
-  if [[ -d /data/data/com.pokemod.atlas/ ]] ;then
+  if [[ -d /data/data/com.pokemod.cosmog/ ]] ;then
     mount -o remount,rw /system
     mount -o remount,rw /system/etc/init.d
     rm -f /sdcard/new_install
-    rm -f /system/etc/init.d/01atlasbootstrap
+    rm -f /system/etc/init.d/01cosmogbootstrap
     rm -f /sdcard/gapps.zip
-    logger "config done, now acting as 55atlas"
+    logger "config done, now acting as 55cosmog"
   fi
 mount -o remount,ro /system
 mount -o remount,ro /system/etc/init.d
 fi
 
 
-# execute atlas.sh
-  /system/bin/atlas.sh -ua &
+# execute cosmog.sh
+  /system/bin/cosmog.sh -ua &
