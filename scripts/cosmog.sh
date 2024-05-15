@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.2.7
+# version 2.2.8
 
 #Version checks
 Ver42cosmog="1.6"
@@ -32,7 +32,7 @@ fi
 
 if [[ -f /data/local/tmp/cosmog.json ]] ;then
 # origin=$(grep -w 'deviceName' $aconf | awk -F "\"" '{ print $4 }')
-  origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
+  origin=$(cat $aconf | tr , '\n' | grep -w 'device_id' | awk -F "\"" '{ print $4 }')
 else
   if [[ -f /data/data/de.grennith.rgc.remotegpscontroller/shared_prefs/de.grennith.rgc.remotegpscontroller_preferences.xml ]] ;then
     origin=$(grep -w 'websocket_origin' $rgcconf | sed -e 's/    <string name="websocket_origin">\(.*\)<\/string>/\1/')
