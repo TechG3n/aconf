@@ -26,7 +26,7 @@ while true
 # generic
     MITM="cosmog"
     RPL=$(($atvdetails_interval/60))
-    deviceName=$(cat $cosmog_conf | tr , '\n' | grep -w 'deviceName' | awk -F ":" '{ print $2 }' | tr -d \"})
+    deviceName=$(cat $cosmog_conf | tr , '\n' | grep -w 'device_id' | awk -F "\"" '{ print $4 }')
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
     MITMSh=$(head -2 /system/bin/cosmog.sh | grep '# version' | awk '{ print $NF }')
