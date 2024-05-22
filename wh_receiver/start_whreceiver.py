@@ -3,7 +3,7 @@
 #
 __author__ = "GhostTalker and Apple314"
 __copyright__ = "Copyright 2022, The GhostTalker project"
-__version__ = "0.2.4"
+__version__ = "0.3.3"
 __status__ = "DEV"
 
 import os
@@ -30,15 +30,15 @@ _mysqldb = _config.get("mysql", "mysqldb")
 _mysqluser = _config.get("mysql", "mysqluser")
 _mysqlpass = _config.get("mysql", "mysqlpass")
 
-## do validation and checks before insert
+## do validation and checks before insert      
 def validate_string(val):
-   if val != None:
-        if type(val) is int:
-            #for x in val:
-            #   print(x)
-            return str(val).encode('utf-8')
-        else:
-            return val
+    # check if val None oder empty is
+    if val is None or val == '' or val == []:
+        return 0
+    elif isinstance(val, int):
+        return str(val).encode('utf-8')
+    else:
+        return val
 
 ## create connection pool and connect to MySQL
 try:
@@ -136,12 +136,12 @@ def webhook():
         deviceName = validate_string(request.json["deviceName"])
         arch = validate_string(request.json["arch"])
         productmodel = validate_string(request.json["productmodel"])
-        atlasSh = validate_string(request.json["atlasSh"])
-        atlas55 = validate_string(request.json["atlas55"])
-        atlas42 = validate_string(request.json["atlas42"])
+        MITMSh = validate_string(request.json["MITMSh"])
+        MITM55 = validate_string(request.json["MITM55"])
+        MITM42 = validate_string(request.json["MITM42"])
         monitor = validate_string(request.json["monitor"])
         pogo = validate_string(request.json["pogo"])
-        atlas = validate_string(request.json["atlas"])
+        MITMv = validate_string(request.json["MITMv"])
         temperature = validate_string(request.json["temperature"])
         magisk = validate_string(request.json["magisk"])
         magisk_modules = validate_string(request.json["magisk_modules"])
@@ -155,11 +155,12 @@ def webhook():
         diskSysPct = validate_string(request.json["diskSysPct"])
         diskDataPct = validate_string(request.json["diskDataPct"])
         RPL = validate_string(request.json["RPL"])
+        MITM = validate_string(request.json["MITM"])
         memTot = validate_string(request.json["memTot"])
         memFree = validate_string(request.json["memFree"])
         memAv = validate_string(request.json["memAv"])
         memPogo = validate_string(request.json["memPogo"])
-        memAtlas = validate_string(request.json["memAtlas"])
+        memMITM = validate_string(request.json["memMITM"])
         cpuSys = validate_string(request.json["cpuSys"])
         cpuUser = validate_string(request.json["cpuUser"])
         cpuL5 = validate_string(request.json["cpuL5"])
@@ -178,12 +179,12 @@ def webhook():
         a_pogoStarted = validate_string(request.json["a_pogoStarted"])
         a_injection = validate_string(request.json["a_injection"])
         a_ptcLogin = validate_string(request.json["a_ptcLogin"])
-        a_atlasCrash = validate_string(request.json["a_atlasCrash"])
+        a_MITMCrash = validate_string(request.json["a_MITMCrash"])
         a_rdmError = validate_string(request.json["a_rdmError"])
         m_noInternet = validate_string(request.json["m_noInternet"])
         m_noConfig = validate_string(request.json["m_noConfig"])
         m_noLicense = validate_string(request.json["m_noLicense"])
-        m_atlasDied = validate_string(request.json["m_atlasDied"])
+        m_MITMDied = validate_string(request.json["m_MITMDied"])
         m_pogoDied = validate_string(request.json["m_pogoDied"])
         m_deviceOffline = validate_string(request.json["m_deviceOffline"])
         m_noRDM = validate_string(request.json["m_noRDM"])
@@ -193,15 +194,16 @@ def webhook():
         insert_stmt1 = "\
             INSERT INTO ATVsummary \
                 (timestamp, \
+                MITM, \
                 deviceName, \
                 arch, \
                 productmodel, \
-                atlasSh, \
-                55atlas, \
-                42atlas, \
+                MITMSh, \
+                55MITM, \
+                42MITM, \
                 monitor, \
                 pogo, \
-                atlas, \
+                MITMv, \
                 temperature, \
                 magisk, \
                 magisk_modules, \
@@ -221,18 +223,19 @@ def webhook():
                 token, \
                 email, \
                 rdmUrl, \
-                onBoot) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
+                onBoot) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
             ON DUPLICATE KEY UPDATE \
                 timestamp = VALUES(timestamp), \
+                MITM = VALUES(MITM), \
                 deviceName = VALUES(deviceName), \
                 arch = VALUES(arch), \
                 productmodel = VALUES(productmodel), \
-                atlasSh = VALUES(atlasSh), \
-                55atlas = VALUES(55atlas), \
-                42atlas = VALUES(42atlas), \
+                MITMSh = VALUES(MITMSh), \
+                55MITM = VALUES(55MITM), \
+                42MITM = VALUES(42MITM), \
                 monitor = VALUES(monitor), \
                 pogo = VALUES(pogo), \
-                atlas = VALUES(atlas), \
+                MITMv = VALUES(MITMv), \
                 temperature = VALUES(temperature), \
                 magisk = VALUES(magisk), \
                 magisk_modules = VALUES(magisk_modules), \
@@ -254,14 +257,14 @@ def webhook():
                 rdmUrl = VALUES(rdmUrl), \
                 onBoot = VALUES(onBoot)"
 
-        data1 = (str(timestamp), str(deviceName), str(arch), str(productmodel), str(atlasSh), str(atlas55), str(atlas42), str(monitor), str(pogo), str(atlas), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(playstore), str(proxyinfo), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo), str(reboot), str(authBearer), str(token), str(email), str(rdmUrl), str(onBoot) )
+        data1 = (str(timestamp), str(MITM), str(deviceName), str(arch), str(productmodel), str(MITMSh), str(MITM55), str(MITM42), str(monitor), str(pogo), str(MITMv), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(playstore), str(proxyinfo), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo), str(reboot), str(authBearer), str(token), str(email), str(rdmUrl), str(onBoot) )
 
         insert_stmt2 = (
-            "INSERT INTO ATVstats (timestamp, RPL, deviceName, temperature, memTot, memFree, memAv, memPogo, memAtlas, cpuSys, cpuUser, cpuL5, cpuL10, cpuL15, cpuPogoPct, cpuApct, diskSysPct, diskDataPct)"
+            "INSERT INTO ATVstats (timestamp, RPL, deviceName, temperature, memTot, memFree, memAv, memPogo, memMITM, cpuSys, cpuUser, cpuL5, cpuL10, cpuL15, cpuPogoPct, cpuApct, diskSysPct, diskDataPct)"
             "VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )"
         )
 
-        data2 = (str(timestamp), str(RPL), str(deviceName), str(temperature), str(memTot), str(memFree), str(memAv), str(memPogo), str(memAtlas), str(cpuSys), str(cpuUser), str(cpuL5), str(cpuL10), str(cpuL15), str(cpuPogoPct), str(cpuApct), str(diskSysPct), str(diskDataPct) )
+        data2 = (str(timestamp), str(RPL), str(deviceName), str(temperature), str(memTot), str(memFree), str(memAv), str(memPogo), str(memMITM), str(cpuSys), str(cpuUser), str(cpuL5), str(cpuL10), str(cpuL15), str(cpuPogoPct), str(cpuApct), str(diskSysPct), str(diskDataPct) )
 
         insert_stmt3 = "\
             INSERT INTO ATVlogs \
@@ -271,12 +274,12 @@ def webhook():
                 a_pogoStarted, \
                 a_injection, \
                 a_ptcLogin, \
-                a_atlasCrash, \
+                a_MITMCrash, \
                 a_rdmError, \
                 m_noInternet, \
                 m_noConfig, \
                 m_noLicense, \
-                m_atlasDied, \
+                m_MITMDied, \
                 m_pogoDied, \
                 m_deviceOffline, \
                 m_noRDM, \
@@ -289,19 +292,19 @@ def webhook():
                 a_pogoStarted = VALUES(a_pogoStarted), \
                 a_injection = VALUES(a_injection), \
                 a_ptcLogin = VALUES(a_ptcLogin), \
-                a_atlasCrash = VALUES(a_atlasCrash), \
+                a_MITMCrash = VALUES(a_MITMCrash), \
                 a_rdmError = VALUES(a_rdmError), \
                 m_noInternet = VALUES(m_noInternet), \
                 m_noConfig = VALUES(m_noConfig), \
                 m_noLicense = VALUES(m_noLicense), \
-                m_atlasDied = VALUES(m_atlasDied), \
+                m_MITMDied = VALUES(m_MITMDied), \
                 m_pogoDied = VALUES(m_pogoDied), \
                 m_deviceOffline = VALUES(m_deviceOffline), \
                 m_noRDM = VALUES(m_noRDM), \
                 m_noFocus = VALUES(m_noFocus), \
                 m_unknown = VALUES(m_unknown)"
 
-        data3 = (str(timestamp), str(deviceName), str(reboot), str(a_pogoStarted), str(a_injection), str(a_ptcLogin), str(a_atlasCrash), str(a_rdmError), str(m_noInternet), str(m_noConfig), str(m_noLicense), str(m_atlasDied), str(m_pogoDied), str(m_deviceOffline), str(m_noRDM), str(m_noFocus), str(m_unknown) )
+        data3 = (str(timestamp), str(deviceName), str(reboot), str(a_pogoStarted), str(a_injection), str(a_ptcLogin), str(a_MITMCrash), str(a_rdmError), str(m_noInternet), str(m_noConfig), str(m_noLicense), str(m_MITMDied), str(m_pogoDied), str(m_deviceOffline), str(m_noRDM), str(m_noFocus), str(m_unknown) )
 
         try:
             connection_object = connection_pool.get_connection()

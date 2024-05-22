@@ -1,0 +1,16 @@
+#!/system/bin/sh
+# version 2
+
+su -c 'mount -o remount,rw / && rm -f /data/local/aconf_download /data/local/aconf_versions /data/local/aconf_mac2name /system/bin/a???s.sh /system/bin/a???s_new.sh /system/bin/a???s_monitor.sh /system/etc/init/55a???s.rc /system/etc/init/a???s_monitor.rc /system/etc/init.d/55a???s /sdcard/a???s_monitor.log /sdcard/aconf.log /sdcard/not_licensed && sync ; mount -o remount,ro / && pgrep -f -L9 /system/bin/ATVdetailsSender.sh && pgrep -f -L9 /system/bin/a???s_monitor.sh'
+/system/bin/am force-stop com.nianticlabs.pokemongo
+/system/bin/am force-stop com.pokemod.atlas
+/system/bin/pm uninstall com.pokemod.atlas
+su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/aegis.sh "$url_base/scripts/aegis.sh" && chmod +x /system/bin/aegis.sh ; mount -o remount,ro / && /system/bin/aegis.sh -ia'
+
+checkSender=$(pgrep -f /system/bin/AtlasDetailsSender.sh)
+if [ ! -z $checkSender ] ;then
+    kill -9 $checkSender
+    sleep 2
+fi
+
+#Don't forget to add url + user/pass

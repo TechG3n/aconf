@@ -1,15 +1,17 @@
+-- Version 0.7
+
 CREATE TABLE IF NOT EXISTS `ATVsummary` (
   `timestamp` datetime NOT NULL,
   `deviceName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `arch` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `productmodel` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `atlasSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `55atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `42atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `MITMSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `55MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `42MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `monitor` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `whversion` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pogo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `temperature` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `magisk` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `magisk_modules` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -42,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `ATVstats` (
   `memFree` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `memAv` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `memPogo` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `memAtlas` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `memMITM` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cpuSys` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cpuUser` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cpuL5` float COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -62,12 +64,12 @@ CREATE TABLE IF NOT EXISTS `ATVlogs` (
   `a_pogoStarted` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `a_injection` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `a_ptcLogin` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `a_atlasCrash` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `a_MITMCrash` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `a_rdmError` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_noInternet` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_noConfig` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_noLicense` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `m_atlasDied` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `m_MITMDied` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_pogoDied` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_deviceOffline` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `m_noRDM` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -90,9 +92,8 @@ CREATE TABLE IF NOT EXISTS `version` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
+-- Update 1
 ALTER TABLE ATVsummary
-ADD COLUMN IF NOT EXISTS `42atlas` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `55atlas`,
 ADD COLUMN IF NOT EXISTS `reboot` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS `authBearer` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS `token` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -103,6 +104,25 @@ ADD COLUMN IF NOT EXISTS `playstore` varchar(40) COLLATE utf8mb4_unicode_ci DEFA
 ADD COLUMN IF NOT EXISTS `proxyinfo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ;
 
+-- Update 2 (aegis)
+ALTER TABLE ATVsummary
+ADD COLUMN IF NOT EXISTS `MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `MITMv` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `MITMSh` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `55MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `42MITM` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+;
+
+-- Update 3 (Drago)
+ALTER TABLE ATVstats
+ADD COLUMN IF NOT EXISTS `memMITM` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+;
+
+ALTER TABLE ATVlogs
+ADD COLUMN IF NOT EXISTS `a_MITMCrash` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `m_MITMDied` int(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+;
+
 -- update version
 INSERT IGNORE INTO version values ('atlas_atvdetails',1);
-UPDATE version set version = 5 where version.key = 'atlas_atvdetails';
+UPDATE version set version = 9 where version.key = 'atlas_atvdetails';

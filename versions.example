@@ -1,6 +1,10 @@
 pogo=0.307.1
 atlas=v24040401-rev2
+aegis=v24042801
+cosmog=1.2.2
 atlas_md5=35d5c450a5faa64cf217aba6a90998e4
+aegis_md5=77730ca9c41470fade2d4f2f2c4f81cb
+cosmog_md5=9a837f1c68fc191ed53657a17c0376dd
 rgc=off
 
 # Settings for Atlas monitor script
@@ -20,17 +24,21 @@ atvdetails_receiver_pass=""
 
 # Settings for Monitor Webhooks
 recreate_atlas_config=true
+recreate_aegis_config=true
 atlas_died=true
+aegis_died=true
 pogo_died=true
 device_offline=true
 unable_check_status=true
 pogo_not_focused=false
 healthcheck_errors=true
 
-# Settings for Atlas.sh
+# Settings for Atlas.sh / Aegis.sh
 play_integrity=true
 loop_protect_enabled=true
 proxy_address=""
 set_proxy_only_in_same_network=true
 PIF_module="14.5"
 FingerPrintVersion="1"
+CustomeJob="0"
+cosmog_libVerion="0.307.1"
