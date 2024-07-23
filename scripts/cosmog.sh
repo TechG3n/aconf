@@ -1,11 +1,11 @@
 #!/system/bin/sh
-# version 2.2.8
+# version 2.2.9
 
 #Version checks
 Ver42cosmog="1.6"
 Ver55cosmog="1.1"
 VerMonitor="3.4.2"
-VerATVsender="1.9.1"
+VerATVsender="1.9.2"
 
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 
@@ -537,10 +537,13 @@ dos2unix $aconf_mac2name
 echo "`date +%Y-%m-%d_%T` cosmog.sh: downloaded latest mac2name file"  >> $logfile
 if [[ $origin = "" ]] ;then
   mac=$(ifconfig wlan0 2>/dev/null | grep 'HWaddr' | awk '{print $5}' | cut -d ' ' -f1 && ifconfig eth0 2>/dev/null | grep 'HWaddr' | awk '{print $5}')
-  origin=$(grep -m 1 $mac $aconf_mac2name | cut -d ';' -f2)
+  origin=$(grep -m 1 -i $mac $aconf_mac2name | cut -d ';' -f2)
   hostname=$origin
   if [[ $origin != "" ]] ;then
     echo "`date +%Y-%m-%d_%T` cosmog.sh: got origin name $origin from mac2name file"  >> $logfile
+  else
+    mac=$(ifconfig wlan0 2>/dev/null | grep 'HWaddr' | awk '{print $5}' | cut -d ' ' -f1 && ifconfig eth0 2>/dev/null | grep 'HWaddr' | awk '{print $5}')
+    logger "no origin name found in mac2name file, add it with mac $mac"
   fi
 fi
 
