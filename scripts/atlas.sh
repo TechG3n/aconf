@@ -454,6 +454,9 @@ if [[ $origin = "" ]] ;then
   hostname=$origin
   if [[ $origin != "" ]] ;then
     echo "`date +%Y-%m-%d_%T` atlas.sh: got origin name $origin from mac2name file"  >> $logfile
+  else
+    mac=$(ifconfig wlan0 2>/dev/null | grep 'HWaddr' | awk '{print $5}' | cut -d ' ' -f1 && ifconfig eth0 2>/dev/null | grep 'HWaddr' | awk '{print $5}')
+    logger "no origin name found in mac2name file, add it with mac $mac"
   fi
 fi
 

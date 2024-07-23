@@ -11,10 +11,11 @@ Once set up, you don't need ADB/SSH access to the devices.
 ## Setup aconf server side
 1. Clone aconf, the directory must be reachable from the web (and kept up-to-date)  
 2. It's highly recommended to add basic auth to the aconf directory. For more info see [here](https://ubiq.co/tech-blog/how-to-password-protect-directory-in-nginx/)
-3. Copy versions.example and [mitm]_config.json.example and fill out the details. Make sure not to change `"deviceName":"dummy"`, deviceName will either be set to rgc origin in case of MAD atv or it will be set to a temporary name which can be changed in Atlas Dashboard
+3. Copy versions.example and [mitm]_config.json.example and fill out the details.  Make sure to remove 'example' from the file name and do not to change `"deviceName":"dummy"`, deviceName will either be set to rgc origin in case of MAD atv or it will be set to a temporary name which can be changed in Atlas Dashboard
+
 Some hints for the versions file:
 ```
-atlas_md5                        - the hash of the atlas.apk (In Case the APK changes but version number is still the same)
+[mitm]_md5                       - the hash of the [mitm].apk (In Case the APK changes but version number is still the same)
 healthcheck_errors               - true/false - decides if a discord message will be send if a device got many health check errors 
 play_integrity                   - true/false - If true, the APK verification will be disabled (needed to install apks in A9 without manual interaction)
 loop_protect_enabled             - true/false - If true, atlas.sh/aegis.sh will stop to reboot the device after 20 trys per day
@@ -72,12 +73,11 @@ su -c 'mount -o remount,rw / && rm -f /data/local/aconf_download /data/local/aco
 ```
 
 ### Logs
-Logging and any failure while executing script is logged to the /sdcard/ folder - `aconf.log` & `atlas_monitor.log` / `aegis_monitor.log` can be found there
-In case of issues always check there first
+Logging and any failure while executing script is logged to the /sdcard/ folder - `aconf.log` & `[MITM]_monitor.log` can be found there - In case of issues always check there first
 
 
 ## ATVdetails sender/receiver  
-Aconf allows to setup for sending ATV information such as pogo/atlas/script versions, ip, atlas settings, atlas/pogo cpu and mem usage to server side receiver which will process to database.  
+Aconf allows to setup for sending ATV information such as pogo/mitm/script versions, ip, atlas settings, atlas/pogo cpu and mem usage to server side receiver which will process to database.  
 
 1. Prepare receiver:
 - Receiver is located in folder wh_receiver
