@@ -5,7 +5,7 @@ source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
 
 #Configs
-cosmog_conf="/data/local/tmp/cosmog_config.json"
+cosmog_conf="/data/local/tmp/cosmog.json"
 cosmog_log="/data/local/tmp/cosmog.log"
 aconf_log="/sdcard/aconf.log"
 monitor_log="/sdcard/cosmog_monitor.log"
