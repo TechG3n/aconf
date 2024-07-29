@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.2.2
+# version 2.2.3
 
 #Version checks
 Ver42atlas="1.6"
@@ -450,10 +450,13 @@ dos2unix $aconf_mac2name
 echo "`date +%Y-%m-%d_%T` atlas.sh: downloaded latest mac2name file"  >> $logfile
 if [[ $origin = "" ]] ;then
   mac=$(ifconfig wlan0 2>/dev/null | grep 'HWaddr' | awk '{print $5}' | cut -d ' ' -f1 && ifconfig eth0 2>/dev/null | grep 'HWaddr' | awk '{print $5}')
-  origin=$(grep -m 1 $mac $aconf_mac2name | cut -d ';' -f2)
+  origin=$(grep -m 1 -i $mac $aconf_mac2name | cut -d ';' -f2)
   hostname=$origin
   if [[ $origin != "" ]] ;then
     echo "`date +%Y-%m-%d_%T` atlas.sh: got origin name $origin from mac2name file"  >> $logfile
+  else
+    mac=$(ifconfig wlan0 2>/dev/null | grep 'HWaddr' | awk '{print $5}' | cut -d ' ' -f1 && ifconfig eth0 2>/dev/null | grep 'HWaddr' | awk '{print $5}')
+    logger "no origin name found in mac2name file, add it with mac $mac"
   fi
 fi
 
