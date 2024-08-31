@@ -25,13 +25,13 @@ PIF_module                       - the version of the PlayIntegrityFix Module
 cosmog_libVerion                 - version of the lib needed by cosmog
 ```
 4. If you want to skip adding names manually on reflashed devices, copy and fill out mac2name.exmaple file 
-5. Add latest atlas/aegis version and supported pogo versions to apk folder, make sure to follow naming convention as per example below:  
+5. Add latest atlas/aegis/cosmog APK to apk folder, Pogo bundle needs to be unzipped - only base.apk split_config.apk are needed.<br/> Make sure to follow naming convention as per example below:  
 ```
 PokemodAtlas-Public-v22050101.apk
 PokemodAegis-Public-v22050101.apk
 cosmog-1.2.2.apk
-pokemongo_arm64-v8a_0.235.0.apk
-pokemongo_armeabi-v7a_0.235.0.apk
+pokemongo_arm64-v8a_0.235.0_base.apk + pokemongo_arm64-v8a_0.235.0_split.apk 
+pokemongo_armeabi-v7a_0.235.0_base.apk + pokemongo_armeabi-v7a_0.235.0_split.apk
 ``` 
 6. Add desired PlayIntegrityFix Module and Fingerprint to the module folder and put its version in the version file. For the name follow the naming convention of the example
 
