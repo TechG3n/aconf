@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.2.4
+# version 2.2.5
 
 #Version checks
 Ver42atlas="1.6"
@@ -649,6 +649,14 @@ pintegrity=$(settings get global package_verifier_user_consent)
 if [[ $play_integrity != "false" ]] && [[ $pintegrity == 1 ]]; then
   settings put global package_verifier_user_consent -1
   logger "disabled PlayIntegrity APK verification"
+fi
+
+# disable APKM verification
+play_integrity=$(grep 'play_integrity' $aconf_versions | awk -F "=" '{ print $NF }')
+apkmverify=$(settings get global package_verifier_enable)
+if [[ $play_integrity != "false" ]] && [[ $apkmverify == 1 ]]; then
+  settings put global package_verifier_enable 0
+  logger "disabled APKM verification"
 fi
 
 # set proxy server
