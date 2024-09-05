@@ -8,17 +8,22 @@ output_dir="$(dirname $(pwd))"
 if [[ -n "$download_url" ]]; then
     read -p "Do you want to download the APK files from download_url? (y/n): " download_choice
     if [[ "$download_choice" =~ ^(y|Y|Yes|yes)$ ]]; then
-        rm *.apk
+        rm *.apkm 2>/dev/null
+        rm -r META-INF
         read -p "Which version do you want to download? (e.g., 0.329.1): " version
 
         url_v8a="${download_url}/com.nianticlabs.pokemongo_arm64-v8a_${version}.apkm"
         url_v7a="${download_url}/com.nianticlabs.pokemongo_armeabi-v7a_${version}.apkm"
 
         echo "Downloading ${url_v8a}..."
-        wget -q -O "com.nianticlabs.pokemongo_arm64-v8a_${version}.apkm" "$url_v8a" || echo "Couldn't finde that version"
+        until wget -q -O "com.nianticlabs.pokemongo_arm64-v8a_${version}.apkm" "$url_v8a" || echo "Couldn't finde that version" ;do
+            sleep 2
+        done
 
         echo "Downloading ${url_v7a}..."
-        wget -q -O "com.nianticlabs.pokemongo_armeabi-v7a_${version}.apkm" "$url_v7a" || echo "Couldn't finde that version"
+        until wget -q -O "com.nianticlabs.pokemongo_armeabi-v7a_${version}.apkm" "$url_v7a" || echo "Couldn't finde that version" ;do
+            sleep 2
+        done
     fi
 else
     echo "No download URL provided. Skipping download."
