@@ -392,6 +392,9 @@ if [ ! -z "$cosmog_install" ] && [ ! -z "$pogo_install" ] ;then
 fi
 }
 
+#download newest cosmog lib file
+cosmog_lib
+
 check_rgc(){
 if [ -f "$rgcconf" ] ;then
   rgccheck=$(grep 'rgc' $aconf_versions | awk -F "=" '{ print $NF }')
