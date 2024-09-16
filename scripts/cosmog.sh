@@ -297,7 +297,7 @@ cosmog_lib(){
     done
   else
     iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
-    if [[$vLibVer > $iLibVer]] ;then
+    if [[$vLibVer != $iLibVer]] ;then
       logger "Cosmog Lib too old, downloading new version"
       rm -f /data/local/tmp/libNianticLabsPlugin.so_*
       until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog lib file failed, exit script" ; exit 1; } ;do
