@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.3.5
+# version 2.3.7
 
 #Version checks
 Ver42cosmog="1.6"
@@ -145,114 +145,113 @@ EOF
 
 fi
 
-# install cosmogDetails sender
-  until $download /system/bin/CosmogDetailsSender.sh $url/scripts/CosmogDetailsSender.sh || { logger "download CosmogDetailsSender.sh failed, exit script" ; exit 1; } ;do
+  # install cosmogDetails sender
+    until $download /system/bin/CosmogDetailsSender.sh $url/scripts/CosmogDetailsSender.sh || { logger "download CosmogDetailsSender.sh failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    chmod +x /system/bin/CosmogDetailsSender.sh
+    logger "cosmogDetails sender installed"
+    mount_system_ro
+
+  # get version
+  aversions=$(grep 'cosmog' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+
+  # download cosmog
+  /system/bin/rm -f /sdcard/Download/cosmog.apk
+  until $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
     sleep 2
   done
-  chmod +x /system/bin/CosmogDetailsSender.sh
-  logger "cosmogDetails sender installed"
-  mount_system_ro
 
-# get version
-aversions=$(grep 'cosmog' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  # pogodroid disable full daemon + stop pogodroid
+  if [ -f "$pdconf" ] ;then
+    sed -i 's,\"full_daemon\" value=\"true\",\"full_daemon\" value=\"false\",g' $pdconf
+    chmod 660 $pdconf
+    chown $puser:$puser $pdconf
+    am force-stop com.mad.pogodroid
+    logger "pogodroid disabled"
+    # disable pd autoupdate
+    touch /sdcard/disableautopogodroidupdate
+  fi
 
-# download cosmog
-/system/bin/rm -f /sdcard/Download/cosmog.apk
-until $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
-  sleep 2
-done
+  #disable pogo update by 42mad
+  touch /sdcard/disableautopogoupdate
 
-# pogodroid disable full daemon + stop pogodroid
-if [ -f "$pdconf" ] ;then
-  sed -i 's,\"full_daemon\" value=\"true\",\"full_daemon\" value=\"false\",g' $pdconf
-  chmod 660 $pdconf
-  chown $puser:$puser $pdconf
-  am force-stop com.mad.pogodroid
-  logger "pogodroid disabled"
-  # disable pd autoupdate
-  touch /sdcard/disableautopogodroidupdate
-fi
+  # let us kill pogo as well and clear data
+  am force-stop com.nianticlabs.pokemongo
+  pm clear com.nianticlabs.pokemongo
 
-#disable pogo update by 42mad
-touch /sdcard/disableautopogoupdate
+  # Install cosmog
+  /system/bin/pm install -r /sdcard/Download/cosmog.apk
+  /system/bin/rm -f /sdcard/Download/cosmog.apk
+  logger "cosmog installed"
 
-# let us kill pogo as well and clear data
-am force-stop com.nianticlabs.pokemongo
-pm clear com.nianticlabs.pokemongo
+  # Grant su access + settings
+  auid="$(dumpsys package com.sy1vi3.cosmog | grep userId | awk -F'=' '{print $2}')"
+  magisk --sqlite "REPLACE INTO policies (uid,policy,until,logging,notification) VALUES($auid,2,0,1,0)"
+  #pm grant com.sy1vi3.cosmog android.permission.READ_EXTERNAL_STORAGE
+  #pm grant com.sy1vi3.cosmog android.permission.WRITE_EXTERNAL_STORAGE
+  logger "cosmog granted su and settings set"
 
-# Install cosmog
-/system/bin/pm install -r /sdcard/Download/cosmog.apk
-/system/bin/rm -f /sdcard/Download/cosmog.apk
-logger "cosmog installed"
+  # add common packages to denylist
+  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.android.vending','com.android.vending');"
+  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.google.android.gms','com.google.android.gms');"
+  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.google.android.gms.setup','com.google.android.gms.setup');"
+  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.google.android.gsf','com.google.android.gsf');"
+  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.nianticlabs.pokemongo','com.nianticlabs.pokemongo');"
 
-# Grant su access + settings
-auid="$(dumpsys package com.sy1vi3.cosmog | grep userId | awk -F'=' '{print $2}')"
-magisk --sqlite "REPLACE INTO policies (uid,policy,until,logging,notification) VALUES($auid,2,0,1,0)"
-#pm grant com.sy1vi3.cosmog android.permission.READ_EXTERNAL_STORAGE
-#pm grant com.sy1vi3.cosmog android.permission.WRITE_EXTERNAL_STORAGE
-logger "cosmog granted su and settings set"
+  # add cosmog workers to denylist
+  i=1
+  while [ $i -le 100 ]; do
+    magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.sy1vi3.cosmog','com.sy1vi3.cosmog:worker$i.com.nianticlabs.pokemongo');"
+    i=$((i + 1))
+  done
 
-# add common packages to denylist
-magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.android.vending','com.android.vending');"
-magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.google.android.gms','com.google.android.gms');"
-magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.google.android.gms.setup','com.google.android.gms.setup');"
-magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.google.android.gsf','com.google.android.gsf');"
-magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.nianticlabs.pokemongo','com.nianticlabs.pokemongo');"
+  # enable zygisk
+  magisk --sqlite "REPLACE INTO settings (key,value) VALUES('zygisk',1);"
 
-# add cosmog workers to denylist
-i=1
-while [ $i -le 100 ]; do
-  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.sy1vi3.cosmog','com.sy1vi3.cosmog:worker$i.com.nianticlabs.pokemongo');"
-  i=$((i + 1))
-done
+  # enable denylist
+  magisk --sqlite "REPLACE INTO settings (key,value) VALUES('denylist',1);"
+  magisk --denylist enable
 
-# enable zygisk
-magisk --sqlite "REPLACE INTO settings (key,value) VALUES('zygisk',1);"
+  #download newest cosmog lib file
+  cosmog_lib
 
-# enable denylist
-magisk --sqlite "REPLACE INTO settings (key,value) VALUES('denylist',1);"
-magisk --denylist enable
+  # Replace these paths with your actual source and target paths
+  cosmog_dir="/data/data/com.sy1vi3.cosmog"
+  files_dir="$cosmog_dir/files"
 
-#download newest cosmog lib file
-cosmog_lib
+  # Extract owner, group, and permissions
+  owner=$(stat -c "%U" "$cosmog_dir")
+  group=$(stat -c "%G" "$cosmog_dir")
+  perms=$(stat -c "%a" "$cosmog_dir")
+  # Apply the owner and group to the target
+  chown -R "$owner":"$group" "$files_dir"
+  # Apply the permissions to the target
+  chmod -R "$perms" "$files_dir"
 
-# Replace these paths with your actual source and target paths
-cosmog_dir="/data/data/com.sy1vi3.cosmog"
-files_dir="$cosmog_dir/files"
+  # download cosmog config file and adjust orgin to rgc setting
+  install_config
 
-# Extract owner, group, and permissions
-owner=$(stat -c "%U" "$cosmog_dir")
-group=$(stat -c "%G" "$cosmog_dir")
-perms=$(stat -c "%a" "$cosmog_dir")
-# Apply the owner and group to the target
-chown -R "$owner":"$group" "$files_dir"
-# Apply the permissions to the target
-chmod -R "$perms" "$files_dir"
+  # check pogo version else remove+install
+  downgrade_pogo
 
-# download cosmog config file and adjust orgin to rgc setting
-install_config
+  # supress 'pink screen'
+  opengl_warning
 
-# check pogo version else remove+install
-downgrade_pogo
+  # check if rgc is to be enabled or disabled
+  check_rgc
 
-# supress 'pink screen'
-opengl_warning
+  # start cosmog
+  am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
+  sleep 10
 
-# check if rgc is to be enabled or disabled
-check_rgc
+  # Set for reboot device
+  reboot=1
 
-# start cosmog
-am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
-sleep 10
-
-# Set for reboot device
-reboot=1
-
-## Send final webhook
-# discord_config_wh=$(grep 'discord_webhook' $aconf_versions | awk -F "=" '{ print $NF }')
-ip=$(ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
-logger "new cosmog device configured. IP: $ip"
-
+  ## Send final webhook
+  # discord_config_wh=$(grep 'discord_webhook' $aconf_versions | awk -F "=" '{ print $NF }')
+  ip=$(ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
+  logger "new cosmog device configured. IP: $ip"
 }
 
 install_config(){
@@ -297,7 +296,7 @@ cosmog_lib(){
     done
   else
     iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
-    if [[$vLibVer > $iLibVer]] ;then
+    if [[ $vLibVer != $iLibVer ]] ;then
       logger "Cosmog Lib too old, downloading new version"
       rm -f /data/local/tmp/libNianticLabsPlugin.so_*
       until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog lib file failed, exit script" ; exit 1; } ;do
@@ -315,44 +314,53 @@ cosmog_lib(){
 }
 
 update_all(){
-pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
-ainstalled=$(dumpsys package com.sy1vi3.cosmog | grep versionName | head -n1 | sed 's/ *versionName=//' | sed 's/-fix//' )
-aversions=$(grep 'cosmog' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
+  pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  ainstalled=$(dumpsys package com.sy1vi3.cosmog | grep versionName | head -n1 | sed 's/ *versionName=//' | sed 's/-fix//' )
+  aversions=$(grep 'cosmog' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
-if [[ $pinstalled != $pversions ]] ;then
-  if [[ $(echo "$pinstalled" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') -gt $(echo "$pversions" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') ]]; then
-    #This happens if playstore autoupdate is on or mad+rgc aren't configured correctly
-    logger "pogo version is higher as it should, that shouldn't happen! ($pinstalled > $pversions)"
-    downgrade_pogo
-  else
-    logger "new pogo version detected, $pinstalled=>$pversions"
-    /system/bin/rm -f /sdcard/Download/pogo_*.apk
-    until $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo base failed, exit script" ; exit 1; } ;do
-      sleep 2
-    done
-    sleep 1
-    until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
-      sleep 2
-    done
-    # set pogo to be installed
-    pogo_install="install"
-  fi
-else
- pogo_install="skip"
- echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo already on correct version" >> $logfile
-fi
-
-if [ $ainstalled != $aversions ] ;then
-  logger "new cosmog version detected, $ainstalled=>$aversions"
-  ver_cosmog_md5=$(grep 'cosmog_md5' $aconf_versions | awk -F "=" '{ print $NF }')
-  if [[ ! -z $ver_cosmog_md5 ]] ;then
-    inst_cosmog_md5=$(md5sum /data/app/com.sy1vi3.cosmog-*/base.apk | awk '{print $1}')
-    if [[ $ver_cosmog_md5 == $inst_cosmog_md5 ]] ;then
-      logger "New version but same md5 - skip install"
-      cosmog_install="skip"
+  if [[ $pinstalled != $pversions ]] ;then
+    if [[ $(echo "$pinstalled" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') -gt $(echo "$pversions" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') ]]; then
+      #This happens if playstore autoupdate is on or mad+rgc aren't configured correctly
+      logger "pogo version is higher as it should, that shouldn't happen! ($pinstalled > $pversions)"
+      downgrade_pogo
     else
-      logger "New version, new md5 - start install"
+      logger "new pogo version detected, $pinstalled=>$pversions"
+      /system/bin/rm -f /sdcard/Download/pogo_*.apk
+      until $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo base failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+      sleep 1
+      until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+      # set pogo to be installed
+      pogo_install="install"
+    fi
+  else
+  pogo_install="skip"
+  echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo already on correct version" >> $logfile
+  fi
+
+  if [ $ainstalled != $aversions ] ;then
+    logger "new cosmog version detected, $ainstalled=>$aversions"
+    ver_cosmog_md5=$(grep 'cosmog_md5' $aconf_versions | awk -F "=" '{ print $NF }')
+    if [[ ! -z $ver_cosmog_md5 ]] ;then
+      inst_cosmog_md5=$(md5sum /data/app/com.sy1vi3.cosmog-*/base.apk | awk '{print $1}')
+      if [[ $ver_cosmog_md5 == $inst_cosmog_md5 ]] ;then
+        logger "New version but same md5 - skip install"
+        cosmog_install="skip"
+      else
+        logger "New version, new md5 - start install"
+        /system/bin/rm -f /sdcard/Download/cosmog.apk
+        until $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
+          sleep 2
+        done
+        # set cosmog to be installed
+        cosmog_install="install"
+      fi
+    else
+      logger "No md5 found, install new version regardless"
       /system/bin/rm -f /sdcard/Download/cosmog.apk
       until $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
         sleep 2
@@ -361,104 +369,95 @@ if [ $ainstalled != $aversions ] ;then
       cosmog_install="install"
     fi
   else
-    logger "No md5 found, install new version regardless"
-    /system/bin/rm -f /sdcard/Download/cosmog.apk
-    until $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/cosmog.apk $url/apk/cosmog-$aversions.apk" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
-      sleep 2
-    done
-    # set cosmog to be installed
-    cosmog_install="install"
+  cosmog_install="skip"
+  echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog already on correct version" >> $logfile
   fi
-else
- cosmog_install="skip"
- echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog already on correct version" >> $logfile
-fi
 
-if [ ! -z "$cosmog_install" ] && [ ! -z "$pogo_install" ] ;then
-  echo "`date +%Y-%m-%d_%T` cosmog.sh: all updates checked and downloaded if needed" >> $logfile
-  if [ "$cosmog_install" = "install" ] ;then
-    Logger "Updating cosmog"
-    # install cosmog
-    /system/bin/pm install -r /sdcard/Download/cosmog.apk || { logger "install cosmog failed, downgrade perhaps? Exit script" ; exit 1; }
-    /system/bin/rm -f /sdcard/Download/cosmog.apk
-    reboot=1
+  if [ ! -z "$cosmog_install" ] && [ ! -z "$pogo_install" ] ;then
+    echo "`date +%Y-%m-%d_%T` cosmog.sh: all updates checked and downloaded if needed" >> $logfile
+    if [ "$cosmog_install" = "install" ] ;then
+      Logger "Updating cosmog"
+      # install cosmog
+      /system/bin/pm install -r /sdcard/Download/cosmog.apk || { logger "install cosmog failed, downgrade perhaps? Exit script" ; exit 1; }
+      /system/bin/rm -f /sdcard/Download/cosmog.apk
+      reboot=1
+    fi
+    if [ "$pogo_install" = "install" ] ;then
+      logger "updating pogo"
+      # install pogo
+      /system/bin/pm install -r /sdcard/Download/pogo_base.apk && /system/bin/pm install -p com.nianticlabs.pokemongo -r /sdcard/Download/pogo_split.apk || { logger "install pogo failed, downgrade perhaps? Exit script" ; exit 1; }
+      /system/bin/rm -f /sdcard/Download/pogo_*.apk
+      reboot=1
+    fi
+    if [ "$cosmog_install" != "install" ] && [ "$pogo_install" != "install" ] ; then
+      echo "`date +%Y-%m-%d_%T` cosmog.sh: updates checked, nothing to install" >> $logfile
+    fi
   fi
-  if [ "$pogo_install" = "install" ] ;then
-    logger "updating pogo"
-    # install pogo
-    /system/bin/pm install -r /sdcard/Download/pogo_base.apk && /system/bin/pm install -p com.nianticlabs.pokemongo -r /sdcard/Download/pogo_split.apk || { logger "install pogo failed, downgrade perhaps? Exit script" ; exit 1; }
-    /system/bin/rm -f /sdcard/Download/pogo_*.apk
-    reboot=1
-  fi
-  if [ "$cosmog_install" != "install" ] && [ "$pogo_install" != "install" ] ; then
-    echo "`date +%Y-%m-%d_%T` cosmog.sh: updates checked, nothing to install" >> $logfile
-  fi
-fi
 }
 
 check_rgc(){
-if [ -f "$rgcconf" ] ;then
-  rgccheck=$(grep 'rgc' $aconf_versions | awk -F "=" '{ print $NF }')
-  rgcstatus=$(grep -w 'boot_startup' $rgcconf | awk -F "\"" '{print tolower($4)}')
-  if [[ $rgccheck == "off" ]] && [[ $rgcstatus == "true" ]] ;then
-    # disable rgc
-    sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
-    sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
-    chmod 660 $rgcconf
-    chown $ruser:$ruser $rgcconf
-    # disable rgc autoupdate
-    touch /sdcard/disableautorgcupdate
-    # kill rgc
-    am force-stop de.grennith.rgc.remotegpscontroller
-    logger "disabled rgc"
+  if [ -f "$rgcconf" ] ;then
+    rgccheck=$(grep 'rgc' $aconf_versions | awk -F "=" '{ print $NF }')
+    rgcstatus=$(grep -w 'boot_startup' $rgcconf | awk -F "\"" '{print tolower($4)}')
+    if [[ $rgccheck == "off" ]] && [[ $rgcstatus == "true" ]] ;then
+      # disable rgc
+      sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
+      sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
+      chmod 660 $rgcconf
+      chown $ruser:$ruser $rgcconf
+      # disable rgc autoupdate
+      touch /sdcard/disableautorgcupdate
+      # kill rgc
+      am force-stop de.grennith.rgc.remotegpscontroller
+      logger "disabled rgc"
+    fi
+    if [[ $rgccheck == "on" ]] && [[ $rgcstatus == "false" ]] ;then
+      # enable rgc
+      sed -i 's,\"autostart_services\" value=\"false\",\"autostart_services\" value=\"true\",g' $rgcconf
+      sed -i 's,\"boot_startup\" value=\"false\",\"boot_startup\" value=\"true\",g' $rgcconf
+      chmod 660 $rgcconf
+      chown $ruser:$ruser $rgcconf
+      # start rgc
+      monkey -p de.grennith.rgc.remotegpscontroller 1
+      logger "enabled and started rgc"
+    fi
   fi
-  if [[ $rgccheck == "on" ]] && [[ $rgcstatus == "false" ]] ;then
-    # enable rgc
-    sed -i 's,\"autostart_services\" value=\"false\",\"autostart_services\" value=\"true\",g' $rgcconf
-    sed -i 's,\"boot_startup\" value=\"false\",\"boot_startup\" value=\"true\",g' $rgcconf
-    chmod 660 $rgcconf
-    chown $ruser:$ruser $rgcconf
-    # start rgc
-    monkey -p de.grennith.rgc.remotegpscontroller 1
-    logger "enabled and started rgc"
-  fi
-fi
 }
 
 downgrade_pogo(){
-pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
-if [[ $pinstalled != $pversions ]] ;then
-  until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "download pogo failed, exit script" ; exit 1; } ;do
-    sleep 2
-  done
-  /system/bin/pm uninstall com.nianticlabs.pokemongo
-  /system/bin/pm install -r /sdcard/Download/pogo.apk
-  /system/bin/rm -f /sdcard/Download/pogo.apk
-  logger "pogo removed and installed, now $pversions"
-else
-  echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo version correct, proceed" >> $logfile
-fi
+  pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
+  pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  if [[ $pinstalled != $pversions ]] ;then
+    until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "download pogo failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    /system/bin/pm uninstall com.nianticlabs.pokemongo
+    /system/bin/pm install -r /sdcard/Download/pogo.apk
+    /system/bin/rm -f /sdcard/Download/pogo.apk
+    logger "pogo removed and installed, now $pversions"
+  else
+    echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo version correct, proceed" >> $logfile
+  fi
 }
 
 send_logs(){
-if [[ -z $webhook ]] ;then
-  echo "`date +%Y-%m-%d_%T` cosmog.sh: no webhook set in job" >> $logfile
-else
-  # aconf log
-  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"aconf.log for $origin\"}" -F "file1=@$logfile" $webhook &>/dev/null
-  # monitor log
-  [[ -f /sdcard/cosmog_monitor.log ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"cosmog_monitor.log for $origin\"}" -F "file1=@/sdcard/cosmog_monitor.log" $webhook &>/dev/null
-  # cosmog log
-  cp /data/local/tmp/cosmog.log /sdcard/cosmog.log
-  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"cosmog.log for $origin\"}" -F "file1=@/sdcard/cosmog.log" $webhook &>/dev/null
-  rm /sdcard/cosmog.log
-  #logcat
-  logcat -d > /sdcard/logcat.txt
-  curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"logcat.txt for $origin\"}" -F "file1=@/sdcard/logcat.txt" $webhook &>/dev/null
-  rm -f /sdcard/logcat.txt
-  echo "`date +%Y-%m-%d_%T` cosmog.sh: sending logs to discord" >> $logfile
-fi
+  if [[ -z $webhook ]] ;then
+    echo "`date +%Y-%m-%d_%T` cosmog.sh: no webhook set in job" >> $logfile
+  else
+    # aconf log
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"aconf.log for $origin\"}" -F "file1=@$logfile" $webhook &>/dev/null
+    # monitor log
+    [[ -f /sdcard/cosmog_monitor.log ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"cosmog_monitor.log for $origin\"}" -F "file1=@/sdcard/cosmog_monitor.log" $webhook &>/dev/null
+    # cosmog log
+    cp /data/local/tmp/cosmog.log /sdcard/cosmog.log
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"cosmog.log for $origin\"}" -F "file1=@/sdcard/cosmog.log" $webhook &>/dev/null
+    rm /sdcard/cosmog.log
+    #logcat
+    logcat -d > /sdcard/logcat.txt
+    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"logcat.txt for $origin\"}" -F "file1=@/sdcard/logcat.txt" $webhook &>/dev/null
+    rm -f /sdcard/logcat.txt
+    echo "`date +%Y-%m-%d_%T` cosmog.sh: sending logs to discord" >> $logfile
+  fi
 }
 
 opengl_warning() {
@@ -803,6 +802,23 @@ if [[ ! -z $versionsCJv ]] && [[ "$versionsCJv" != "0" ]] ;then
   else
     echo "`date +%Y-%m-%d_%T` cosmog.sh: CustomJob Up2Date, proceed" >> $logfile
   fi
+fi
+
+# check cosmog lib ver
+vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
+iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
+if [[ $vLibVer != $iLibVer ]] ;then
+  logger "Cosmog Lib not matched, downloading new version"
+  rm -f /data/local/tmp/libNianticLabsPlugin.so_*
+  until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog lib file failed, exit script" ; exit 1; } ;do
+    sleep 2
+  done
+  #Move lib and set perms
+  cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
+  chown root:root /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
+  chmod 444 /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
+else
+  echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog lib already on correct version" >> $logfile
 fi
 
 
