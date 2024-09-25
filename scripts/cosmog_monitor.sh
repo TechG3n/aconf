@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.4.2
+# version 3.4.3
 #set -x
 
 # Monitor by Oldmole && bbdoc
@@ -38,11 +38,11 @@ check_for_updates() {
 }
 
 stop_start_cosmog () {
-	am force-stop com.nianticlabs.pokemongo &  rm -rf /data/data/com.nianticlabs.pokemongo/cache/* 2>/dev/null & am force-stop com.sy1vi3.cosmog 
+	am force-stop com.nianticlabs.pokemongo &  rm -rf /data/data/com.nianticlabs.pokemongo/cache/* 2>/dev/null & am force-stop com.nianticlabs.pokemongo.ares 
 	sleep 5
 	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of cosmog" >> $logfile
 
-	am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
+	am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
 	
 	sleep 1
 }
@@ -89,7 +89,7 @@ do
 		check_for_updates
 	fi
 
-	if [ -d /data/data/com.sy1vi3.cosmog ] && [ -s /data/local/tmp/cosmog.json ]
+	if [ -d /data/data/com.nianticlabs.pokemongo.ares ] && [ -s /data/local/tmp/cosmog.json ]
 	then
 		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog.json looks good" >> $logfile
 	else
@@ -103,10 +103,10 @@ do
 
 	fi
 		
-	cosmog_check=$(ps -e | grep com.sy1vi3.cosmog | awk '{print $9}')
+	cosmog_check=$(ps -e | grep com.nianticlabs.pokemongo.ares | awk '{print $9}')
 	if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cosmog.json ]] ;then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog not running, starting it" >> $logfile
-		am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
+		am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
 	fi
 	
 	sleep $monitor_interval

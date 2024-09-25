@@ -1,11 +1,11 @@
 #!/system/bin/sh
-# version 2.3.8
+# version 2.3.9
 
 #Version checks
 Ver42cosmog="1.6"
 Ver55cosmog="1.1"
-VerMonitor="3.4.2"
-VerATVsender="1.9.3"
+VerMonitor="3.4.3"
+VerATVsender="1.9.4"
 
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 
@@ -377,7 +377,7 @@ update_all(){
     echo "`date +%Y-%m-%d_%T` cosmog.sh: all updates checked and downloaded if needed" >> $logfile
     if [ "$cosmog_install" = "install" ] ;then
       Logger "Updating cosmog"
-      if [ $aversions <= "1.5" ] ;then
+      if [ -z $ainstalled ] ;then
         /system/bin/pm uninstall com.sy1vi3.cosmog
         echo "`date +%Y-%m-%d_%T` cosmog.sh: uninstalling old cosmog, to install new one with new name" >> $logfile
       fi  
