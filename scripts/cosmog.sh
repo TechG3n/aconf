@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.3.7
+# version 2.3.8
 
 #Version checks
 Ver42cosmog="1.6"
@@ -186,10 +186,10 @@ fi
   logger "cosmog installed"
 
   # Grant su access + settings
-  auid="$(dumpsys package com.sy1vi3.cosmog | grep userId | awk -F'=' '{print $2}')"
+  auid="$(dumpsys package com.nianticlabs.pokemongo.ares | grep userId | awk -F'=' '{print $2}')"
   magisk --sqlite "REPLACE INTO policies (uid,policy,until,logging,notification) VALUES($auid,2,0,1,0)"
-  #pm grant com.sy1vi3.cosmog android.permission.READ_EXTERNAL_STORAGE
-  #pm grant com.sy1vi3.cosmog android.permission.WRITE_EXTERNAL_STORAGE
+  #pm grant com.nianticlabs.pokemongo.ares android.permission.READ_EXTERNAL_STORAGE
+  #pm grant com.nianticlabs.pokemongo.ares android.permission.WRITE_EXTERNAL_STORAGE
   logger "cosmog granted su and settings set"
 
   # add common packages to denylist
@@ -202,7 +202,7 @@ fi
   # add cosmog workers to denylist
   i=1
   while [ $i -le 100 ]; do
-    magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.sy1vi3.cosmog','com.sy1vi3.cosmog:worker$i.com.nianticlabs.pokemongo');"
+    magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.nianticlabs.pokemongo.ares','com.nianticlabs.pokemongo.ares:worker$i');"
     i=$((i + 1))
   done
 
@@ -217,7 +217,7 @@ fi
   cosmog_lib
 
   # Replace these paths with your actual source and target paths
-  cosmog_dir="/data/data/com.sy1vi3.cosmog"
+  cosmog_dir="/data/data/com.nianticlabs.pokemongo.ares"
   files_dir="$cosmog_dir/files"
 
   # Extract owner, group, and permissions
@@ -242,7 +242,7 @@ fi
   check_rgc
 
   # start cosmog
-  am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
+  am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
   sleep 10
 
   # Set for reboot device
@@ -277,7 +277,7 @@ update_cosmog_config(){
     done
     sed -i 's,dummy,'$origin',g' $aconf
 
-    am force-stop com.sy1vi3.cosmog && am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
+    am force-stop com.nianticlabs.pokemongo.ares && am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
 
     logger "cosmog config updated and cosmog restarted"
   fi
@@ -285,10 +285,10 @@ update_cosmog_config(){
 
 cosmog_lib(){
   vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
-  if [[ ! -d /data/data/com.sy1vi3.cosmog/files ]] ;then
-    mkdir -p /data/data/com.sy1vi3.cosmog/files/
+  if [[ ! -d /data/data/com.nianticlabs.pokemongo.ares/files ]] ;then
+    mkdir -p /data/data/com.nianticlabs.pokemongo.ares/files/
   fi
-  if [[ ! -f /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so ]] ;then
+  if [[ ! -f /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so ]] ;then
     logger "Cosmog Lib not found, downloading it"
     rm -f /data/local/tmp/libNianticLabsPlugin.so_*
     until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog lib file failed, exit script" ; exit 1; } ;do
@@ -308,15 +308,15 @@ cosmog_lib(){
   fi
 
   #Move lib and set perms
-  cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
-  chown root:root /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
-  chmod 444 /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
+  cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so
+  chown root:root /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so
+  chmod 444 /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so
 }
 
 update_all(){
   pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
   pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
-  ainstalled=$(dumpsys package com.sy1vi3.cosmog | grep versionName | head -n1 | sed 's/ *versionName=//' | sed 's/-fix//' )
+  ainstalled=$(dumpsys package com.nianticlabs.pokemongo.ares | grep versionName | head -n1 | sed 's/ *versionName=//' | sed 's/-fix//' )
   aversions=$(grep 'cosmog' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
   if [[ $pinstalled != $pversions ]] ;then
@@ -346,7 +346,7 @@ update_all(){
     logger "new cosmog version detected, $ainstalled=>$aversions"
     ver_cosmog_md5=$(grep 'cosmog_md5' $aconf_versions | awk -F "=" '{ print $NF }')
     if [[ ! -z $ver_cosmog_md5 ]] ;then
-      inst_cosmog_md5=$(md5sum /data/app/com.sy1vi3.cosmog-*/base.apk | awk '{print $1}')
+      inst_cosmog_md5=$(md5sum /data/app/com.nianticlabs.pokemongo.ares-*/base.apk | awk '{print $1}')
       if [[ $ver_cosmog_md5 == $inst_cosmog_md5 ]] ;then
         logger "New version but same md5 - skip install"
         cosmog_install="skip"
@@ -377,6 +377,10 @@ update_all(){
     echo "`date +%Y-%m-%d_%T` cosmog.sh: all updates checked and downloaded if needed" >> $logfile
     if [ "$cosmog_install" = "install" ] ;then
       Logger "Updating cosmog"
+      if [ $aversions <= "1.5" ] ;then
+        /system/bin/pm uninstall com.sy1vi3.cosmog
+        echo "`date +%Y-%m-%d_%T` cosmog.sh: uninstalling old cosmog, to install new one with new name" >> $logfile
+      fi  
       # install cosmog
       /system/bin/pm install -r /sdcard/Download/cosmog.apk || { logger "install cosmog failed, downgrade perhaps? Exit script" ; exit 1; }
       /system/bin/rm -f /sdcard/Download/cosmog.apk
@@ -676,11 +680,11 @@ fi
 check_rgc
 
 # check cosmog config file exists
-if [[ -d /data/data/com.sy1vi3.cosmog ]] && [[ ! -s $aconf ]] ;then
+if [[ -d /data/data/com.nianticlabs.pokemongo.ares ]] && [[ ! -s $aconf ]] ;then
   install_config
-  am force-stop com.sy1vi3.cosmog
+  am force-stop com.nianticlabs.pokemongo.ares
   sleep 1
-  am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
+  am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
 fi
 
 # check 16/42mad pogo autoupdate disabled
@@ -710,10 +714,10 @@ if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsu
 fi
 
 # check cosmog running
-cosmog_check=$(ps -e | grep com.sy1vi3.cosmog | awk '{print $9}')
+cosmog_check=$(ps -e | grep com.nianticlabs.pokemongo.ares | awk '{print $9}')
 if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cosmog.json ]] ;then
   logger "cosmog not running at execution of cosmog.sh, starting it"
-  am start -n com.sy1vi3.cosmog/com.sy1vi3.cosmog.MainActivity
+  am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
 fi
 
 # check if playstore is enabled
@@ -750,7 +754,7 @@ if [[ ! -z $versionsPIFv ]] ;then
     until $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip" >> $logfile ; logger "download PIF_module failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    am force-stop com.sy1vi3.cosmog
+    am force-stop com.nianticlabs.pokemongo.ares
     am force-stop com.nianticlabs.pokemongo
     /sbin/magisk --install-module /sdcard/Download/PIF_module.zip
     logger "Updated PIF module from $instPIFv to $versionsPIFv"
@@ -814,9 +818,9 @@ if [[ $vLibVer != $iLibVer ]] ;then
     sleep 2
   done
   #Move lib and set perms
-  cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
-  chown root:root /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
-  chmod 444 /data/data/com.sy1vi3.cosmog/files/libNianticLabsPlugin.so
+  cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so
+  chown root:root /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so
+  chmod 444 /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so
 else
   echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog lib already on correct version" >> $logfile
 fi
