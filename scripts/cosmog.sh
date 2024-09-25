@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.3.9
+# version 2.4.0
 
 #Version checks
 Ver42cosmog="1.6"
@@ -342,7 +342,7 @@ update_all(){
   echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo already on correct version" >> $logfile
   fi
 
-  if [ $ainstalled != $aversions ] ;then
+  if [[ -z $ainstalled ]] || [[ $ainstalled != $aversions ]] ;then
     logger "new cosmog version detected, $ainstalled=>$aversions"
     ver_cosmog_md5=$(grep 'cosmog_md5' $aconf_versions | awk -F "=" '{ print $NF }')
     if [[ ! -z $ver_cosmog_md5 ]] ;then
@@ -376,11 +376,13 @@ update_all(){
   if [ ! -z "$cosmog_install" ] && [ ! -z "$pogo_install" ] ;then
     echo "`date +%Y-%m-%d_%T` cosmog.sh: all updates checked and downloaded if needed" >> $logfile
     if [ "$cosmog_install" = "install" ] ;then
-      Logger "Updating cosmog"
+      logger "Updating cosmog"
       if [ -z $ainstalled ] ;then
-        /system/bin/pm uninstall com.sy1vi3.cosmog
-        echo "`date +%Y-%m-%d_%T` cosmog.sh: uninstalling old cosmog, to install new one with new name" >> $logfile
-      fi  
+        if pm list packages | grep -q "com.sy1vi3.cosmog"; then
+          /system/bin/pm uninstall com.sy1vi3.cosmog
+          echo "`date +%Y-%m-%d_%T` cosmog.sh: uninstalling old cosmog, to install new one with new name" >> $logfile
+        fi
+      fi
       # install cosmog
       /system/bin/pm install -r /sdcard/Download/cosmog.apk || { logger "install cosmog failed, downgrade perhaps? Exit script" ; exit 1; }
       /system/bin/rm -f /sdcard/Download/cosmog.apk
@@ -662,7 +664,7 @@ if [[ $origin != "" ]] ;then
     logger "no hostname set, setting it to $origin"
     if [ -n "$(tail -c 1 /system/build.prop)" ]; then
       echo "" >> /system/build.prop
-    fi 
+    fi
     echo "net.hostname=$origin" >> /system/build.prop
     mount_system_ro
   else
