@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.4.0
+# version 2.4.1
 
 #Version checks
 Ver42cosmog="1.6"
@@ -380,6 +380,7 @@ update_all(){
       if [ -z $ainstalled ] ;then
         if pm list packages | grep -q "com.sy1vi3.cosmog"; then
           /system/bin/pm uninstall com.sy1vi3.cosmog
+          rm -f /data/local/tmp/libNianticLabsPlugin.so_*
           echo "`date +%Y-%m-%d_%T` cosmog.sh: uninstalling old cosmog, to install new one with new name" >> $logfile
         fi
       fi
@@ -813,7 +814,7 @@ fi
 # check cosmog lib ver
 vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
 iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
-if [[ $vLibVer != $iLibVer ]] ;then
+if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so ]] ;then
   logger "Cosmog Lib not matched, downloading new version"
   rm -f /data/local/tmp/libNianticLabsPlugin.so_*
   until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog lib file failed, exit script" ; exit 1; } ;do
