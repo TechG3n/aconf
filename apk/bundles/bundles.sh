@@ -39,10 +39,10 @@ version=$(echo $file_v8a | grep -oP '(?<=_)[0-9]+\.[0-9]+\.[0-9]+')
 if [[ -f "$file_v8a" ]]; then
     echo "Unzipping and renaming $file_v8a"
     unzip $file_v8a 1>/dev/null
-    mv base.apk pokemongo_arm64_v8a_${version}_base.apk
-    mv split_config.arm64_v8a.apk pokemongo_arm64_v8a_${version}_split.apk
+    mv base.apk pokemongo_arm64-v8a_${version}_base.apk
+    mv split_config.arm64_v8a.apk pokemongo_arm64-v8a_${version}_split.apk
     # Move the final files to the target directory
-    mv pokemongo_arm64_v8a_${version}_*.apk "$output_dir/"
+    mv pokemongo_arm64-v8a_${version}_*.apk "$output_dir/"
     # Delete all files that are not the script itself
     find . -type f ! -name "*.sh" -exec rm -rf {} +
 else
@@ -53,8 +53,8 @@ fi
 if [[ -f "$file_v7a" ]]; then
     echo "Unzipping and renaming $file_v7a"
     unzip $file_v7a 1>/dev/null
-    mv base.apk pokemongo_armeabi_v7a_${version}_base.apk
-    mv split_config.armeabi_v7a.apk pokemongo_armeabi_v7a_${version}_split.apk
+    mv base.apk pokemongo_armeabi-v7a_${version}_base.apk
+    mv split_config.armeabi-v7a.apk pokemongo_armeabi-v7a_${version}_split.apk
     # Move the final files to the target directory
     mv pokemongo_armeabi_v7a_${version}_*.apk "$output_dir/"
     # Delete all files that are not the script itself
