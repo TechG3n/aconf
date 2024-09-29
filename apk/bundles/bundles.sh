@@ -56,7 +56,7 @@ if [[ -f "$file_v7a" ]]; then
     mv base.apk pokemongo_armeabi-v7a_${version}_base.apk
     mv split_config.armeabi-v7a.apk pokemongo_armeabi-v7a_${version}_split.apk
     # Move the final files to the target directory
-    mv pokemongo_armeabi_v7a_${version}_*.apk "$output_dir/"
+    mv pokemongo_armeabi-v7a_${version}_*.apk "$output_dir/"
     # Delete all files that are not the script itself
     find . -type f ! -name "*.sh" -exec rm -rf {} +
 else
