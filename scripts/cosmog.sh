@@ -54,22 +54,22 @@ echo "`date +%Y-%m-%d_%T` cosmog.sh: executing $(basename $0) $@" >> $logfile
 
 # logger
 logger() {
-if [[ ! -z $discord_webhook ]] ;then
-  echo "`date +%Y-%m-%d_%T` cosmog.sh: $1" >> $logfile
-  if [[ -z $origin ]] ;then
-    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"cosmog.sh\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
+  if [[ ! -z $discord_webhook ]] ;then
+    echo "`date +%Y-%m-%d_%T` cosmog.sh: $1" >> $logfile
+    if [[ -z $origin ]] ;then
+      curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"cosmog.sh\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
+    else
+      curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"cosmog.sh\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
+    fi
   else
-    curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"cosmog.sh\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
+    echo "`date +%Y-%m-%d_%T` cosmog.sh: $1" >> $logfile
   fi
-else
-  echo "`date +%Y-%m-%d_%T` cosmog.sh: $1" >> $logfile
-fi
 }
 
 reboot_device(){
-logger "rebooting device"
-sleep 2
-/system/bin/reboot
+  logger "rebooting device"
+  sleep 2
+  /system/bin/reboot
 }
 
 case "$(uname -m)" in
@@ -126,7 +126,7 @@ EOF
     logger "55cosmog.rc installed"
 fi
 
-# install cosmog monitor
+  # install cosmog monitor
   until $download /system/bin/cosmog_monitor.sh $url/scripts/cosmog_monitor.sh || { logger "download cosmog_monitor.sh failed, exit script" ; exit 1; } ;do
     sleep 2
   done
@@ -190,6 +190,7 @@ fi
   magisk --sqlite "REPLACE INTO policies (uid,policy,until,logging,notification) VALUES($auid,2,0,1,0)"
   #pm grant com.nianticlabs.pokemongo.ares android.permission.READ_EXTERNAL_STORAGE
   #pm grant com.nianticlabs.pokemongo.ares android.permission.WRITE_EXTERNAL_STORAGE
+
   logger "cosmog granted su and settings set"
 
   # add common packages to denylist
@@ -203,6 +204,7 @@ fi
   i=1
   while [ $i -le 100 ]; do
     magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.nianticlabs.pokemongo.ares','com.nianticlabs.pokemongo.ares:worker$i');"
+
     i=$((i + 1))
   done
 
