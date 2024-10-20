@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.9.3
+# version 1.9.4
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -35,7 +35,7 @@ while true
     monitor=$([ -f /system/bin/cosmog_monitor.sh ] && head -2 /system/bin/cosmog_monitor.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     whversion=$([ -f /system/bin/CosmogDetailsSender.sh ] && head -2 /system/bin/CosmogDetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-    MITMv=$(dumpsys package com.sy1vi3.cosmog | grep versionName | head -n1 | sed 's/ *versionName=//')
+    MITMv=$(dumpsys package com.nianticlabs.pokemongo.ares | grep versionName | head -n1 | sed 's/ *versionName=//')
     temperature=$(cat /sys/class/thermal/thermal_zone0/temp | cut -c -2)
     magisk=$(magisk -c | sed 's/:.*//')
     macw=$([ -d /sys/class/net/wlan0 ] && ifconfig wlan0 |grep 'HWaddr' |awk '{ print ($NF) }' || echo 'na')
@@ -50,7 +50,7 @@ while true
     memFree=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
     memAv=$(cat /proc/meminfo | grep MemAvailable | awk '{print $2}')
     memPogo=$(dumpsys meminfo 'com.nianticlabs.pokemongo' | grep -m 1 "TOTAL" | awk '{print $2}')
-    memMITM=$(dumpsys meminfo 'com.sy1vi3.cosmog:mapping' | grep -m 1 "TOTAL" | awk '{print $2}')
+    memMITM=$(dumpsys meminfo 'com.nianticlabs.pokemongo.ares:mapping' | grep -m 1 "TOTAL" | awk '{print $2}')
     cpuL5=$(dumpsys cpuinfo | grep "Load" | awk '{ print $2 }')
     cpuL10=$(dumpsys cpuinfo | grep "Load" | awk '{ print $4 }')
     cpuL15=$(dumpsys cpuinfo | grep "Load" | awk '{ print $6 }')
@@ -86,7 +86,7 @@ if [ $android_version -ge 9 ]; then
     cpuSys=$(top -n 1 | grep %sys | awk 'NR == 1 {sub(/%sys/, "", $4); print $4}')
     cpuUser=$(top -n 1 | grep %user | awk 'NR == 1 {sub(/%user/, "", $2); print $2}')
     cpuPogoPct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo' | awk '{print substr($1, 1, length($1)-1)}')
-    cpuApct=$(dumpsys cpuinfo | grep 'com.sy1vi3.cosmog' | awk 'NR == 1 {sub(/%/, "", $1); print $1}')
+    cpuApct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo.ares' | awk 'NR == 1 {sub(/%/, "", $1); print $1}')
     #Still not sure about these
     diskSysPct=$(df -h | grep /dev/root | awk 'NR == 1 {sub("%", "", $5); print $5}')
     diskDataPct=$(df -h | grep /data/media | awk 'NR == 1 {sub("%", "", $5); print $5}')
@@ -96,7 +96,7 @@ else
     cpuSys=$(top -n 1 | grep -m 1 "System" | awk '{print substr($2, 1, length($2)-2)}')
     cpuUser=$(top -n 1 | grep -m 1 "User" | awk '{print substr($2, 1, length($2)-2)}')
     cpuPogoPct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo' | awk '{print substr($1, 1, length($1)-1)}')
-    cpuApct=$(dumpsys cpuinfo | grep 'com.sy1vi3.cosmog' | awk '{print substr($1, 1, length($1)-1)}')
+    cpuApct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo.ares' | awk '{print substr($1, 1, length($1)-1)}')
     diskSysPct=$(df -h | grep /sbin/.magisk/mirror/system | awk '{print substr($5, 1, length($5)-1)}')
     diskDataPct=$(df -h | grep /sbin/.magisk/mirror/data | awk '{print substr($5, 1, length($5)-1)}')
     magisk_modules=$(ls -1 /sbin/.magisk/img | xargs | sed -e 's/ /, /g' 2>/dev/null)

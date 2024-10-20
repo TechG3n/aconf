@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.2.3
+# version 2.2.5
 
 #Version checks
 Ver42aegis="1.6"
@@ -267,8 +267,12 @@ if [[ $pinstalled != $pversions ]] ;then
     downgrade_pogo
   else
     logger "new pogo version detected, $pinstalled=>$pversions"
-    /system/bin/rm -f /sdcard/Download/pogo.apk
-    until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "download pogo failed, exit script" ; exit 1; } ;do
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
+    until $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo base failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    sleep 1
+    until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     # set pogo to be installed
@@ -322,8 +326,8 @@ if [ ! -z "$aegis_install" ] && [ ! -z "$pogo_install" ] ;then
   if [ "$pogo_install" = "install" ] ;then
     logger "updating pogo"
     # install pogo
-    /system/bin/pm install -r /sdcard/Download/pogo.apk || { logger "install pogo failed, downgrade perhaps? Exit script" ; exit 1; }
-    /system/bin/rm -f /sdcard/Download/pogo.apk
+    /system/bin/pm install -r /sdcard/Download/pogo_base.apk && /system/bin/pm install -p com.nianticlabs.pokemongo -r /sdcard/Download/pogo_split.apk || { logger "install pogo failed, downgrade perhaps? Exit script" ; exit 1; }
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
     reboot=1
   fi
   if [ "$aegis_install" != "install" ] && [ "$pogo_install" != "install" ] ; then
@@ -645,6 +649,14 @@ pintegrity=$(settings get global package_verifier_user_consent)
 if [[ $play_integrity != "false" ]] && [[ $pintegrity == 1 ]]; then
   settings put global package_verifier_user_consent -1
   logger "disabled PlayIntegrity APK verification"
+fi
+
+# disable APKM verification
+play_integrity=$(grep 'play_integrity' $aconf_versions | awk -F "=" '{ print $NF }')
+apkmverify=$(settings get global package_verifier_enable)
+if [[ $play_integrity != "false" ]] && [[ $apkmverify == 1 ]]; then
+  settings put global package_verifier_enable 0
+  logger "disabled APKM verification"
 fi
 
 # update playintegrityfix magisk modul if needed
