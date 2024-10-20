@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.4.1
+# version 2.4.2
 
 #Version checks
 Ver42cosmog="1.6"
@@ -435,12 +435,18 @@ downgrade_pogo(){
   pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
   pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
   if [[ $pinstalled != $pversions ]] ;then
-    until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "download pogo failed, exit script" ; exit 1; } ;do
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
+    until $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo base failed, exit script" ; exit 1; } ;do
       sleep 2
     done
+    sleep 1
+    until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+
     /system/bin/pm uninstall com.nianticlabs.pokemongo
-    /system/bin/pm install -r /sdcard/Download/pogo.apk
-    /system/bin/rm -f /sdcard/Download/pogo.apk
+    /system/bin/pm install -r /sdcard/Download/pogo_base.apk && /system/bin/pm install -p com.nianticlabs.pokemongo -r /sdcard/Download/pogo_split.apk || { logger "install pogo failed while downgrading. Exit script" ; exit 1; }
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
     logger "pogo removed and installed, now $pversions"
   else
     echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo version correct, proceed" >> $logfile
@@ -816,14 +822,7 @@ vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' |
 iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
 if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so ]] ;then
   logger "Cosmog Lib not matched, downloading new version"
-  rm -f /data/local/tmp/libNianticLabsPlugin.so_*
-  until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog lib file failed, exit script" ; exit 1; } ;do
-    sleep 2
-  done
-  #Move lib and set perms
-  cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so
-  chown root:root /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so
-  chmod 444 /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so
+  cosmog_lib
 else
   echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog lib already on correct version" >> $logfile
 fi
