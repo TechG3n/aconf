@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.4.2
+# version 2.4.3
 
 #Version checks
 Ver42cosmog="1.6"
@@ -322,6 +322,7 @@ update_all(){
   aversions=$(grep 'cosmog' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
   if [[ $pinstalled != $pversions ]] ;then
+    am force-stop com.nianticlabs.pokemongo.ares
     if [[ $(echo "$pinstalled" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') -gt $(echo "$pversions" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') ]]; then
       #This happens if playstore autoupdate is on or mad+rgc aren't configured correctly
       logger "pogo version is higher as it should, that shouldn't happen! ($pinstalled > $pversions)"
@@ -447,6 +448,7 @@ downgrade_pogo(){
     done
 
     /system/bin/pm uninstall com.nianticlabs.pokemongo
+    sleep 2
     /system/bin/pm install -r /sdcard/Download/pogo_base.apk && /system/bin/pm install -p com.nianticlabs.pokemongo -r /sdcard/Download/pogo_split.apk || { logger "install pogo failed while downgrading. Exit script" ; exit 1; }
     /system/bin/rm -f /sdcard/Download/pogo_*.apk
     logger "pogo removed and installed, now $pversions"
