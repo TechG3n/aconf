@@ -272,7 +272,7 @@ if [[ $pinstalled != $pversions ]] ;then
       sleep 2
     done
     sleep 1
-    until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
+    until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     # set pogo to be installed
