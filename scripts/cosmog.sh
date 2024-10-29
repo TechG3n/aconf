@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.4.3
+# version 2.4.4
 
 #Version checks
 Ver42cosmog="1.6"
