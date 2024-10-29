@@ -366,19 +366,26 @@ fi
 }
 
 downgrade_pogo(){
-pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
-if [[ $pinstalled != $pversions ]] ;then
-  until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "download pogo failed, exit script" ; exit 1; } ;do
+  pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
+  pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  if [[ $pinstalled != $pversions ]] ;then
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
+    until $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo base failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    sleep 1
+    until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+
+    /system/bin/pm uninstall com.nianticlabs.pokemongo
     sleep 2
-  done
-  /system/bin/pm uninstall com.nianticlabs.pokemongo
-  /system/bin/pm install -r /sdcard/Download/pogo.apk
-  /system/bin/rm -f /sdcard/Download/pogo.apk
-  logger "pogo removed and installed, now $pversions"
-else
-  echo "`date +%Y-%m-%d_%T` aegis.sh: pogo version correct, proceed" >> $logfile
-fi
+    /system/bin/pm install -r /sdcard/Download/pogo_base.apk && /system/bin/pm install -p com.nianticlabs.pokemongo -r /sdcard/Download/pogo_split.apk || { logger "install pogo failed while downgrading. Exit script" ; exit 1; }
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
+    logger "pogo removed and installed, now $pversions"
+  else
+    echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo version correct, proceed" >> $logfile
+  fi
 }
 
 send_logs(){
