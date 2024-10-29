@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.4.4
+# version 2.4.7
 
 #Version checks
 Ver42cosmog="1.6"
@@ -185,6 +185,10 @@ fi
   /system/bin/rm -f /sdcard/Download/cosmog.apk
   logger "cosmog installed"
 
+  am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
+  sleep 15
+  am force-stop com.nianticlabs.pokemongo.ares
+
   # Grant su access + settings
   auid="$(dumpsys package com.nianticlabs.pokemongo.ares | grep userId | awk -F'=' '{print $2}')"
   magisk --sqlite "REPLACE INTO policies (uid,policy,until,logging,notification) VALUES($auid,2,0,1,0)"
@@ -195,16 +199,15 @@ fi
 
   # add common packages to denylist
   magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.android.vending','com.android.vending');"
-  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.google.android.gms','com.google.android.gms');"
-  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.google.android.gms.setup','com.google.android.gms.setup');"
-  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.google.android.gsf','com.google.android.gsf');"
+  magisk --sqlite "DELETE FROM denylist (package_name='com.google.android.gms');"
+  magisk --sqlite "DELETE FROM denylist (package_name='com.google.android.gms.setup');"
+  #magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.google.android.gsf','com.google.android.gsf');"
   magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.nianticlabs.pokemongo','com.nianticlabs.pokemongo');"
 
   # add cosmog workers to denylist
   i=1
   while [ $i -le 100 ]; do
     magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.nianticlabs.pokemongo.ares','com.nianticlabs.pokemongo.ares:worker$i');"
-
     i=$((i + 1))
   done
 
@@ -214,6 +217,14 @@ fi
   # enable denylist
   magisk --sqlite "REPLACE INTO settings (key,value) VALUES('denylist',1);"
   magisk --denylist enable
+
+  #global settings
+  settings put global policy_control 'immersive.navigation=*'
+  settings put global policy_control 'immersive.full=*'
+  settings put secure immersive_mode_confirmations confirmed
+  settings put global heads_up_enabled 0
+  settings put global bluetooth_disabled_profiles 1
+  settings put global bluetooth_on 0
 
   #download newest cosmog lib file
   cosmog_lib
@@ -826,11 +837,13 @@ fi
 # check cosmog lib ver
 vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
 iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
-if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so ]] ;then
-  logger "Cosmog Lib not matched, downloading new version"
-  cosmog_lib
-else
-  echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog lib already on correct version" >> $logfile
+if [[ -d /data/data/com.nianticlabs.pokemongo.ares ]] ;then
+  if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so ]] ;then
+    logger "Cosmog Lib not matched, downloading new version"
+    cosmog_lib
+  else
+    echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog lib already on correct version" >> $logfile
+  fi
 fi
 
 
