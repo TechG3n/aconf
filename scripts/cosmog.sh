@@ -448,7 +448,9 @@ downgrade_pogo(){
     done
 
     /system/bin/pm uninstall com.nianticlabs.pokemongo
-    sleep 2
+    sleep 1
+    am force-stop com.nianticlabs.pokemongo.ares
+    sleep 1
     /system/bin/pm install -r /sdcard/Download/pogo_base.apk && /system/bin/pm install -p com.nianticlabs.pokemongo -r /sdcard/Download/pogo_split.apk || { logger "install pogo failed while downgrading. Exit script" ; exit 1; }
     /system/bin/rm -f /sdcard/Download/pogo_*.apk
     logger "pogo removed and installed, now $pversions"
