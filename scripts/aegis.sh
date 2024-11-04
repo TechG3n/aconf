@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.2.6
+# version 2.2.7
 
 #Version checks
 Ver42aegis="1.6"
@@ -334,6 +334,14 @@ if [ ! -z "$aegis_install" ] && [ ! -z "$pogo_install" ] ;then
     echo "`date +%Y-%m-%d_%T` aegis.sh: updates checked, nothing to install" >> $logfile
   fi
 fi
+
+# Force re-download of the config file at the next reboot. Turned on via versions file, should be turned off again
+loop_protect_enabled=$(grep 'loop_protect_enabled' $aconf_versions | awk -F "=" '{ print $NF }')
+if [[ $loop_protect_enabled == "true" ]] ;then
+  logger "Forcing config reload - Don't forget to turn it back off!"
+  install_config
+fi
+
 }
 
 check_rgc(){

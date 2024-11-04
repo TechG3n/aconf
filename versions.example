@@ -34,9 +34,10 @@ unable_check_status=true
 pogo_not_focused=false
 healthcheck_errors=true
 
-# Settings for [mitm].sh]
+# Settings for [mitm].sh
 play_integrity=true
 loop_protect_enabled=true
+force_config_update=false
 proxy_address=""
 set_proxy_only_in_same_network=true
 PIF_module="16.7"

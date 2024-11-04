@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.4.7
+# version 2.5.0
 
 #Version checks
 Ver42cosmog="1.6"
@@ -414,6 +414,14 @@ update_all(){
       echo "`date +%Y-%m-%d_%T` cosmog.sh: updates checked, nothing to install" >> $logfile
     fi
   fi
+
+  # Force re-download of the config file at the next reboot. Turned on via versions file, should be turned off again
+  loop_protect_enabled=$(grep 'loop_protect_enabled' $aconf_versions | awk -F "=" '{ print $NF }')
+  if [[ $loop_protect_enabled == "true" ]] ;then
+    logger "Forcing config reload - Don't forget to turn it back off!"
+    install_config
+  fi
+
 }
 
 check_rgc(){
