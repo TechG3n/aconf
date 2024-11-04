@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.5.0
+# version 2.5.1
 
 #Version checks
 Ver42cosmog="1.6"
@@ -416,8 +416,8 @@ update_all(){
   fi
 
   # Force re-download of the config file at the next reboot. Turned on via versions file, should be turned off again
-  loop_protect_enabled=$(grep 'loop_protect_enabled' $aconf_versions | awk -F "=" '{ print $NF }')
-  if [[ $loop_protect_enabled == "true" ]] ;then
+  force_config_update=$(grep 'force_config_update' $aconf_versions | awk -F "=" '{ print $NF }')
+  if [[ $force_config_update == "true" ]] ;then
     logger "Forcing config reload - Don't forget to turn it back off!"
     install_config
   fi

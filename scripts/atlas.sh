@@ -336,8 +336,8 @@ if [ ! -z "$atlas_install" ] && [ ! -z "$pogo_install" ] ;then
 fi
 
 # Force re-download of the config file at the next reboot. Turned on via versions file, should be turned off again
-loop_protect_enabled=$(grep 'loop_protect_enabled' $aconf_versions | awk -F "=" '{ print $NF }')
-if [[ $loop_protect_enabled == "true" ]] ;then
+force_config_update=$(grep 'force_config_update' $aconf_versions | awk -F "=" '{ print $NF }')
+if [[ $force_config_update == "true" ]] ;then
   logger "Forcing config reload - Don't forget to turn it back off!"
   install_config
 fi
