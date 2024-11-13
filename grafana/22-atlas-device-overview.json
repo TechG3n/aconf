@@ -171,7 +171,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 109
+                "value": 120
               }
             ]
           },
@@ -280,6 +280,18 @@
               {
                 "id": "custom.width",
                 "value": 89
+              }
+            ]
+          },
+		  {
+            "matcher": {
+              "id": "byName",
+              "options": "mitmv"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
               }
             ]
           },
@@ -490,7 +502,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "atlasSh"
+              "options": "MITMSh"
             },
             "properties": [
               {
@@ -550,7 +562,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "atlas"
+              "options": "MITM"
             },
             "properties": [
               {
@@ -559,10 +571,22 @@
               }
             ]
           },
+		  {
+            "matcher": {
+              "id": "byName",
+              "options": "MITMv"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 105
+              }
+            ]
+          },
           {
             "matcher": {
               "id": "byName",
-              "options": "atlas.sh"
+              "options": "MITMsh"
             },
             "properties": [
               {
@@ -602,7 +626,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\na.deviceName,\nifnull(a.ip,'no_data') as 'ip',\nifnull(a.arch,'no_data') as 'arch',\nifnull(a.productmodel,'no_data') as 'productmodel',\nifnull(a.pogo,'no_data') as 'pogo',\nifnull(a.atlas,'no_data') as 'atlas',\natlasSh as 'atlas.sh',\n55atlas as '55vm',\nwhversion as 'wh',\nmonitor,\nplaystore,\nproxyinfo as 'proxy',\ndiskSysPct,\ndiskDataPct,\nnumPogo,\ntemperature as 'temp',\nconvert_tz(timestamp,@@session.time_zone, '+00:00') as 'lastUpdate'\n-- timestamp as 'lastUpdate'\nFROM ATVsummary a\nORDER BY a.deviceName ASC\n",
+          "rawSql": "SELECT\na.deviceName,\nifnull(a.ip,'no_data') as 'ip',\nifnull(a.arch,'no_data') as 'arch',\nifnull(a.productmodel,'no_data') as 'productmodel',\nifnull(a.pogo,'no_data') as 'pogo',\nifnull(a.MITM,'no_data') as 'MITM',\nifnull(a.MITMv,'no_data') as 'MITMv',\nMITMSh as 'MITM.sh',\n55MITM as '55vm',\nwhversion as 'wh',\nmonitor,\nplaystore,\nproxyinfo as 'proxy',\ndiskSysPct,\ndiskDataPct,\nnumPogo,\ntemperature as 'temp',\nconvert_tz(timestamp,@@session.time_zone, '+00:00') as 'lastUpdate'\n-- timestamp as 'lastUpdate'\nFROM ATVsummary a\nORDER BY a.deviceName ASC\n",
           "refId": "A",
           "select": [
             [
@@ -642,7 +666,7 @@
     "hidden": true
   },
   "timezone": "",
-  "title": "22. Atlas device overview",
+  "title": "22. Device overview",
   "uid": "RVgxODPGz",
   "version": 5,
   "weekStart": ""

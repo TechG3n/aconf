@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.2.3
+# version 2.2.7
 
 #Version checks
 Ver42atlas="1.6"
@@ -267,8 +267,12 @@ if [[ $pinstalled != $pversions ]] ;then
     downgrade_pogo
   else
     logger "new pogo version detected, $pinstalled=>$pversions"
-    /system/bin/rm -f /sdcard/Download/pogo.apk
-    until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "download pogo failed, exit script" ; exit 1; } ;do
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
+    until $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo base failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    sleep 1
+    until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     # set pogo to be installed
@@ -322,14 +326,22 @@ if [ ! -z "$atlas_install" ] && [ ! -z "$pogo_install" ] ;then
   if [ "$pogo_install" = "install" ] ;then
     logger "updating pogo"
     # install pogo
-    /system/bin/pm install -r /sdcard/Download/pogo.apk || { logger "install pogo failed, downgrade perhaps? Exit script" ; exit 1; }
-    /system/bin/rm -f /sdcard/Download/pogo.apk
+    /system/bin/pm install -r /sdcard/Download/pogo_base.apk && /system/bin/pm install -p com.nianticlabs.pokemongo -r /sdcard/Download/pogo_split.apk || { logger "install pogo failed, downgrade perhaps? Exit script" ; exit 1; }
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
     reboot=1
   fi
   if [ "$atlas_install" != "install" ] && [ "$pogo_install" != "install" ] ; then
     echo "`date +%Y-%m-%d_%T` atlas.sh: updates checked, nothing to install" >> $logfile
   fi
 fi
+
+# Force re-download of the config file at the next reboot. Turned on via versions file, should be turned off again
+force_config_update=$(grep 'force_config_update' $aconf_versions | awk -F "=" '{ print $NF }')
+if [[ $force_config_update == "true" ]] ;then
+  logger "Forcing config reload - Don't forget to turn it back off!"
+  install_config
+fi
+
 }
 
 check_rgc(){
@@ -362,19 +374,28 @@ fi
 }
 
 downgrade_pogo(){
-pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
-if [[ $pinstalled != $pversions ]] ;then
-  until $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo.apk $url/apk/pokemongo_$arch\_$pversions.apk" >> $logfile ; logger "download pogo failed, exit script" ; exit 1; } ;do
-    sleep 2
-  done
-  /system/bin/pm uninstall com.nianticlabs.pokemongo
-  /system/bin/pm install -r /sdcard/Download/pogo.apk
-  /system/bin/rm -f /sdcard/Download/pogo.apk
-  logger "pogo removed and installed, now $pversions"
-else
-  echo "`date +%Y-%m-%d_%T` atlas.sh: pogo version correct, proceed" >> $logfile
-fi
+  pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
+  pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  if [[ $pinstalled != $pversions ]] ;then
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
+    until $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo base failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    sleep 1
+    until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+
+    /system/bin/pm uninstall com.nianticlabs.pokemongo
+    sleep 1
+    am force-stop com.pokemod.atlas
+    sleep 1
+    /system/bin/pm install -r /sdcard/Download/pogo_base.apk && /system/bin/pm install -p com.nianticlabs.pokemongo -r /sdcard/Download/pogo_split.apk || { logger "install pogo failed while downgrading. Exit script" ; exit 1; }
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
+    logger "pogo removed and installed, now $pversions"
+  else
+    echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo version correct, proceed" >> $logfile
+  fi
 }
 
 send_logs(){
@@ -645,6 +666,14 @@ pintegrity=$(settings get global package_verifier_user_consent)
 if [[ $play_integrity != "false" ]] && [[ $pintegrity == 1 ]]; then
   settings put global package_verifier_user_consent -1
   logger "disabled PlayIntegrity APK verification"
+fi
+
+# disable APKM verification
+play_integrity=$(grep 'play_integrity' $aconf_versions | awk -F "=" '{ print $NF }')
+apkmverify=$(settings get global package_verifier_enable)
+if [[ $play_integrity != "false" ]] && [[ $apkmverify == 1 ]]; then
+  settings put global package_verifier_enable 0
+  logger "disabled APKM verification"
 fi
 
 # set proxy server

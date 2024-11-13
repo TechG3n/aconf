@@ -1,10 +1,10 @@
 pogo=0.307.1
 atlas=v24040401-rev2
 aegis=v24042801
-cosmog=1.2.2
+cosmog=1.5.0
 atlas_md5=35d5c450a5faa64cf217aba6a90998e4
 aegis_md5=77730ca9c41470fade2d4f2f2c4f81cb
-cosmog_md5=9a837f1c68fc191ed53657a17c0376dd
+cosmog_md5=3046580f7a7f1f49c4cf249452efbd12
 rgc=off
 
 # Settings for monitor script
@@ -34,12 +34,13 @@ unable_check_status=true
 pogo_not_focused=false
 healthcheck_errors=true
 
-# Settings for [mitm].sh]
+# Settings for [mitm].sh
 play_integrity=true
 loop_protect_enabled=true
+force_config_update=false
 proxy_address=""
 set_proxy_only_in_same_network=true
-PIF_module="14.5"
+PIF_module="16.7"
 FingerPrintVersion="1"
 CustomeJob="0"
-cosmog_libVerion="0.307.1"
+cosmog_libVerion="0.317.0"

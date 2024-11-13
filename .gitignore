@@ -2,10 +2,12 @@ versions
 mac2name
 *config.json
 wh_receiver/config.ini
-apk/*
+apk/*.apk
+apk/bundles/*
 modules/*.json
 modules/lib*
 jobs/*.sh
 
 # exceptions
 !apk/.gitkeep
+!apk/bundles/bundles.sh
