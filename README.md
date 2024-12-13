@@ -95,6 +95,7 @@ flush privileges;
 2. Prepare aconf settings and start sender:
 - Adjust versions file settings for atvdetails sender
 - Execute /system/bin/atlas.sh to update to latest version, add webhook sender and start it
+- Don't use Magisk Modules which alter grep, awk and other binaries - this will cause problems with the DetailsSenders.
 
 3. Grafana Installation:
 - To visualize the ATV information sent from aconf, set up Grafana.
