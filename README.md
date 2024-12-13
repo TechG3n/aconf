@@ -105,4 +105,4 @@ Default port is 3000 and you can expose Grafana to the web for easy access.
 
 - In Grafana web interface, create a data source on your stats database (make sure your user can access the database). Click on “Save & test” to check connection.
 
-- Finally, you can import the dashboards (20_atlas_atv_performance.json.default,21_atlas_atvdetails_overview.json.default,22_atlas_device_overview.json.default), they can be found at <https://github.com/dkmur/rdmStats/tree/master/default_files>. You can do this by selecting, in the Grafana sidebar, `Dashboards -> + Import`. Select, one at a time, the three dashboards to import to Grafana.
+- Finally, you can import the dashboards from the grafana folder in this repo. You can do this by selecting, in the Grafana sidebar, `Dashboards -> + Import`. Select, one at a time, the three dashboards to import to Grafana.
