@@ -1816,7 +1816,7 @@
           "hide": false,
           "metricColumn": "memVM",
           "rawQuery": true,
-          "rawSql": "SELECT\n  $__timeGroupAlias(timestamp,$__interval,NULL),\n  memAtlas AS metric,\n  deviceName AS \"deviceName\"\nFROM ATVstats\nWHERE\n  $__timeFilter(timestamp) AND\n  deviceName IN ($ATV) AND\n  RPL = $RPL\n-- GROUP BY 1,2\nORDER BY $__timeGroup(timestamp,$__interval,NULL)",
+          "rawSql": "SELECT\n  $__timeGroupAlias(timestamp,$__interval,NULL),\n  memMITM AS metric,\n  deviceName AS \"deviceName\"\nFROM ATVstats\nWHERE\n  $__timeFilter(timestamp) AND\n  deviceName IN ($ATV) AND\n  RPL = $RPL\n-- GROUP BY 1,2\nORDER BY $__timeGroup(timestamp,$__interval,NULL)",
           "refId": "A",
           "select": [
             [
@@ -1873,7 +1873,7 @@
           ]
         }
       ],
-      "title": "MemUsage Attlas",
+      "title": "MemUsage Atlas",
       "type": "timeseries"
     },
     {
