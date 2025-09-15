@@ -234,10 +234,6 @@ fi
   # supress 'pink screen'
   opengl_warning
 
-  # start cosmog
-  cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
-  sleep 10
-
   # Set for reboot device
   reboot=1
 
@@ -580,7 +576,7 @@ fi
 if [[ -d /data/local/tmp/cos ]] && [[ ! -s $aconf ]] ;then
   install_config
   pkill -9 -f 'com\.nianticlabs\.pokemongo'
-  sleep 1
+  sleep 3
   cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
 fi
 
@@ -614,6 +610,7 @@ fi
 cosmog_check=$(pgrep -fl -f 'com\.nianticlabs\.pokemongo')
 if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
   logger "cosmog not running at execution of cosmog.sh, starting it"
+  pkill -9 -f 'com\.nianticlabs\.pokemongo'
   cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
 fi
 
