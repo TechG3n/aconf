@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.1
+# version 1.2
 
 #Create logfile
 if [ ! -e /sdcard/aconf.log ] ;then
@@ -9,4 +9,4 @@ echo "" >> /sdcard/aconf.log
 echo "`date +%Y-%m-%d_%T` Device rebooted" >> /sdcard/aconf.log
 
 # execute atlas.sh
-sh -x /system/bin/cosmog.sh -ua
+cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &

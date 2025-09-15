@@ -1,12 +1,12 @@
 #!/system/bin/sh
-# version 1.9.4
+# version 2.0.0
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
 
 #Configs
-cosmog_conf="/data/local/tmp/cosmog.json"
-cosmog_log="/data/local/tmp/cosmog.log"
+cosmog_conf="/data/local/tmp/cos/cosmog.json"
+cosmog_log="/data/local/tmp/cos/cosmog.log"
 aconf_log="/sdcard/aconf.log"
 monitor_log="/sdcard/cosmog_monitor.log"
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
@@ -24,9 +24,9 @@ while true
     dos2unix $cosmog_conf
 
 # generic
-    MITM="cosmog"
+    MITM="cosmog2"
     RPL=$(($atvdetails_interval/60))
-    deviceName=$(cat $cosmog_conf | tr , '\n' | grep -w 'device_id' | awk -F "\"" '{ print $4 }')
+    deviceName=$(cat $cosmog_conf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
     MITMSh=$(head -2 /system/bin/cosmog.sh | grep '# version' | awk '{ print $NF }')
@@ -34,8 +34,8 @@ while true
     MITM42=$([ -f /system/etc/init.d/42cosmog ] && head -2 /system/etc/init.d/42cosmog | grep '# version' | awk '{ print $NF }' || echo 'na')
     monitor=$([ -f /system/bin/cosmog_monitor.sh ] && head -2 /system/bin/cosmog_monitor.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     whversion=$([ -f /system/bin/CosmogDetailsSender.sh ] && head -2 /system/bin/CosmogDetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
-    pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
-    MITMv=$(dumpsys package com.nianticlabs.pokemongo.ares | grep versionName | head -n1 | sed 's/ *versionName=//')
+    pogo=0
+    MITMv=$(head -n1 /data/local/tmp/cos/cos.version)
     temperature=$(cat /sys/class/thermal/thermal_zone0/temp | cut -c -2)
     magisk=$(magisk -c | sed 's/:.*//')
     macw=$([ -d /sys/class/net/wlan0 ] && ifconfig wlan0 |grep 'HWaddr' |awk '{ print ($NF) }' || echo 'na')
@@ -49,8 +49,8 @@ while true
     memTot=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
     memFree=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
     memAv=$(cat /proc/meminfo | grep MemAvailable | awk '{print $2}')
-    memPogo=$(dumpsys meminfo 'com.nianticlabs.pokemongo' | grep -m 1 "TOTAL" | awk '{print $2}')
-    memMITM=$(dumpsys meminfo 'com.nianticlabs.pokemongo.ares:mapping' | grep -m 1 "TOTAL" | awk '{print $2}')
+    memPogo=0
+    memMITM=0
     cpuL5=$(dumpsys cpuinfo | grep "Load" | awk '{ print $2 }')
     cpuL10=$(dumpsys cpuinfo | grep "Load" | awk '{ print $4 }')
     cpuL15=$(dumpsys cpuinfo | grep "Load" | awk '{ print $6 }')
