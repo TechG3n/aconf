@@ -6,7 +6,7 @@
 
 logfile="/sdcard/cosmog_monitor.log"
 aconf="/data/local/tmp/cos/cosmog.toml"
-origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
+origin=$(cat $aconf | tr , '\n' | grep -w 'device_Name' | awk -F "\"" '{ print $4 }')
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 cosmogdead=0
 pogodead=0

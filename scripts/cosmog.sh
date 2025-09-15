@@ -26,7 +26,7 @@ if [[ -z $discord_webhook ]] ;then
   discord_webhook=$(grep discord_webhook /data/local/aconf_download | awk -F "=" '{ print $NF }' | sed -e 's/^"//' -e 's/"$//')
 fi
 
-if [[ -f /data/local/tmp/cos/cosmog.toml ]] ;then
+if [[ -f /data/local/tmp/cos/config.toml ]] ;then
 # origin=$(grep -w 'deviceName' $aconf | awk -F "\"" '{ print $4 }')
   origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
 else
@@ -247,7 +247,7 @@ fi
 }
 
 install_config(){
-  until $download /data/local/tmp/cos/config.toml $url/cosmog_config.toml || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/cosmog.toml $url/cosmog_config.toml" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
+  until $download /data/local/tmp/cos/config.toml $url/cosmog_config.toml || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/config.toml $url/cosmog_config.toml" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   if [[ ! -z $origin ]] ;then
@@ -264,7 +264,7 @@ update_cosmog_config(){
   if [[ -z $origin ]] ;then
     logger "will not replace cosmog config file without deviceName being set"
   else
-    until $download /data/local/tmp/cos/cosmog.toml $url/cosmog_config.toml || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/cosmog.toml $url/cosmog_config.toml" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
+    until $download /data/local/tmp/cos/config.toml $url/cosmog_config.toml || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/config.toml $url/cosmog_config.toml" >> $logfile ; logger "download cosmog config file failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     sed -i 's,dummy,'$origin',g' $aconf
@@ -611,7 +611,7 @@ fi
 
 # check cosmog running
 cosmog_check=$(ps -e | grep com.nianticlabs.pokemongo.ares | awk '{print $9}')
-if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cos/cosmog.toml ]] ;then
+if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
   logger "cosmog not running at execution of cosmog.sh, starting it"
   am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
 fi
