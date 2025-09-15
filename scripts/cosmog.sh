@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.0
+# version 3.0.1
 
 #Version checks
 Ver42cosmog="1.6"
@@ -160,7 +160,10 @@ fi
   pm clear com.nianticlabs.pokemongo
 
   # Install cosmog
-  mkdir -p /data/local/tmp/cos/lib
+  if [ ! -d "/data/local/tmp/cos" ]; then
+    mkdir -p "/data/local/tmp/cos"
+    mkdir -p "/data/local/tmp/cos/lib"
+  fi
   sleep 2
   mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos
   chmod +x /data/local/tmp/cos/com.nianticlabs.pokemongo
@@ -229,7 +232,8 @@ fi
 
   # check pogo version else remove+install
   if /system/bin/pm list packages | grep -q "^package:com.nianticlabs.pokemongo$"; then
-  /system/bin/pm uninstall com.nianticlabs.pokemongo >/dev/null 2>&1 || true
+    /system/bin/pm uninstall com.nianticlabs.pokemongo >/dev/null 2>&1 || true
+    /system/bin/pm uninstall com.nianticlabs.pokemongo.ares >/dev/null 2>&1 || true
   fi
 
   # supress 'pink screen'
@@ -323,6 +327,7 @@ update_all(){
       sleep 2
     done
     /system/bin/rm -f /data/local/tmp/cos/com.nianticlabs.pokemongo
+    sleep 2
     mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos
     chmod +x /data/local/tmp/cos/com.nianticlabs.pokemongo
     echo $aversions > /data/local/tmp/cos/cos.version
@@ -706,7 +711,7 @@ fi
 # check cosmog lib ver
 vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
 iLibVer=$(find /data/local/tmp/cos/lib -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
-if [[ -d /data/local/tmp/cos/lib/lib ]] ;then
+if [[ -d /data/local/tmp/cos/lib ]] ;then
   if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
     logger "Cosmog Lib not matched, downloading new version"
     cosmog_lib
