@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.1
+# version 3.0.4
 
 #Version checks
 Ver42cosmog="1.6"
@@ -161,11 +161,10 @@ fi
 
   # Install cosmog
   if [ ! -d "/data/local/tmp/cos" ]; then
-    mkdir -p "/data/local/tmp/cos"
-    mkdir -p "/data/local/tmp/cos/lib"
+    mkdir -p /data/local/tmp/cos/lib
   fi
   sleep 2
-  mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos
+  mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos/
   chmod +x /data/local/tmp/cos/com.nianticlabs.pokemongo
   echo $aversions > /data/local/tmp/cos/cos.version
 
@@ -319,6 +318,11 @@ update_all(){
   ainstalled=$(head -n1 /data/local/tmp/cos/cos.version)
   aversions=$(grep 'cosmog' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
+  if [[ ! -d /data/local/tmp/cos/lib ]] ;then
+    mkdir -p /data/local/tmp/cos/lib
+    logger "asdf 0"
+  fi
+
   if [[ -z $ainstalled ]] || [[ $ainstalled != $aversions ]] ;then
     logger "new cosmog version detected, $ainstalled=>$aversions"
     /system/bin/rm -f /sdcard/Download/cosmog.apk
@@ -326,9 +330,10 @@ update_all(){
     until $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
       sleep 2
     done
+    logger "asdf 1"
     /system/bin/rm -f /data/local/tmp/cos/com.nianticlabs.pokemongo
     sleep 2
-    mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos
+    mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos/
     chmod +x /data/local/tmp/cos/com.nianticlabs.pokemongo
     echo $aversions > /data/local/tmp/cos/cos.version
   else
@@ -341,6 +346,13 @@ update_all(){
   if [[ $force_config_update == "true" ]] ;then
     logger "Forcing config reload - Don't forget to turn it back off!"
     install_config
+  fi
+
+  # check cosmog running
+  cosmog_check=$(pgrep -fl -f 'com\.nianticlabs\.pokemongo')
+  if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
+    logger "cosmog not running, starting it"
+    cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
   fi
 
 }
@@ -616,7 +628,6 @@ fi
 cosmog_check=$(pgrep -fl -f 'com\.nianticlabs\.pokemongo')
 if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
   logger "cosmog not running at execution of cosmog.sh, starting it"
-  pkill -9 -f 'com\.nianticlabs\.pokemongo'
   cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
 fi
 

@@ -9,4 +9,4 @@ echo "" >> /sdcard/aconf.log
 echo "`date +%Y-%m-%d_%T` Device rebooted" >> /sdcard/aconf.log
 
 # execute atlas.sh
-cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
+sh -x /system/bin/cosmog.sh -ua
