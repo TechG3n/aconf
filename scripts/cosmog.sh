@@ -161,6 +161,7 @@ fi
 
   # Install cosmog
   mkdir -p /data/local/tmp/cos/lib
+  sleep 2
   mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos
   chmod +x /data/local/tmp/cos/com.nianticlabs.pokemongo
   echo $aversions > /data/local/tmp/cos/cos.version
