@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.4
+# version 3.0.1
 
 #Version checks
 Ver42cosmog="1.6"
@@ -320,7 +320,6 @@ update_all(){
 
   if [[ ! -d /data/local/tmp/cos/lib ]] ;then
     mkdir -p /data/local/tmp/cos/lib
-    logger "asdf 0"
   fi
 
   if [[ -z $ainstalled ]] || [[ $ainstalled != $aversions ]] ;then
@@ -330,7 +329,6 @@ update_all(){
     until $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    logger "asdf 1"
     /system/bin/rm -f /data/local/tmp/cos/com.nianticlabs.pokemongo
     sleep 2
     mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos/
