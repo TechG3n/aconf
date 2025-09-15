@@ -15,7 +15,7 @@ if [ ! -e /sdcard/aconf.log ] ;then
 fi
 
 logfile="/sdcard/aconf.log"
-aconf="/data/local/tmp/cosmog.json"
+aconf="/data/local/tmp/cos/config.toml"
 aconf_versions="/data/local/aconf_versions"
 aconf_mac2name="/data/local/aconf_mac2name"
 [[ -f /data/local/aconf_download ]] && url=$(grep url /data/local/aconf_download | awk -F "=" '{ print $NF }')
@@ -160,6 +160,7 @@ fi
   pm clear com.nianticlabs.pokemongo
 
   # Install cosmog
+  mkdir -p /data/local/tmp/cos/lib
   mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos
   chmod +x /data/local/tmp/cos/com.nianticlabs.pokemongo
   echo $aversions > /data/local/tmp/cos/cos.version
@@ -280,20 +281,20 @@ cosmog_lib(){
   if [[ ! -d /data/local/tmp/cos/lib ]] ;then
     mkdir -p /data/local/tmp/cos/lib
   fi
-  if [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so || ! -f /data/local/tmp/cos/lib/libart.so]] ;then
+  if [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so || ! -f /data/local/tmp/cos/lib/libart.so ]] ;then
     logger "Cosmog Lib not found, downloading it"
     rm -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so_*
     rm -f /data/local/tmp/cos/lib/libart.so_*
-    until $download /data/local/tmp/cos/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
+    until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    until $download /data/local/tmp/cos/libart.so_$vLibVer $url/modules/libart.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/libart.so_$vLibVer $url/modules/libart.so_$vLibVer" >> $logfile ; logger "download cosmog libart.so file failed, exit script" ; exit 1; } ;do
+    until $download /data/local/tmp/libart.so_$vLibVer $url/modules/libart.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/libart.so_$vLibVer $url/modules/libart.so_$vLibVer" >> $logfile ; logger "download cosmog libart.so file failed, exit script" ; exit 1; } ;do
       sleep 2
     done
   else
     iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
     iLibVer2=$(find /data/local/tmp/ -type f -name "libart.so_*" | cut -d '_' -f 2)
-    if [[ $vLibVer != $iLibVer || $iLibVer != $iLibVer2]] ;then
+    if [[ $vLibVer != $iLibVer || $iLibVer != $iLibVer2 ]] ;then
       logger "Cosmog Lib too old, downloading new version"
       rm -f /data/local/tmp/libNianticLabsPlugin.so_*
       rm -f /data/local/tmp/libart.so*
@@ -576,11 +577,11 @@ if [[ $origin != "" ]] ;then
 fi
 
 # check cosmog config file exists
-if [[ -d /data/data/com.nianticlabs.pokemongo.ares ]] && [[ ! -s $aconf ]] ;then
+if [[ -d /data/local/tmp/cos ]] && [[ ! -s $aconf ]] ;then
   install_config
-  am force-stop com.nianticlabs.pokemongo.ares
+  pkill -9 -f 'com\.nianticlabs\.pokemongo'
   sleep 1
-  am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
+  cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
 fi
 
 # check 16/42mad pogo autoupdate disabled
@@ -610,10 +611,10 @@ if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsu
 fi
 
 # check cosmog running
-cosmog_check=$(ps -e | grep com.nianticlabs.pokemongo.ares | awk '{print $9}')
+cosmog_check=$(pgrep -fl -f 'com\.nianticlabs\.pokemongo')
 if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
   logger "cosmog not running at execution of cosmog.sh, starting it"
-  am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
+  cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
 fi
 
 # check if playstore is enabled
@@ -706,9 +707,9 @@ fi
 
 # check cosmog lib ver
 vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
-iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
-if [[ -d /data/data/com.nianticlabs.pokemongo.ares ]] ;then
-  if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/data/com.nianticlabs.pokemongo.ares/files/libNianticLabsPlugin.so ]] ;then
+iLibVer=$(find /data/local/tmp/cos/lib -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
+if [[ -d /data/local/tmp/cos/lib/lib ]] ;then
+  if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
     logger "Cosmog Lib not matched, downloading new version"
     cosmog_lib
   else
