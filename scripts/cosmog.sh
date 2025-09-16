@@ -320,6 +320,7 @@ update_all(){
 
   if [[ ! -d /data/local/tmp/cos/lib ]] ;then
     mkdir -p /data/local/tmp/cos/lib
+    reboot=1
   fi
 
   if [[ -z $ainstalled ]] || [[ $ainstalled != $aversions ]] ;then
@@ -346,6 +347,12 @@ update_all(){
     install_config
   fi
 
+  # check pogo and remove
+  if /system/bin/pm list packages | grep -q "^package:com.nianticlabs.pokemongo$"; then
+    /system/bin/pm uninstall com.nianticlabs.pokemongo >/dev/null 2>&1 || true
+    /system/bin/pm uninstall com.nianticlabs.pokemongo.ares >/dev/null 2>&1 || true
+  fi
+
   # check cosmog running
   cosmog_check=$(pgrep -fl -f 'com\.nianticlabs\.pokemongo')
   if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
@@ -353,11 +360,6 @@ update_all(){
     cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
   fi
 
-  # check pogo and remove
-  if /system/bin/pm list packages | grep -q "^package:com.nianticlabs.pokemongo$"; then
-    /system/bin/pm uninstall com.nianticlabs.pokemongo >/dev/null 2>&1 || true
-    /system/bin/pm uninstall com.nianticlabs.pokemongo.ares >/dev/null 2>&1 || true
-  fi
 }
 
 
@@ -729,6 +731,7 @@ if [[ -d /data/local/tmp/cos/lib ]] ;then
   if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
     logger "Cosmog Lib not matched, downloading new version"
     cosmog_lib
+    reboot=1
   else
     echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog lib already on correct version" >> $logfile
   fi
