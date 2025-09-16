@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 4.0.0
+# version 4.0.1
 #set -x
 
 # Monitor by Oldmole && bbdoc
@@ -77,9 +77,9 @@ do
 
 		
 	cosmog_check=$(pgrep -fl -f 'com\.nianticlabs\.pokemongo')
-	if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cos/cosmog.toml ]] ;then
+	if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog not running, starting it" >> $logfile
-		cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
+		pkill -9 -f 'com\.nianticlabs\.pokemongo' && cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
 	fi
 	
 	sleep $monitor_interval
