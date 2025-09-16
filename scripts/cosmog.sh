@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.1
+# version 3.0.2
 
 #Version checks
 Ver42cosmog="1.6"
@@ -295,7 +295,7 @@ cosmog_lib(){
     iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
     iLibVer2=$(find /data/local/tmp/ -type f -name "libart.so_*" | cut -d '_' -f 2)
     if [[ $vLibVer != $iLibVer || $iLibVer != $iLibVer2 ]] ;then
-      logger "Cosmog Lib too old, downloading new version"
+      logger "Cosmog Lib too old, downloading new version $iLibVer -> $vLibVer"
       rm -f /data/local/tmp/libNianticLabsPlugin.so_*
       rm -f /data/local/tmp/libart.so*
       until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
@@ -726,10 +726,10 @@ fi
 
 # check cosmog lib ver
 vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
-iLibVer=$(find /data/local/tmp/cos/lib -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
+iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
 if [[ -d /data/local/tmp/cos/lib ]] ;then
   if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
-    logger "Cosmog Lib not matched, downloading new version"
+    logger "Cosmog Lib not matched, downloading new version $iLibVer -> $iLibVer"
     cosmog_lib
     reboot=1
   else
