@@ -353,6 +353,11 @@ update_all(){
     cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
   fi
 
+  # check pogo and remove
+  if /system/bin/pm list packages | grep -q "^package:com.nianticlabs.pokemongo$"; then
+    /system/bin/pm uninstall com.nianticlabs.pokemongo >/dev/null 2>&1 || true
+    /system/bin/pm uninstall com.nianticlabs.pokemongo.ares >/dev/null 2>&1 || true
+  fi
 }
 
 
