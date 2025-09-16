@@ -1,12 +1,12 @@
 #!/system/bin/sh
-# version 4.0.1
+# version 4.0.2
 #set -x
 
 # Monitor by Oldmole && bbdoc
 
 logfile="/sdcard/cosmog_monitor.log"
-aconf="/data/local/tmp/cos/cosmog.toml"
-origin=$(cat $aconf | tr , '\n' | grep -w 'device_Name' | awk -F "\"" '{ print $4 }')
+aconf="/data/local/tmp/cos/config.toml"
+origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 cosmogdead=0
 pogodead=0
@@ -75,7 +75,15 @@ do
 		sleep 60
 	done
 
-		
+	[[ -z $origin ]] && origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
+
+        updatecheck=$(($updatecheck+1))
+        if [[ $updatecheck -gt $update_check ]] ;then
+		echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Atlas and Pogo for update" >> $logfile
+		updatecheck=0
+		check_for_updates
+	fi
+
 	cosmog_check=$(pgrep -fl -f 'com\.nianticlabs\.pokemongo')
 	if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog not running, starting it" >> $logfile
