@@ -1,10 +1,10 @@
 #!/system/bin/sh
-# version 3.0.4
+# version 3.0.5
 
 #Version checks
 Ver42cosmog="1.6"
 Ver55cosmog="1.2"
-VerMonitor="4.0.2"
+VerMonitor="4.0.3"
 VerATVsender="2.0.0"
 
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
@@ -281,37 +281,28 @@ cosmog_lib(){
   if [[ ! -d /data/local/tmp/cos/lib ]] ;then
     mkdir -p /data/local/tmp/cos/lib
   fi
-  if [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so || ! -f /data/local/tmp/cos/lib/libart.so ]] ;then
+  if [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
     logger "Cosmog Lib not found, downloading it"
     rm -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so_*
-    rm -f /data/local/tmp/cos/lib/libart.so_*
     until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    until $download /data/local/tmp/libart.so_$vLibVer $url/modules/libart.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/libart.so_$vLibVer $url/modules/libart.so_$vLibVer" >> $logfile ; logger "download cosmog libart.so file failed, exit script" ; exit 1; } ;do
-      sleep 2
-    done
+    #Move lib
+    cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/local/tmp/cos/lib/libNianticLabsPlugin.so
   else
     iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
-    iLibVer2=$(find /data/local/tmp/ -type f -name "libart.so_*" | cut -d '_' -f 2)
-    if [[ $vLibVer != $iLibVer || $iLibVer != $iLibVer2 ]] ;then
+    if [[ $vLibVer != $iLibVer ]] ;then
       logger "Cosmog Lib too old, downloading new version $iLibVer -> $vLibVer"
       rm -f /data/local/tmp/libNianticLabsPlugin.so_*
-      rm -f /data/local/tmp/libart.so*
       until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
         sleep 2
       done
-      until $download /data/local/tmp/libart.so_$vLibVer $url/modules/libart.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libart.so_$vLibVer $url/modules/libart.so_$vLibVer" >> $logfile ; logger "download cosmog libart.so file failed, exit script" ; exit 1; } ;do
-        sleep 2
-      done
+      #Move lib
+      cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/local/tmp/cos/lib/libNianticLabsPlugin.so
     else
       echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog lib already on correct version" >> $logfile
     fi
   fi
-
-  #Move lib and set perms
-  cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/local/tmp/cos/lib/libNianticLabsPlugin.so
-  cp /data/local/tmp/libart.so_$vLibVer /data/local/tmp/cos/lib/libart.so
 }
 
 update_all(){
@@ -325,14 +316,21 @@ update_all(){
 
   if [[ -z $ainstalled ]] || [[ $ainstalled != $aversions ]] ;then
     logger "new cosmog version detected, $ainstalled=>$aversions"
+    pkill -9 -f 'com\.nianticlabs\.pokemongo'
     /system/bin/rm -f /sdcard/Download/cosmog.apk
     /system/bin/rm -f /sdcard/Download/com.nianticlabs.pokemongo
+    /system/bin/rm -f /data/local/tmp/libart.so*
     until $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
       sleep 2
     done
+    until $download /data/local/tmp/libart.so_$aversions $url/modules/libart.so_$aversions || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libart.so_$aversions $url/modules/libart.so_$aversions" >> $logfile ; logger "download cosmog libart.so file failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
     /system/bin/rm -f /data/local/tmp/cos/com.nianticlabs.pokemongo
+    /system/bin/rm -f /data/local/tmp/cos/lib/libart.so
     sleep 2
     mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos/
+    cp /data/local/tmp/libart.so_$aversions /data/local/tmp/cos/lib/libart.so
     chmod +x /data/local/tmp/cos/com.nianticlabs.pokemongo
     echo $aversions > /data/local/tmp/cos/cos.version
   else

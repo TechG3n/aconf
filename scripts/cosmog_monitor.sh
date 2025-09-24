@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 4.0.2
+# version 4.0.3
 #set -x
 
 # Monitor by Oldmole && bbdoc
@@ -79,7 +79,7 @@ do
 
         updatecheck=$(($updatecheck+1))
         if [[ $updatecheck -gt $update_check ]] ;then
-		echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Atlas and Pogo for update" >> $logfile
+		echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Cosmog and Pogo for update" >> $logfile
 		updatecheck=0
 		check_for_updates
 	fi

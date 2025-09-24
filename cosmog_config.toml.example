@@ -2,7 +2,7 @@
 rotom_worker_endpoint = "ws://rotom_addy/"
 rotom_device_endpoint = "ws://rotom_addy/control"
 rotom_secret = "mrrpmrrphaiiiiiiimeow"
-use_compression = true # yayyy compression now
+use_compression = true
 
 [general]
 device_name = "dummy"
