@@ -43,4 +43,4 @@ set_proxy_only_in_same_network=true
 PIF_module="16.7"
 FingerPrintVersion="1"
 CustomeJob="0"
-cosmog_libVerion="0.377.1"
+pogo_libVerion="0.377.1"
