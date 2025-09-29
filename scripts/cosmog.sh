@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.5
+# version 3.0.7
 
 #Version checks
 Ver42cosmog="1.6"
@@ -151,13 +151,19 @@ fi
   # download cosmog
   /system/bin/rm -f /sdcard/Download/cosmog.apk
   /system/bin/rm -f /sdcard/Download/com.nianticlabs.pokemongo
+  /system/bin/rm -f /data/local/tmp/libart.so*
   until $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin" >> $logfile ; logger "download cosmog failed, exit script" ; exit 1; } ;do
     sleep 2
   done
+  until $download /data/local/tmp/libart.so_$aversions $url/modules/libart.so_$aversions || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libart.so_$aversions $url/modules/libart.so_$aversions" >> $logfile ; logger "download cosmog libart.so file failed, exit script" ; exit 1; } ;do
+    sleep 2
+  done
+
+  echo "`date +%Y-%m-%d_%T` cosmog.sh: Cosmog + Lib (v: $aversions) downloaded for the first time" >> $logfile
 
   # let us kill pogo as well and clear data
-  am force-stop com.nianticlabs.pokemongo
-  pm clear com.nianticlabs.pokemongo
+  #am force-stop com.nianticlabs.pokemongo
+  #pm clear com.nianticlabs.pokemongo
 
   # Install cosmog
   if [ ! -d "/data/local/tmp/cos" ]; then
@@ -165,7 +171,9 @@ fi
   fi
   sleep 2
   mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos/
+  cp /data/local/tmp/libart.so_$aversions /data/local/tmp/cos/lib/libart.so
   chmod +x /data/local/tmp/cos/com.nianticlabs.pokemongo
+  chmod -R 777 /data/local/tmp/cos/
   echo $aversions > /data/local/tmp/cos/cos.version
 
   /system/bin/rm -f /sdcard/Download/cosmog.apk
