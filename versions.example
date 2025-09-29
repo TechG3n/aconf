@@ -1,7 +1,7 @@
-pogo=0.307.1
+pogo=0.377.1
 atlas=v24040401-rev2
 aegis=v24042801
-cosmog=1.5.0
+cosmog=2.1.3
 atlas_md5=35d5c450a5faa64cf217aba6a90998e4
 aegis_md5=77730ca9c41470fade2d4f2f2c4f81cb
 cosmog_md5=3046580f7a7f1f49c4cf249452efbd12
@@ -43,4 +43,4 @@ set_proxy_only_in_same_network=true
 PIF_module="16.7"
 FingerPrintVersion="1"
 CustomeJob="0"
-cosmog_libVerion="0.317.0"
+cosmog_libVerion="0.377.1"

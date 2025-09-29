@@ -1,12 +1,12 @@
 #!/system/bin/sh
-# version 3.4.3
+# version 4.0.3
 #set -x
 
 # Monitor by Oldmole && bbdoc
 
 logfile="/sdcard/cosmog_monitor.log"
-aconf="/data/local/tmp/cosmog.json"
-origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
+aconf="/data/local/tmp/cos/config.toml"
+origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 cosmogdead=0
 pogodead=0
@@ -38,20 +38,15 @@ check_for_updates() {
 }
 
 stop_start_cosmog () {
-	am force-stop com.nianticlabs.pokemongo &  rm -rf /data/data/com.nianticlabs.pokemongo/cache/* 2>/dev/null & am force-stop com.nianticlabs.pokemongo.ares 
+	pkill -9 -f 'com\.nianticlabs\.pokemongo'
 	sleep 5
 	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of cosmog" >> $logfile
 
-	am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
-	
+	cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
+
 	sleep 1
 }
 
-stop_pogo () {
-	am force-stop com.nianticlabs.pokemongo & rm -rf /data/data/com.nianticlabs.pokemongo/cache/* 2>/dev/null
-	sleep 5
-	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Killing pogo and clearing junk" >> $logfile
-}
 
 send_webhook () {
 	issue=$1;
@@ -80,33 +75,19 @@ do
 		sleep 60
 	done
 
-	[[ -z $origin ]] && origin=$(cat $aconf | tr , '\n' | grep -w 'deviceName' | awk -F "\"" '{ print $4 }')
+	[[ -z $origin ]] && origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
 
         updatecheck=$(($updatecheck+1))
         if [[ $updatecheck -gt $update_check ]] ;then
-		echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking cosmog and Pogo for update" >> $logfile
+		echo  "`date +%Y-%m-%d_%T` [MONITORBOT] Checking Cosmog and Pogo for update" >> $logfile
 		updatecheck=0
 		check_for_updates
 	fi
 
-	if [ -d /data/data/com.nianticlabs.pokemongo.ares ] && [ -s /data/local/tmp/cosmog.json ]
-	then
-		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog.json looks good" >> $logfile
-	else
-		echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog.json does not exist or is empty! Let's fix that" >> $logfile
-		[[ ! -z $discord_webhook ]] && [[ $recreate_cosmog_config != "false" ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: re-creating cosmog config\"}" $discord_webhook &>/dev/null
-		/system/bin/cosmog.sh -ic
-		[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Fixed config" >> $logfile
-		stop_start_cosmog
-		sleep $monitor_interval
-		continue
-
-	fi
-		
-	cosmog_check=$(ps -e | grep com.nianticlabs.pokemongo.ares | awk '{print $9}')
-	if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cosmog.json ]] ;then
+	cosmog_check=$(pgrep -fl -f 'com\.nianticlabs\.pokemongo')
+	if [[ -z $cosmog_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
 		echo "`date +%Y-%m-%d_%T` [MONITORBOT] cosmog not running, starting it" >> $logfile
-		am start -n com.nianticlabs.pokemongo.ares/com.nianticlabs.pokemongo.ares.MainActivity
+		pkill -9 -f 'com\.nianticlabs\.pokemongo' && cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
 	fi
 	
 	sleep $monitor_interval

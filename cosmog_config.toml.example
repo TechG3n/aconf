@@ -1,0 +1,26 @@
+[rotom]
+rotom_worker_endpoint = "ws://rotom_addy/"
+rotom_device_endpoint = "ws://rotom_addy/control"
+rotom_secret = "mrrpmrrphaiiiiiiimeow"
+use_compression = true
+
+[general]
+device_name = "dummy"
+workers = 50 # normal limits (i hope)
+klefki_token = "whoaitsanothertoken"
+
+[log]
+level = "info" # trace, debug, info, warn, error, fatal, panic. dont go above warn, trace is probably useless, debug logs every single rpc
+use_colors = true # off by default unless this is here, colors are pretty but you get spammed with ansi codes
+log_to_file = true # creates a log file as well as logging to stdout
+max_size = 10 # max log file size in mb
+max_backups = 10 # max old log files to keep
+max_age = 30  # max time to keep old log files
+compress = true # gzip old logs or not
+
+[tuning]
+worker_spawn_delay_ms = 500 # you can mess with this maybe
+
+[advanced]
+dns_server = "1.1.1.1:53" # is cloudflare by default, you can change this if you need things on your local network
+dont_drop_perms = false #change if needed

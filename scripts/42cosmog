@@ -232,13 +232,13 @@ mount -o remount,rw /system/etc/init.d
   fi
 
 # Install cosmog
-  if [[ ! -d /data/data/com.pokemod.cosmog/ ]] ;then
+  if [[ ! -d /data/local/tmp/cos/lib/ ]] ;then
     logger "starting install of cosmog"
     /system/bin/cosmog.sh -ia
   fi
 
 # Close new install and remove bootstrap, it served its purpose
-  if [[ -d /data/data/com.pokemod.cosmog/ ]] ;then
+  if [[ -d /data/local/tmp/cos/lib/ ]] ;then
     mount -o remount,rw /system
     mount -o remount,rw /system/etc/init.d
     rm -f /sdcard/new_install
