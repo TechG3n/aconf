@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.7
+# version 3.0.8
 
 #Version checks
 Ver42cosmog="1.6"
@@ -218,8 +218,8 @@ fi
   settings put global bluetooth_disabled_profiles 1
   settings put global bluetooth_on 0
 
-  #download newest cosmog lib file
-  cosmog_lib
+  #download newest Pogo Lib file
+  pogo_lib
 
   # Replace these paths with your actual source and target paths
   #cosmog_dir="/data/data/com.nianticlabs.pokemongo.ares"
@@ -284,13 +284,13 @@ update_cosmog_config(){
   fi
 }
 
-cosmog_lib(){
-  vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
+pogo_lib(){
+  vLibVer=$(grep 'pogo_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
   if [[ ! -d /data/local/tmp/cos/lib ]] ;then
     mkdir -p /data/local/tmp/cos/lib
   fi
   if [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
-    logger "Cosmog Lib not found, downloading it"
+    logger "Pogo Lib not found, downloading it"
     rm -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so_*
     until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
       sleep 2
@@ -300,7 +300,7 @@ cosmog_lib(){
   else
     iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
     if [[ $vLibVer != $iLibVer ]] ;then
-      logger "Cosmog Lib too old, downloading new version $iLibVer -> $vLibVer"
+      logger "Pogo Lib too old, downloading new version $iLibVer -> $vLibVer"
       rm -f /data/local/tmp/libNianticLabsPlugin.so_*
       until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
         sleep 2
@@ -308,7 +308,7 @@ cosmog_lib(){
       #Move lib
       cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/local/tmp/cos/lib/libNianticLabsPlugin.so
     else
-      echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog lib already on correct version" >> $logfile
+      echo "`date +%Y-%m-%d_%T` cosmog.sh: Pogo Lib already on correct version" >> $logfile
     fi
   fi
 }
@@ -730,16 +730,16 @@ if [[ ! -z $versionsCJv ]] && [[ "$versionsCJv" != "0" ]] ;then
   fi
 fi
 
-# check cosmog lib ver
-vLibVer=$(grep 'cosmog_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
+# check Pogo Lib ver
+vLibVer=$(grep 'pogo_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
 iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
 if [[ -d /data/local/tmp/cos/lib ]] ;then
   if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
-    logger "Cosmog Lib not matched, downloading new version $iLibVer -> $iLibVer"
-    cosmog_lib
+    logger "Pogo Lib not matched, downloading new version $iLibVer -> $iLibVer"
+    pogo_lib
     reboot=1
   else
-    echo "`date +%Y-%m-%d_%T` cosmog.sh: cosmog lib already on correct version" >> $logfile
+    echo "`date +%Y-%m-%d_%T` cosmog.sh: Pogo Lib already on correct version" >> $logfile
   fi
 fi
 
