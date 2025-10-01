@@ -1,5 +1,5 @@
 #!/bin/bash
-# version 0.3
+# version 0.4
 
 # Base URL for the download
 download_url="https://mirror.unownhash.com/apks"
@@ -78,47 +78,71 @@ else
 fi
 
 # download cosmog + lib, rename and move
-if [[ "$cosbin" =~ ^(y|Y|Yes|yes)$ ]]; then
+if [[ "$cosbin" =~ ^(Y|y|Yes|yes)$ ]]; then
+  PROVIDER_URL="https://meow.sylvie.fyi/static/cosmog2.zip"
 
-    # get download link
-    echo "Please enter the download link for the Cosmog ZIP file (Tip: Right click > Copy link in Discord or similar):"
-    read cosmog_url
+  # Ask whether to use the provider link or enter a custom link (e.g., from Discord)
+  read -r -p "Download Cosmog from sylvie.fyi? [y/N]: " use_provider
+  if [[ "$use_provider" =~ ^(Y|y|Yes|yes)$ ]]; then
+    cosmog_url="$PROVIDER_URL"
+  else
+    read -r -p "Please enter the download link for the Cosmog ZIP file (Paste the link from Discord or similar): " cosmog_url
+  fi
 
-    if [[ ! "$cosmog_url" =~ cosmog.*\.zip ]]; then
-        echo "No Cosmog link given, skipping this step."
-    else
-        # Download the ZIP file
-        cosmog_zipfile=$(basename "$cosmog_url")
-        echo "Downloading $cosmog_zipfile ..."
-        wget -O "$cosmog_zipfile" "$cosmog_url"
-        if [[ $? -ne 0 ]]; then
-            echo "Cosmog ZIP download failed, skipping next file."
-        else
-            # Extract version from ZIP name (e.g. 2.1.3)
-            cosmog_version=$(echo "$cosmog_zipfile" | grep -oP '\d+\.\d+\.\d+')
-            if [[ -z "$cosmog_version" ]]; then
-                echo "No version number found!"
-            else
-                unzip -o "$cosmog_zipfile"
-                if [[ -f lib/libart.so ]]; then
-                    mv lib/libart.so "$module_dir/libart.so_${cosmog_version}"
-                    echo "libart.so moved to $module_dir/libart.so_${cosmog_version}"
-                else
-                    echo "lib/libart.so not found!"
-                fi
-                if [[ -f com.nianticlabs.pokemongo ]]; then
-                    mv com.nianticlabs.pokemongo "$output_dir/com.nianticlabs.pokemongo-${cosmog_version}.bin"
-                    echo "com.nianticlabs.pokemongo moved to $output_dir/com.nianticlabs.pokemongo-${cosmog_version}.bin"
-                else
-                    echo "com.nianticlabs.pokemongo not found!"
-                fi
-                if [[ -f $output_dir/com.nianticlabs.pokemongo-${cosmog_version}.bin || -f $module_dir/libart.so_${cosmog_version} || $version_choice =~ ^(y|Y|Yes|yes)$ ]]; then
-                    sed -i "s/^cosmog=.*/cosmog=$cosmog_version/" "$version_file"
-                fi    
-            fi
-        fi
+  #require a .zip URL
+  if [[ ! "$cosmog_url" =~ \.zip ]]; then
+    echo "No ZIP link detected, skipping this step."
+    if [[ "$cosmog_url" == "$PROVIDER_URL" ]]; then
+      read -r -p "Enter the Cosmog version to record (e.g., 2.1.3): " cosmog_version
     fi
 
+    # Normalize filename
+    cosmog_zipfile=$(basename "${cosmog_url%%\?*}")
+
+    echo "Downloading $cosmog_zipfile ..."
+    if ! wget -O "$cosmog_zipfile" "$cosmog_url"; then
+      echo "Cosmog ZIP download failed."
+    else
+      # Extract version from ZIP name if not already provided
+      if [[ -z "$cosmog_version" && "$cosmog_zipfile" =~ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+        cosmog_version="${BASH_REMATCH[1]}"
+      fi
+
+      # Fallback
+      if [[ -z "$cosmog_version" ]]; then
+        read -r -p "No version number found. Please enter version (e.g., 2.1.3): " cosmog_version
+      fi
+
+      if [[ -z "$cosmog_version" ]]; then
+        echo "No version number provided, aborting.."
+      else
+        echo "Extracting $cosmog_zipfile ..."
+        unzip -o "$cosmog_zipfile"
+
+        # Move libart.so to the module directory with the version suffix
+        if [[ -f lib/libart.so ]]; then
+          mv -f "lib/libart.so" "$module_dir/libart.so_${cosmog_version}"
+          echo "Moved lib/libart.so to $module_dir/libart.so_${cosmog_version}"
+        else
+          echo "lib/libart.so not found!"
+        fi
+
+        # Move com.nianticlabs.pokemongo to the output directory with the version suffix
+        if [[ -f com.nianticlabs.pokemongo ]]; then
+          mv -f "com.nianticlabs.pokemongo" "$output_dir/com.nianticlabs.pokemongo-${cosmog_version}.bin"
+          echo "Moved com.nianticlabs.pokemongo to $output_dir/com.nianticlabs.pokemongo-${cosmog_version}.bin"
+        else
+          echo "com.nianticlabs.pokemongo not found!"
+        fi
+
+        # Update the recorded version if files exist or override is requested
+        if [[ -f "$output_dir/com.nianticlabs.pokemongo-${cosmog_version}.bin" || -f "$module_dir/libart.so_${cosmog_version}" || "$version_choice" =~ ^([Yy]|[Yy]es)$ ]]; then
+          sed -i "s/^cosmog=.*/cosmog=$cosmog_version/" "$version_file"
+          echo "Updated cosmog version to $cosmog_version in $version_file"
+        fi
+      fi
+    fi
+  fi
 fi
 
 #change versions in version file
@@ -126,7 +150,7 @@ if $v8; then
     if [[ "$version_choice" =~ ^(y|Y|Yes|yes)$ ]]; then
         sed -i "s/^pogo=.*/pogo=$version/" "$version_file"
         if [[ "$pogolib" =~ ^(y|Y|Yes|yes)$ ]]; then
-            sed -i "s/^cosmog_libVerion=.*/cosmog_libVerion=\"$version\"/" "$version_file"
+            sed -i "s/^pogo_libVerion=.*/pogo_libVerion=\"$version\"/" "$version_file"
         fi
         echo "Version file updated."
     fi
