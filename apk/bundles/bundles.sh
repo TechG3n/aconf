@@ -92,6 +92,7 @@ if [[ "$cosbin" =~ ^(Y|y|Yes|yes)$ ]]; then
   #require a .zip URL
   if [[ ! "$cosmog_url" =~ \.zip ]]; then
     echo "No ZIP link detected, skipping this step."
+  else
     if [[ "$cosmog_url" == "$PROVIDER_URL" ]]; then
       read -r -p "Enter the Cosmog version to record (e.g., 2.1.3): " cosmog_version
     fi
