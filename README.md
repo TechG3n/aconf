@@ -31,7 +31,7 @@ cosmog_libVerion                 - version of the lib needed by cosmog
 PokemodAtlas-Public-v22050101.apk
 PokemodAegis-Public-v22050101.apk
 cosmog-1.2.2.apk
-gc-3.0.256.apk
+gc-v3.0.256.apk
 pokemongo_arm64-v8a_0.235.0_base.apk + pokemongo_arm64-v8a_0.235.0_split.apk 
 pokemongo_armeabi-v7a_0.235.0_base.apk + pokemongo_armeabi-v7a_0.235.0_split.apk
 ``` 

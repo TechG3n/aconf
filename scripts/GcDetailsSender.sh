@@ -5,8 +5,8 @@ source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
 
 #Configs
-gc_conf="/data/local/tmp/cos/gc.json"
-gc_log="/data/local/tmp/cos/gc.log"
+gc_conf="/data/local/tmp/config.json"
+gc_log="/data/local/tmp/gc.log"
 aconf_log="/sdcard/aconf.log"
 monitor_log="/sdcard/gc_monitor.log"
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
@@ -35,7 +35,7 @@ while true
     monitor=$([ -f /system/bin/gc_monitor.sh ] && head -2 /system/bin/gc_monitor.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     whversion=$([ -f /system/bin/gcDetailsSender.sh ] && head -2 /system/bin/gcDetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     pogo=0
-    MITMv=$(dumpsys package $pogo_package | /system/bin/grep versionName | head -n1 | /system/bin/sed 's/ *versionName=//')
+    MITMv=$(dumpsys package com.gocheats.launcher | /system/bin/grep versionName | head -n1 | /system/bin/sed 's/ *versionName=//')
     temperature=$(cat /sys/class/thermal/thermal_zone0/temp | cut -c -2)
     magisk=$(magisk -c | sed 's/:.*//')
     macw=$([ -d /sys/class/net/wlan0 ] && ifconfig wlan0 |grep 'HWaddr' |awk '{ print ($NF) }' || echo 'na')

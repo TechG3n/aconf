@@ -5,7 +5,7 @@
 # Monitor by Oldmole && bbdoc
 
 logfile="/sdcard/gc_monitor.log"
-aconf="/data/local/tmp/cos/config.toml"
+aconf="/data/local/tmp/config.json"
 origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 gcdead=0
@@ -37,14 +37,12 @@ check_for_updates() {
 	/system/bin/gc.sh -ua
 }
 
-#todo
 stop_start_gc () {
-	pkill -9 -f 'com\.nianticlabs\.pokemongo'
+	am force-stop com.gocheats.launcher
 	sleep 5
 	[[ $debug == "true" ]] && echo "`date +%Y-%m-%d_%T` [MONITORBOT] Running the start mapping service of gc" >> $logfile
 
-	cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
-
+	/system/bin/monkey -p com.gocheats.launcher 1 > /dev/null 2>&1
 	sleep 1
 }
 
@@ -85,12 +83,12 @@ do
 		check_for_updates
 	fi
 
-#todo
-#	gc_check=$(pgrep -fl -f 'com\.nianticlabs\.pokemongo')
-#	if [[ -z $gc_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
-#		echo "`date +%Y-%m-%d_%T` [MONITORBOT] gc not running, starting it" >> $logfile
-#		pkill -9 -f 'com\.nianticlabs\.pokemongo' && cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
-#	fi
+
+	gc_check=$(pgrep -fl -f 'com\.gocheats\.launcher')
+	if [[ -z $gc_check ]] && [[ -f /data/local/tmp/config.json ]] ;then
+		echo "`date +%Y-%m-%d_%T` [MONITORBOT] gc not running, starting it" >> $logfile
+		/system/bin/monkey -p com.gocheats.launcher 1 > /dev/null 2>&1
+	fi
 	
 	sleep $monitor_interval
 done

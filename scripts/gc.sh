@@ -26,7 +26,7 @@ if [[ -z $discord_webhook ]] ;then
   discord_webhook=$(grep discord_webhook /data/local/aconf_download | awk -F "=" '{ print $NF }' | sed -e 's/^"//' -e 's/"$//')
 fi
 
-if [[ -f /data/local/tmp/cos/config.toml ]] ;then
+if [[ -f /data/local/tmp/config.json ]] ;then
 # origin=$(grep -w 'deviceName' $aconf | awk -F "\"" '{ print $4 }')
   origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
 else
@@ -331,9 +331,9 @@ fi
 
   # check gc running
   gc_check=$(pgrep -fl -f 'com\.gocheats\.launcher')
-  if [[ -z $gc_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
+  if [[ -z $gc_check ]] && [[ -f /data/local/tmp/config.json ]] ;then
     logger "gc not running, starting it"
-    cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
+    /system/bin/monkey -p com.gocheats.launcher 1 > /dev/null 2>&1
   fi
 
 }
@@ -359,7 +359,7 @@ downgrade_pogo(){
     /system/bin/rm -f /sdcard/Download/pogo_*.apk
     logger "pogo removed and installed, now $pversions"
   else
-    echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo version correct, proceed" >> $logfile
+    echo "`date +%Y-%m-%d_%T` gc.sh: pogo version correct, proceed" >> $logfile
   fi
 }
 
@@ -372,7 +372,7 @@ send_logs(){
     # monitor log
     [[ -f /sdcard/gc_monitor.log ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"gc_monitor.log for $origin\"}" -F "file1=@/sdcard/gc_monitor.log" $webhook &>/dev/null
     # gc log
-    cp /data/local/tmp/cos/gc.log /sdcard/gc.log
+    cp /data/local/tmp/gc.log /sdcard/gc.log
     curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"gc.log for $origin\"}" -F "file1=@/sdcard/gc.log" $webhook &>/dev/null
     rm /sdcard/gc.log
     #logcat
@@ -596,11 +596,9 @@ if [[ $origin != "" ]] ;then
 fi
 
 # check gc config file exists
-if [[ -d /data/local/tmp/cos ]] && [[ ! -s $aconf ]] ;then
+if [[ ! -s $aconf ]] ;then
   install_config
-  pkill -9 -f 'com\.nianticlabs\.pokemongo'
-  sleep 3
-  cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
+  am force-stop com.gocheats.launcher && sleep 2 && /system/bin/monkey -p com.gocheats.launcher 1 > /dev/null 2>&1
 fi
 
 # check 16/42mad pogo autoupdate disabled
@@ -631,9 +629,9 @@ fi
 
 # check gc running
 gc_check=$(pgrep -fl -f 'com\.nianticlabs\.pokemongo')
-if [[ -z $gc_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
+if [[ -z $gc_check ]] && [[ -f /data/local/tmp/config.json ]] ;then
   logger "gc not running at execution of gc.sh, starting it"
-  cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
+  /system/bin/monkey -p com.gocheats.launcher 1 > /dev/null 2>&1
 fi
 
 # check if playstore is enabled
@@ -670,7 +668,6 @@ if [[ ! -z $versionsPIFv ]] ;then
     until $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/PIF_module.zip $url/modules/PlayIntegrityFix_v$versionsPIFv.zip" >> $logfile ; logger "download PIF_module failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    am force-stop com.nianticlabs.pokemongo.ares
     am force-stop com.nianticlabs.pokemongo
     /sbin/magisk --install-module /sdcard/Download/PIF_module.zip
     logger "Updated PIF module from $instPIFv to $versionsPIFv"
