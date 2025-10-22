@@ -138,10 +138,10 @@ EOF
 fi
 
   # install gcDetails sender
-    until $download /system/bin/gcDetailsSender.sh $url/scripts/gcDetailsSender.sh || { logger "download gcDetailsSender.sh failed, exit script" ; exit 1; } ;do
+    until $download /system/bin/GcDetailsSender.sh $url/scripts/GcDetailsSender.sh || { logger "download GcDetailsSender.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    chmod +x /system/bin/gcDetailsSender.sh
+    chmod +x /system/bin/GcDetailsSender.sh
     logger "gcDetails sender installed"
     mount_system_ro
 
@@ -538,25 +538,25 @@ fi
 
 #update gcDetails sender if needed
 if [[ $(basename $0) = "gc_new.sh" ]] ;then
-  [ -f /system/bin/gcDetailsSender.sh ] && oldSender=$(head -2 /system/bin/gcDetailsSender.sh | grep '# version' | awk '{ print $NF }') || oldSender="0"
+  [ -f /system/bin/GcDetailsSender.sh ] && oldSender=$(head -2 /system/bin/GcDetailsSender.sh | grep '# version' | awk '{ print $NF }') || oldSender="0"
   if [ $VerATVsender != $oldSender ] ;then
     mount_system_rw
-    until $download /system/bin/gcDetailsSender.sh $url/scripts/gcDetailsSender.sh || { logger "download gcDetailsSender.sh failed, exit script" ; exit 1; } ;do
+    until $download /system/bin/GcDetailsSender.sh $url/scripts/GcDetailsSender.sh || { logger "download GcDetailsSender.sh failed, exit script" ; exit 1; } ;do
       sleep 2
     done
-    chmod +x /system/bin/gcDetailsSender.sh
+    chmod +x /system/bin/GcDetailsSender.sh
     mount_system_ro
-    newSender=$(head -2 /system/bin/gcDetailsSender.sh | grep '# version' | awk '{ print $NF }')
+    newSender=$(head -2 /system/bin/GcDetailsSender.sh | grep '# version' | awk '{ print $NF }')
     logger "gcDetails sender updated $oldSender => $newSender"
 
     # restart gcDetails sender
-    if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/gcDetailsSender.sh ] ;then
-      checkSender=$(pgrep -f /system/bin/gcDetailsSender.sh)
+    if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ -f /system/bin/GcDetailsSender.sh ] ;then
+      checkSender=$(pgrep -f /system/bin/GcDetailsSender.sh)
       if [ ! -z $checkSender ] ;then
         kill -9 $checkSender
         sleep 2
       fi
-      /system/bin/gcDetailsSender.sh >/dev/null 2>&1 &
+      /system/bin/GcDetailsSender.sh >/dev/null 2>&1 &
       logger "gcDetails sender (re)started"
     fi
   fi
@@ -619,10 +619,10 @@ if [[ $(grep useMonitor $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gs
 fi
 
 # enable gcDetails sender
-if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsub(/ /,""); print }') == "true" ]] && [ -f /system/bin/gcDetailsSender.sh ] ;then
-  checkSender=$(pgrep -f /system/bin/gcDetailsSender.sh)
+if [[ $(grep useSender $aconf_versions | awk -F "=" '{ print $NF }' | awk '{ gsub(/ /,""); print }') == "true" ]] && [ -f /system/bin/GcDetailsSender.sh ] ;then
+  checkSender=$(pgrep -f /system/bin/GcDetailsSender.sh)
   if [ -z $checkSender ] ;then
-    /system/bin/gcDetailsSender.sh >/dev/null 2>&1 &
+    /system/bin/GcDetailsSender.sh >/dev/null 2>&1 &
     echo "`date +%Y-%m-%d_%T` gc.sh: gcDetails sender started" >> $logfile
   fi
 fi
