@@ -1,8 +1,8 @@
 {
     "api_key": "<exeggcute_api_key>",
-    "device_name": "<device_name>",
+    "device_name": "dummy",
     "rotom_url": "ws://<rotom_url:port>",
     "rotom_secret": "<rotom_secret>",
     "workers_count": <workers_count>,
-    "remote_attestations": <remote_attestations>
+    "remote_attestations": false
 }

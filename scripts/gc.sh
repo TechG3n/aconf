@@ -15,7 +15,7 @@ if [ ! -e /sdcard/aconf.log ] ;then
 fi
 
 logfile="/sdcard/aconf.log"
-aconf="/data/local/tmp/cos/config.toml" #todo
+aconf="/data/local/tmp/config.json"
 aconf_versions="/data/local/aconf_versions"
 aconf_mac2name="/data/local/aconf_mac2name"
 [[ -f /data/local/aconf_download ]] && url=$(grep url /data/local/aconf_download | awk -F "=" '{ print $NF }')
@@ -150,58 +150,28 @@ fi
 
   # download gc
   /system/bin/rm -f /sdcard/Download/gc.apk
-  /system/bin/rm -f /sdcard/Download/com.nianticlabs.pokemongo
-  /system/bin/rm -f /data/local/tmp/libart.so*
-  until $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin" >> $logfile ; logger "download gc failed, exit script" ; exit 1; } ;do
-    sleep 2
-  done
-  until $download /data/local/tmp/libart.so_$aversions $url/modules/libart.so_$aversions || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libart.so_$aversions $url/modules/libart.so_$aversions" >> $logfile ; logger "download gc libart.so file failed, exit script" ; exit 1; } ;do
+  until $download /sdcard/Download/gc.apk $url/apk/gc-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/gc.apk $url/apk/gc-$aversions.apk" >> $logfile ; logger "download gc failed, exit script" ; exit 1; } ;do
     sleep 2
   done
 
-  echo "`date +%Y-%m-%d_%T` gc.sh: gc + Lib (v: $aversions) downloaded for the first time" >> $logfile
+  echo "`date +%Y-%m-%d_%T` gc.sh: gc (v: $aversions) downloaded for the first time" >> $logfile
 
   # let us kill pogo as well and clear data
-  #am force-stop com.nianticlabs.pokemongo
-  #pm clear com.nianticlabs.pokemongo
+  am force-stop com.nianticlabs.pokemongo > /dev/null 2>&1
+  pm clear com.nianticlabs.pokemongo > /dev/null 2>&1
 
   # Install gc
-  if [ ! -d "/data/local/tmp/cos" ]; then
-    mkdir -p /data/local/tmp/cos/lib
-  fi
-  sleep 2
-  mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos/
-  cp /data/local/tmp/libart.so_$aversions /data/local/tmp/cos/lib/libart.so
-  chmod +x /data/local/tmp/cos/com.nianticlabs.pokemongo
-  chmod -R 777 /data/local/tmp/cos/
-  echo $aversions > /data/local/tmp/cos/cos.version
-
+  /system/bin/pm install -r /sdcard/Download/gc.apk > /dev/null 2>&1
   /system/bin/rm -f /sdcard/Download/gc.apk
-  /system/bin/rm -f /sdcard/Download/com.nianticlabs.pokemongo
   logger "gc installed"
 
-
   # Grant su access + settings
-  #auid="$(dumpsys package com.nianticlabs.pokemongo.ares | grep userId | awk -F'=' '{print $2}')"
-  #magisk --sqlite "REPLACE INTO policies (uid,policy,until,logging,notification) VALUES($auid,2,0,1,0)"
-  #pm grant com.nianticlabs.pokemongo.ares android.permission.READ_EXTERNAL_STORAGE
-  #pm grant com.nianticlabs.pokemongo.ares android.permission.WRITE_EXTERNAL_STORAGE
+	euid="$(dumpsys package com.gocheats.launcher | /system/bin/grep userId | awk -F'=' '{print $2}')"
+	magisk --sqlite "REPLACE INTO policies (uid,policy,until,logging,notification) VALUES($euid,2,0,1,1);"
+  /system/bin/pm grant com.gocheats.launcher android.permission.READ_EXTERNAL_STORAGE
+  /system/bin/pm grant com.gocheats.launcher android.permission.WRITE_EXTERNAL_STORAGE
 
-  #logger "gc granted su and settings set"
-
-  # add common packages to denylist
-  #magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.android.vending','com.android.vending');"
-  #magisk --sqlite "DELETE FROM denylist (package_name='com.google.android.gms');"
-  #magisk --sqlite "DELETE FROM denylist (package_name='com.google.android.gms.setup');"
-  #magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.google.android.gsf','com.google.android.gsf');"
-  #magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.nianticlabs.pokemongo','com.nianticlabs.pokemongo');"
-
-  # add gc workers to denylist
-  #i=1
-  #while [ $i -le 100 ]; do
-  #  magisk --sqlite "REPLACE INTO denylist (package_name,process) VALUES('com.nianticlabs.pokemongo.ares','com.nianticlabs.pokemongo.ares:worker$i');"
-  #  i=$((i + 1))
-  #done
+  logger "gc granted su and settings set"
 
   # enable zygisk
   magisk --sqlite "REPLACE INTO settings (key,value) VALUES('zygisk',1);"
@@ -220,29 +190,14 @@ fi
 
   #download newest Pogo Lib file
   #todo
-  pogo_lib
+  #pogo_lib
 
-  # Replace these paths with your actual source and target paths
-  #gc_dir="/data/data/com.nianticlabs.pokemongo.ares"
-  #files_dir="$gc_dir/files"
-
-  # Extract owner, group, and permissions
-  #owner=$(stat -c "%U" "$gc_dir")
-  #group=$(stat -c "%G" "$gc_dir")
-  #perms=$(stat -c "%a" "$gc_dir")
-  # Apply the owner and group to the target
-  #chown -R "$owner":"$group" "$files_dir"
-  # Apply the permissions to the target
-  #chmod -R "$perms" "$files_dir"
 
   # download gc config file and adjust orgin to rgc setting
   install_config
 
   # check pogo version else remove+install
-  if /system/bin/pm list packages | grep -q "^package:com.nianticlabs.pokemongo$"; then
-    /system/bin/pm uninstall com.nianticlabs.pokemongo >/dev/null 2>&1 || true
-    /system/bin/pm uninstall com.nianticlabs.pokemongo.ares >/dev/null 2>&1 || true
-  fi
+  downgrade_pogo
 
   # supress 'pink screen'
   opengl_warning
@@ -258,7 +213,7 @@ fi
 
 #todo
 install_config(){
-  until $download /data/local/tmp/cos/config.toml $url/gc_config.toml || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/config.toml $url/gc_config.toml" >> $logfile ; logger "download gc config file failed, exit script" ; exit 1; } ;do
+  until $download /data/local/tmp/config.json $url/gc_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/config.json $url/gc_config.json" >> $logfile ; logger "download gc config file failed, exit script" ; exit 1; } ;do
     sleep 2
   done
   if [[ ! -z $origin ]] ;then
@@ -275,79 +230,97 @@ update_gc_config(){
   if [[ -z $origin ]] ;then
     logger "will not replace gc config file without deviceName being set"
   else
-    until $download /data/local/tmp/cos/config.toml $url/gc_config.toml || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/config.toml $url/gc_config.toml" >> $logfile ; logger "download gc config file failed, exit script" ; exit 1; } ;do
+    until $download /data/local/tmp/config.json $url/gc_config.json || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/config.json $url/gc_config.json" >> $logfile ; logger "download gc config file failed, exit script" ; exit 1; } ;do
       sleep 2
     done
     sed -i 's,dummy,'$origin',g' $aconf
 
-    pkill -9 -f 'com\.nianticlabs\.pokemongo' && cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
+    am force-stop com.gocheats.launcher && sleep 2 && /system/bin/monkey -p com.gocheats.launcher 1 > /dev/null 2>&1
 
     logger "gc config updated and gc restarted"
   fi
 }
 
-#todo needed?
-pogo_lib(){
-  vLibVer=$(grep 'pogo_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
-  if [[ ! -d /data/local/tmp/cos/lib ]] ;then
-    mkdir -p /data/local/tmp/cos/lib
-  fi
-  if [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
-    logger "Pogo Lib not found, downloading it"
-    rm -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so_*
-    until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download gc libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
-      sleep 2
-    done
-    #Move lib
-    cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/local/tmp/cos/lib/libNianticLabsPlugin.so
-  else
-    iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
-    if [[ $vLibVer != $iLibVer ]] ;then
-      logger "Pogo Lib too old, downloading new version $iLibVer -> $vLibVer"
-      rm -f /data/local/tmp/libNianticLabsPlugin.so_*
-      until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download gc libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
-        sleep 2
-      done
-      #Move lib
-      cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/local/tmp/cos/lib/libNianticLabsPlugin.so
-    else
-      echo "`date +%Y-%m-%d_%T` gc.sh: Pogo Lib already on correct version" >> $logfile
-    fi
-  fi
-}
-
 update_all(){
-  ainstalled=$(head -n1 /data/local/tmp/cos/cos.version)
+  pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
+  pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  ainstalled=$(dumpsys package com.gocheats.launcher | /system/bin/grep versionName | head -n1 | /system/bin/sed 's/ *versionName=//')
   aversions=$(grep 'gc' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
 
-  if [[ ! -d /data/local/tmp/cos/lib ]] ;then
-    mkdir -p /data/local/tmp/cos/lib
-    reboot=1
+  if [[ $pinstalled != $pversions ]] ;then
+    if [[ $(echo "$pinstalled" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') -gt $(echo "$pversions" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') ]]; then
+      #This happens if playstore autoupdate is on or mad+rgc aren't configured correctly
+      logger "pogo version is higher as it should, that shouldn't happen! ($pinstalled > $pversions)"
+      downgrade_pogo
+    else
+      logger "new pogo version detected, $pinstalled=>$pversions"
+      /system/bin/rm -f /sdcard/Download/pogo_*.apk
+      until $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo base failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+      sleep 1
+      until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+      # set pogo to be installed
+      pogo_install="install"
+    fi
+  else
+  pogo_install="skip"
+  echo "`date +%Y-%m-%d_%T` gc.sh: pogo already on correct version" >> $logfile
   fi
 
-  if [[ -z $ainstalled ]] || [[ $ainstalled != $aversions ]] ;then
+  if [ v$ainstalled != $aversions ] ;then
     logger "new gc version detected, $ainstalled=>$aversions"
-    pkill -9 -f 'com\.nianticlabs\.pokemongo'
-    /system/bin/rm -f /sdcard/Download/gc.apk
-    /system/bin/rm -f /sdcard/Download/com.nianticlabs.pokemongo
-    /system/bin/rm -f /data/local/tmp/libart.so*
-    until $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/com.nianticlabs.pokemongo $url/apk/com.nianticlabs.pokemongo-$aversions.bin" >> $logfile ; logger "download gc failed, exit script" ; exit 1; } ;do
-      sleep 2
-    done
-    until $download /data/local/tmp/libart.so_$aversions $url/modules/libart.so_$aversions || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libart.so_$aversions $url/modules/libart.so_$aversions" >> $logfile ; logger "download gc libart.so file failed, exit script" ; exit 1; } ;do
-      sleep 2
-    done
-    /system/bin/rm -f /data/local/tmp/cos/com.nianticlabs.pokemongo
-    /system/bin/rm -f /data/local/tmp/cos/lib/libart.so
-    sleep 2
-    mv /sdcard/Download/com.nianticlabs.pokemongo /data/local/tmp/cos/
-    cp /data/local/tmp/libart.so_$aversions /data/local/tmp/cos/lib/libart.so
-    chmod +x /data/local/tmp/cos/com.nianticlabs.pokemongo
-    echo $aversions > /data/local/tmp/cos/cos.version
+    ver_gc_md5=$(grep 'gc_md5' $aconf_versions | awk -F "=" '{ print $NF }')
+    if [[ ! -z $ver_gc_md5 ]] ;then
+      inst_gc_md5=$(md5sum /data/app/com.pokemod.gc-*/base.apk | awk '{print $1}')
+      if [[ $ver_gc_md5 == $inst_gc_md5 ]] ;then
+        logger "New version but same md5 - skip install"
+        gc_install="skip"
+      else
+        logger "New version, new md5 - start install"
+        /system/bin/rm -f /sdcard/Download/gc.apk
+        until $download /sdcard/Download/gc.apk $url/apk/gc-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/gc.apk $url/apk/gc-$aversions.apk" >> $logfile ; logger "download gc failed, exit script" ; exit 1; } ;do
+          sleep 2
+        done
+        # set gc to be installed
+        gc_install="install"
+      fi
+    else
+      logger "No md5 found, install new version regardless"
+      /system/bin/rm -f /sdcard/Download/gc.apk
+      until $download /sdcard/Download/gc.apk $url/apk/gc-$aversions.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/gc.apk $url/apk/gc-$aversions.apk" >> $logfile ; logger "download gc failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+      # set gc to be installed
+      gc_install="install"
+    fi
   else
-  gc_install="skip"
-  echo "`date +%Y-%m-%d_%T` gc.sh: gc already on correct version" >> $logfile
+    gc_install="skip"
+    echo "`date +%Y-%m-%d_%T` gc.sh: gc already on correct version" >> $logfile
   fi
+
+if [ ! -z "$gc_install" ] && [ ! -z "$pogo_install" ] ;then
+  echo "`date +%Y-%m-%d_%T` gc.sh: all updates checked and downloaded if needed" >> $logfile
+  if [ "$gc_install" = "install" ] ;then
+    Logger "Updating gc"
+    # install gc
+    /system/bin/pm install -r /sdcard/Download/gc.apk || { logger "install gc failed, downgrade perhaps? Exit script" ; exit 1; }
+    /system/bin/rm -f /sdcard/Download/gc.apk
+    reboot=1
+  fi
+  if [ "$pogo_install" = "install" ] ;then
+    logger "updating pogo"
+    # install pogo
+    /system/bin/pm install -r /sdcard/Download/pogo_base.apk && /system/bin/pm install -p com.nianticlabs.pokemongo -r /sdcard/Download/pogo_split.apk || { logger "install pogo failed, downgrade perhaps? Exit script" ; exit 1; }
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
+    reboot=1
+  fi
+  if [ "$gc_install" != "install" ] && [ "$pogo_install" != "install" ] ; then
+    echo "`date +%Y-%m-%d_%T` gc.sh: updates checked, nothing to install" >> $logfile
+  fi
+fi
 
   # Force re-download of the config file at the next reboot. Turned on via versions file, should be turned off again
   force_config_update=$(grep 'force_config_update' $aconf_versions | awk -F "=" '{ print $NF }')
@@ -356,15 +329,8 @@ update_all(){
     install_config
   fi
 
-  # check pogo and remove
-  if /system/bin/pm list packages | grep -q "^package:com.nianticlabs.pokemongo$"; then
-    /system/bin/pm uninstall com.nianticlabs.pokemongo >/dev/null 2>&1 || true
-    /system/bin/pm uninstall com.nianticlabs.pokemongo.ares >/dev/null 2>&1 || true
-  fi
-
-  #todo
   # check gc running
-  gc_check=$(pgrep -fl -f 'com\.nianticlabs\.pokemongo')
+  gc_check=$(pgrep -fl -f 'com\.gocheats\.launcher')
   if [[ -z $gc_check ]] && [[ -f /data/local/tmp/cos/config.toml ]] ;then
     logger "gc not running, starting it"
     cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
@@ -372,6 +338,30 @@ update_all(){
 
 }
 
+downgrade_pogo(){
+  pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
+  pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  if [[ $pinstalled != $pversions ]] ;then
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
+    until $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo base failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    sleep 1
+    until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+
+    /system/bin/pm uninstall com.nianticlabs.pokemongo
+    sleep 1
+    am force-stop com.gocheats.launcher
+    sleep 1
+    /system/bin/pm install -r /sdcard/Download/pogo_base.apk && /system/bin/pm install -p com.nianticlabs.pokemongo -r /sdcard/Download/pogo_split.apk || { logger "install pogo failed while downgrading. Exit script" ; exit 1; }
+    /system/bin/rm -f /sdcard/Download/pogo_*.apk
+    logger "pogo removed and installed, now $pversions"
+  else
+    echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo version correct, proceed" >> $logfile
+  fi
+}
 
 send_logs(){
   if [[ -z $webhook ]] ;then
@@ -731,19 +721,6 @@ if [[ ! -z $versionsCJv ]] && [[ "$versionsCJv" != "0" ]] ;then
     /data/local/tmp/aconf-cj.sh >/dev/null 2>&1 &
   else
     echo "`date +%Y-%m-%d_%T` gc.sh: CustomJob Up2Date, proceed" >> $logfile
-  fi
-fi
-
-# check Pogo Lib ver
-vLibVer=$(grep 'pogo_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
-iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
-if [[ -d /data/local/tmp/cos/lib ]] ;then
-  if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
-    logger "Pogo Lib not matched, downloading new version $iLibVer -> $iLibVer"
-    pogo_lib
-    reboot=1
-  else
-    echo "`date +%Y-%m-%d_%T` gc.sh: Pogo Lib already on correct version" >> $logfile
   fi
 fi
 

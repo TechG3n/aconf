@@ -26,11 +26,12 @@ cosmog_libVerion                 - version of the lib needed by cosmog
 ```
 4. If you want to skip adding names manually on reflashed devices, copy and fill out mac2name.exmaple file 
 5. Download Pogo using the script in apk/bundles. It will place the base.apk and split.apk in the apk folder
-6. Add latest atlas/aegis/cosmog APK to apk folder - make sure to follow naming convention as per example below:  
+6. Add latest atlas/aegis/cosmog/gc APK to apk folder - make sure to follow naming convention as per example below:  
 ```
 PokemodAtlas-Public-v22050101.apk
 PokemodAegis-Public-v22050101.apk
 cosmog-1.2.2.apk
+gc-3.0.256.apk
 pokemongo_arm64-v8a_0.235.0_base.apk + pokemongo_arm64-v8a_0.235.0_split.apk 
 pokemongo_armeabi-v7a_0.235.0_base.apk + pokemongo_armeabi-v7a_0.235.0_split.apk
 ``` 
@@ -61,6 +62,11 @@ pokemongo_armeabi-v7a_0.235.0_base.apk + pokemongo_armeabi-v7a_0.235.0_split.apk
       For Cosmog:
       ```
       su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/cosmog.sh "$url_base/scripts/cosmog.sh" && chmod +x /system/bin/cosmog.sh ; mount -o remount,ro / && /system/bin/cosmog.sh -ia'
+      ```
+
+      For GC/exeggcute:
+      ```
+      su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/gc.sh "$url_base/scripts/gc.sh" && chmod +x /system/bin/gc.sh ; mount -o remount,ro / && /system/bin/gc.sh -ia'
       ```
 4. The Device should show up in the MTIMs Dashboard; activate the license and give it a name
 5. The Device should show up in RDM/Rotom
