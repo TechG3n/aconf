@@ -146,7 +146,7 @@ fi
     mount_system_ro
 
   # get version
-  aversions=$(grep 'gc' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  aversions=$(grep 'gc' $aconf_versions | grep -v '_' | grep -v 'rgc' | awk -F "=" '{ print $NF }')
 
   # download gc
   /system/bin/rm -f /sdcard/Download/gc.apk
@@ -245,7 +245,7 @@ update_all(){
   pinstalled=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
   pversions=$(grep 'pogo' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
   ainstalled=$(dumpsys package com.gocheats.launcher | /system/bin/grep versionName | head -n1 | /system/bin/sed 's/ *versionName=//')
-  aversions=$(grep 'gc' $aconf_versions | grep -v '_' | awk -F "=" '{ print $NF }')
+  aversions=$(grep 'gc' $aconf_versions | grep -v '_' | grep -v 'rgc' | awk -F "=" '{ print $NF }')
 
   if [[ $pinstalled != $pversions ]] ;then
     if [[ $(echo "$pinstalled" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') -gt $(echo "$pversions" | tr '.' ' ' | awk '{print $1*10000+$2*100+$3}') ]]; then
