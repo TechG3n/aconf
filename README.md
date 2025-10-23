@@ -1,11 +1,13 @@
 # Multi Mitm Configuration Tool
 
-This tool will help you install your favorite mitm(s) on different ATVs and keep them up2date & running.
-Once set up, you don't need ADB/SSH access to the devices. 
-- Setup and monitor devices with Atlas, Aegis or cosmog - a mixed setup is possible too
-- (still) allows for easy conversion from MAD
+This tool will help you install your favorite MITM: Atlas, Aegis, Cosmog and Exeggcute(GC) are supported right now. 
+It will install the MITM and Pogo on ATVs, take care of needed settings and keep everything up2date & running.
+
+Once set up, you don't need ADB/SSH access to the devices. Also it does:
 - enable a mitm dependend monitor to act upon disturbances
 - enable atvdetails sender/receiver to have all version related info, cpu/mem and monitor statistics of atv stored to db
+- set proxies if needed
+- install PIF modules
 - automatic update of mitm, pogo and scripts
 
 ## Setup aconf server side
@@ -70,6 +72,12 @@ pokemongo_arm64-v8a_0.383.0_base.apk + pokemongo_arm64-v8a_0.383.0_split.apk
 4. The Device should show up in the MTIMs Dashboard; activate the license and give it a name
 5. The Device should show up in RDM/Rotom
 
+
+### Updates
+For aconf update just `git pull` and read the announment if anything else is needed.  
+Download Pogo with the script `apk/bundles/bundles.sh` - cosmog can be loaded here too.  
+For other MITMs you need to download and place the apk files with the right name in `/apk`  
+Your ATVs will fetch the updates automatically.  
 
 ### Remove aconf
 To remove aconf from an ATV - just use this command via ADB:
