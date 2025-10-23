@@ -28,12 +28,11 @@ cosmog_libVerion                 - version of the lib needed by cosmog
 5. Download Pogo using the script in apk/bundles. It will place the base.apk and split.apk in the apk folder
 6. Add latest atlas/aegis/cosmog/gc APK to apk folder - make sure to follow naming convention as per example below:  
 ```
-PokemodAtlas-Public-v22050101.apk
-PokemodAegis-Public-v22050101.apk
-cosmog-1.2.2.apk
+PokemodAtlas-Public-v25101101.apk
+PokemodAegis-Public-v24042801.apk
+cosmog-2.2.1.apk
 gc-v3.0.256.apk
-pokemongo_arm64-v8a_0.235.0_base.apk + pokemongo_arm64-v8a_0.235.0_split.apk 
-pokemongo_armeabi-v7a_0.235.0_base.apk + pokemongo_armeabi-v7a_0.235.0_split.apk
+pokemongo_arm64-v8a_0.383.0_base.apk + pokemongo_arm64-v8a_0.383.0_split.apk 
 ``` 
 7. Add desired PlayIntegrityFix Module and Fingerprint to the module folder and put its version in the version file. For the name follow the naming convention of the example
 
@@ -76,7 +75,7 @@ pokemongo_armeabi-v7a_0.235.0_base.apk + pokemongo_armeabi-v7a_0.235.0_split.apk
 To remove aconf from an ATV - just use this command via ADB:
 
 ```
-su -c 'mount -o remount,rw / && rm -f /data/local/aconf_download /data/local/aconf_versions /data/local/aconf_mac2name /system/bin/a???s.sh /system/bin/cosmog.sh /system/bin/a???s_new.sh /system/bin/cosmog_new.sh /system/bin/a???s_monitor.sh /system/bin/cosmog_monitor.sh /system/etc/init/55a???s.rc /system/etc/init/55cosmog.rc /system/etc/init/a???s_monitor.rc /system/etc/init/cosmog_monitor.rc /system/etc/init.d/55a???s /system/etc/init.d/55cosmog /sdcard/*_monitor.log /sdcard/aconf.log /sdcard/not_licensed && sync ; mount -o remount,ro / && pgrep -f -L9 /system/bin/ATVdetailsSender.sh && pgrep -f -L9 /system/bin/a???s_monitor.sh'
+su -c 'mount -o remount,rw / && rm -f /data/local/aconf_download /data/local/aconf_versions /data/local/aconf_mac2name /system/bin/{a???s,cosmog,gc}.sh /system/bin/{a???s,cosmog,gc}_new.sh /system/bin/{a???s,cosmog,gc}_monitor.sh /system/etc/init/55{a???s,cosmog,gc}.rc /system/etc/init/55{a???s,cosmog,gc}_monitor.rc /system/etc/init.d/55{a???s,cosmog,gc} /sdcard/*_monitor.log /sdcard/aconf.log /sdcard/not_licensed && sync ; mount -o remount,ro / && pgrep -f -L9 /system/bin/ATVdetailsSender.sh && pgrep -f -L9 /system/bin/{a???s,cosmog,gc}_monitor.sh'
 ```
 
 ### Logs

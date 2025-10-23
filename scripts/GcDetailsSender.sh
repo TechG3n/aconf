@@ -34,7 +34,7 @@ while true
     MITM42=$([ -f /system/etc/init.d/42gc ] && head -2 /system/etc/init.d/42gc | grep '# version' | awk '{ print $NF }' || echo 'na')
     monitor=$([ -f /system/bin/gc_monitor.sh ] && head -2 /system/bin/gc_monitor.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     whversion=$([ -f /system/bin/gcDetailsSender.sh ] && head -2 /system/bin/gcDetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
-    pogo=0
+    pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
     MITMv=$(dumpsys package com.gocheats.launcher | /system/bin/grep versionName | head -n1 | /system/bin/sed 's/ *versionName=//')
     temperature=$(cat /sys/class/thermal/thermal_zone0/temp | cut -c -2)
     magisk=$(magisk -c | sed 's/:.*//')
