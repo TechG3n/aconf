@@ -292,21 +292,45 @@ pogo_lib(){
   if [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
     logger "Pogo Lib not found, downloading it"
     rm -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so_*
+    rm -f /sdcard/Download/pogo_*.apk
     until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
       sleep 2
     done
+    sleep 1
+    until $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$vLibVer\_base.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo base failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+    sleep 1
+    until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$vLibVer\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
+      sleep 2
+    done
+
     #Move lib
     cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/local/tmp/cos/lib/libNianticLabsPlugin.so
+    cp /sdcard/Download/pogo_base.apk /data/local/tmp/cos/files/base.apk
+    cp /sdcard/Download/pogo_split.apk /data/local/tmp/cos/files/split_config.apk
   else
     iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
     if [[ $vLibVer != $iLibVer ]] ;then
       logger "Pogo Lib too old, downloading new version $iLibVer -> $vLibVer"
       rm -f /data/local/tmp/libNianticLabsPlugin.so_*
+      rm -f /sdcard/Download/pogo_*.apk
       until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
         sleep 2
       done
+      sleep 1
+      until $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$vLibVer\_base.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_base.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo base failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+      sleep 1
+      until $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$vLibVer\_split.apk || { echo "`date +%Y-%m-%d_%T` $download /sdcard/Download/pogo_split.apk $url/apk/pokemongo_$arch\_$pversions\_base.apk" >> $logfile ; logger "download pogo split failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+      
       #Move lib
       cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/local/tmp/cos/lib/libNianticLabsPlugin.so
+      cp /sdcard/Download/pogo_base.apk /data/local/tmp/cos/files/base.apk
+      cp /sdcard/Download/pogo_split.apk /data/local/tmp/cos/files/split_config.apk
     else
       echo "`date +%Y-%m-%d_%T` cosmog.sh: Pogo Lib already on correct version" >> $logfile
     fi
