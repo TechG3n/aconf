@@ -24,3 +24,4 @@ worker_spawn_delay_ms = 500 # you can mess with this maybe
 [advanced]
 dns_server = "1.1.1.1:53" # is cloudflare by default, you can change this if you need things on your local network
 dont_drop_perms = false #change if needed
+compatibility_mode = false
