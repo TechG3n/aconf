@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.8
+# version 3.0.9
 
 #Version checks
 Ver42cosmog="1.6"
@@ -759,7 +759,7 @@ vLibVer=$(grep 'pogo_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | s
 iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
 if [[ -d /data/local/tmp/cos/lib ]] ;then
   if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
-    logger "Pogo Lib not matched, downloading new version $iLibVer -> $iLibVer"
+    logger "Pogo Lib not matched, downloading new version $iLibVer -> $vLibVer"
     pogo_lib
     reboot=1
   else
