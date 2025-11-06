@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 3.0.9
+# version 3.0.12
 
 #Version checks
 Ver42cosmog="1.6"
@@ -286,9 +286,8 @@ update_cosmog_config(){
 
 pogo_lib(){
   vLibVer=$(grep 'pogo_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
-  if [[ ! -d /data/local/tmp/cos/lib ]] ;then
-    mkdir -p /data/local/tmp/cos/lib
-  fi
+  mkdir -p /data/local/tmp/cos/lib
+  mkdir -p /data/local/tmp/cos/files
   if [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
     logger "Pogo Lib not found, downloading it"
     rm -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so_*
@@ -308,7 +307,7 @@ pogo_lib(){
     #Move lib
     cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/local/tmp/cos/lib/libNianticLabsPlugin.so
     cp /sdcard/Download/pogo_base.apk /data/local/tmp/cos/files/base.apk
-    cp /sdcard/Download/pogo_split.apk /data/local/tmp/cos/files/split_config.apk
+    cp /sdcard/Download/pogo_split.apk /data/local/tmp/cos/files/split_config.arm64_v8a.apk
   else
     iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
     if [[ $vLibVer != $iLibVer ]] ;then
@@ -330,7 +329,7 @@ pogo_lib(){
       #Move lib
       cp /data/local/tmp/libNianticLabsPlugin.so_$vLibVer /data/local/tmp/cos/lib/libNianticLabsPlugin.so
       cp /sdcard/Download/pogo_base.apk /data/local/tmp/cos/files/base.apk
-      cp /sdcard/Download/pogo_split.apk /data/local/tmp/cos/files/split_config.apk
+      cp /sdcard/Download/pogo_split.apk /data/local/tmp/cos/files/split_config.arm64_v8a.apk
     else
       echo "`date +%Y-%m-%d_%T` cosmog.sh: Pogo Lib already on correct version" >> $logfile
     fi
