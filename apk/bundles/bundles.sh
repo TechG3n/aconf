@@ -1,9 +1,10 @@
 #!/bin/bash
-# version 0.7
+# version 0.8
 
 # --- CONFIGURATION ---
 download_url="https://mirror.unownhash.com/apks"
 cosmog_provider_url="https://meow.sylvie.fyi/static/cosmog2.zip"
+aegis_provider_url="https://discovery.pokemod.dev/dl/mapping/aegis"
 
 # --- PATH SETUP ---
 script_path="$(readlink -f "$0")"
@@ -24,9 +25,10 @@ show_menu() {
     echo "=============================="
     echo "1) Download pogo"
     echo "2) Download cosmog"
-    echo "3) Exit"
+    echo "3) Download aegis"
+    echo "4) Exit"
     echo "------------------------------"
-    read -p "Please select an option [1-3]: " choice
+    read -p "Please select an option [1-4]: " choice
 }
 
 # Download pogo
@@ -146,13 +148,49 @@ download_cosmog() {
     fi
 }
 
+# Download aegis
+download_aegis() {
+    echo "Starting aegis download..."
+
+    echo "Downloading from $aegis_provider_url..."
+    if ! curl -sL -J -O "$aegis_provider_url"; then
+        echo "Aegis download failed."
+        return
+    fi
+
+    aegis_file=$(ls Pokemod_Aegis_Public_*.apk 2>/dev/null | head -n 1)
+
+    if [[ -z "$aegis_file" || ! -f "$aegis_file" ]]; then
+        echo "Error: downloaded aegis file not found."
+        return
+    fi
+
+    # Pokemod_Aegis_Public_v26032301-6QxfNJDRW7A9.apk
+    if [[ "$aegis_file" =~ _(v[0-9]+)- ]]; then
+        aversion="${BASH_REMATCH[1]}"
+    else
+        read -r -p "No version found. Please enter manually (e.g. v26032301): " aversion
+    fi
+
+    new_name="PokemodAegis-Public-${aversion}.apk"
+    mv -f "$aegis_file" "$output_dir/$new_name"
+    echo "$aegis_file → $output_dir/$new_name"
+
+    read -p "Update version file? (y/n): " update_version
+    if [[ "$update_version" =~ ^(y|Y|Yes|yes)$ ]]; then
+        sed -i "s/^aegis=.*/aegis=$aversion/" "$version_file"
+        echo "Aegis version updated in $version_file."
+    fi
+}
+
 # --- MAIN ---
 show_menu
 
 case $choice in
     1) download_pogo ;;
     2) download_cosmog ;;
-    3) echo "Exiting script."; exit 0 ;;
+    3) download_aegis ;;
+    4) echo "Exiting script."; exit 0 ;;
     *) echo "Invalid selection." ;;
 esac
 
