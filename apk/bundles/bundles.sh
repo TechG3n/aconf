@@ -64,11 +64,11 @@ download_pogo() {
     if [[ -f "$file_v8a" ]]; then
         echo "Unzipping $file_v8a..."
         unzip -o "$file_v8a" >/dev/null
-        mv base.apk pogo_arm64-v8a_${version}_base.apk
-        mv split_config.arm64_v8a.apk pogo_arm64-v8a_${version}_split.apk
+        mv base.apk pokemongo_arm64-v8a_${version}_base.apk
+        mv split_config.arm64_v8a.apk pokemongo_arm64-v8a_${version}_split.apk
 
         if [[ "$pogolib" =~ ^(y|Y|Yes|yes)$ ]]; then
-            unzip -o pogo_arm64-v8a_${version}_split.apk >/dev/null
+            unzip -o pokemongo_arm64-v8a_${version}_split.apk >/dev/null
             mv lib/arm64-v8a/libNianticLabsPlugin.so "$module_dir/libNianticLabsPlugin.so_${version}"
         fi
 
