@@ -1,5 +1,5 @@
 #!/bin/bash
-# version 0.6
+# version 0.7
 
 # --- CONFIGURATION ---
 download_url="https://mirror.unownhash.com/apks"
@@ -72,7 +72,7 @@ download_pogo() {
             mv lib/arm64-v8a/libNianticLabsPlugin.so "$module_dir/libNianticLabsPlugin.so_${version}"
         fi
 
-        mv pogo_arm64-v8a_${version}_*.apk "$output_dir/"
+        mv pokemongo_arm64-v8a_${version}_*.apk "$output_dir/"
         echo "pogo $version downloaded successfully."
     else
         echo "Error: file $file_v8a not found."
