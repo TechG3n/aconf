@@ -152,16 +152,19 @@ download_cosmog() {
 download_aegis() {
     echo "Starting aegis download..."
 
-    echo "Downloading from $aegis_provider_url..."
-    if ! curl -sL -J -O "$aegis_provider_url"; then
+    # follow 302 to get filename
+
+    aegis_final_url=$(curl -sL -o /dev/null -w '%{url_effective}' -H "Range: bytes=0-0" "$aegis_provider_url")
+    aegis_file=$(basename "${aegis_final_url%%\?*}")
+
+    echo "Downloading $aegis_file..."
+    if ! curl -sL -o "$aegis_file" "$aegis_provider_url"; then
         echo "Aegis download failed."
         return
     fi
 
-    aegis_file=$(ls Pokemod_Aegis_Public_*.apk 2>/dev/null | head -n 1)
-
-    if [[ -z "$aegis_file" || ! -f "$aegis_file" ]]; then
-        echo "Error: downloaded aegis file not found."
+    if [[ ! -s "$aegis_file" ]]; then
+        echo "Error: downloaded aegis file is empty or missing."
         return
     fi
 
