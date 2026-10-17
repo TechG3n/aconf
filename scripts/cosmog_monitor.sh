@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 4.0.3
+# version 4.0.4
 #set -x
 
 # Monitor by Oldmole && bbdoc
@@ -90,5 +90,23 @@ do
 		pkill -9 -f 'com\.nianticlabs\.pokemongo' && cd /data/local/tmp/cos && setsid nohup ./com.nianticlabs.pokemongo >/dev/null 2>&1 &
 	fi
 	
+	lastlog=$(tail -n 200 /data/local/tmp/cos/logs/cosmog.log )
+
+	sameID=$(echo "$lastlog" | grep -E 'A worker with same id has connected' | wc -l )
+	if [ $sameID -ge 5 ]; then
+		if [[ $stalllock -ge 1 ]]; then
+			#skip restart
+			stalllock=$((stalllock - 1))
+		else
+			echo "`date +%Y-%m-%d_%T` [MONITORBOT] One instance has the sameID - restarting cosmog" >> $logfile
+			stop_start_cosmog
+			[[ ! -z $discord_webhook ]] && curl -S -k -L --fail --show-error -F "payload_json={\"content\": \"__**$origin**__: One instance has sameID - restarting cosmog\"}" $discord_webhook &>/dev/null
+			stalllock=2
+		fi
+	else
+		stalllock=$((stalllock - 1))
+	fi
+
+
 	sleep $monitor_interval
 done
