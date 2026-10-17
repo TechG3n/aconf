@@ -1,12 +1,12 @@
 #!/system/bin/sh
-# version 4.0.4
+# version 4.0.5
 #set -x
 
 # Monitor by Oldmole && bbdoc
 
 logfile="/sdcard/cosmog_monitor.log"
 aconf="/data/local/tmp/cos/config.toml"
-origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
+origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $2 }')
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 cosmogdead=0
 pogodead=0
