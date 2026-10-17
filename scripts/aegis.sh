@@ -394,7 +394,7 @@ downgrade_pogo(){
     /system/bin/rm -f /sdcard/Download/pogo_*.apk
     logger "pogo removed and installed, now $pversions"
   else
-    echo "`date +%Y-%m-%d_%T` cosmog.sh: pogo version correct, proceed" >> $logfile
+    echo "`date +%Y-%m-%d_%T` aegis.sh: pogo version correct, proceed" >> $logfile
   fi
 }
 

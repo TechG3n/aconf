@@ -1,11 +1,13 @@
 # Multi Mitm Configuration Tool
 
-This tool will help you install your favorite mitm(s) on different ATVs and keep them up2date & running.
-Once set up, you don't need ADB/SSH access to the devices. 
-- Setup and monitor devices with Atlas, Aegis or cosmog - a mixed setup is possible too
-- (still) allows for easy conversion from MAD
+This tool will help you install your favorite MITM: Atlas, Aegis, Cosmog and Exeggcute(GC) are supported right now. 
+It will install the MITM and Pogo on ATVs, take care of needed settings and keep everything up2date & running.
+
+Once set up, you don't need ADB/SSH access to the devices. Also it does:
 - enable a mitm dependend monitor to act upon disturbances
 - enable atvdetails sender/receiver to have all version related info, cpu/mem and monitor statistics of atv stored to db
+- set proxies if needed
+- install PIF modules
 - automatic update of mitm, pogo and scripts
 
 ## Setup aconf server side
@@ -26,13 +28,13 @@ cosmog_libVerion                 - version of the lib needed by cosmog
 ```
 4. If you want to skip adding names manually on reflashed devices, copy and fill out mac2name.exmaple file 
 5. Download Pogo using the script in apk/bundles. It will place the base.apk and split.apk in the apk folder
-6. Add latest atlas/aegis/cosmog APK to apk folder - make sure to follow naming convention as per example below:  
+6. Add latest atlas/aegis/cosmog/gc APK to apk folder - make sure to follow naming convention as per example below:  
 ```
-PokemodAtlas-Public-v22050101.apk
-PokemodAegis-Public-v22050101.apk
-cosmog-1.2.2.apk
-pokemongo_arm64-v8a_0.235.0_base.apk + pokemongo_arm64-v8a_0.235.0_split.apk 
-pokemongo_armeabi-v7a_0.235.0_base.apk + pokemongo_armeabi-v7a_0.235.0_split.apk
+PokemodAtlas-Public-v25101101.apk
+PokemodAegis-Public-v24042801.apk
+cosmog-2.2.1.apk
+gc-v3.0.256.apk
+pokemongo_arm64-v8a_0.383.0_base.apk + pokemongo_arm64-v8a_0.383.0_split.apk 
 ``` 
 7. Add desired PlayIntegrityFix Module and Fingerprint to the module folder and put its version in the version file. For the name follow the naming convention of the example
 
@@ -62,15 +64,26 @@ pokemongo_armeabi-v7a_0.235.0_base.apk + pokemongo_armeabi-v7a_0.235.0_split.apk
       ```
       su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/cosmog.sh "$url_base/scripts/cosmog.sh" && chmod +x /system/bin/cosmog.sh ; mount -o remount,ro / && /system/bin/cosmog.sh -ia'
       ```
+
+      For GC/exeggcute:
+      ```
+      su -c 'url_base="https://mydownloadfolder.com" && common_curl_opts="-s -k -L --fail --show-error --user username:password" && mount -o remount,rw / && aconf_versions="/data/local/aconf_versions" && [ ! -e "$aconf_versions" ] && /system/bin/curl $common_curl_opts "$url_base/versions" -o "$aconf_versions" || true && aconf_download="/data/local/aconf_download" && touch "$aconf_download" && echo "url=$url_base" > "$aconf_download" && echo "authUser=username" >> "$aconf_download" && echo "authPass=password" >> "$aconf_download" && /system/bin/curl $common_curl_opts -o /system/bin/gc.sh "$url_base/scripts/gc.sh" && chmod +x /system/bin/gc.sh ; mount -o remount,ro / && /system/bin/gc.sh -ia'
+      ```
 4. The Device should show up in the MTIMs Dashboard; activate the license and give it a name
 5. The Device should show up in RDM/Rotom
 
+
+### Updates
+For aconf update just `git pull` and read the announment if anything else is needed.  
+Download Pogo with the script `apk/bundles/bundles.sh` - cosmog can be loaded here too.  
+For other MITMs you need to download and place the apk files with the right name in `/apk`  
+Your ATVs will fetch the updates automatically.  
 
 ### Remove aconf
 To remove aconf from an ATV - just use this command via ADB:
 
 ```
-su -c 'mount -o remount,rw / && rm -f /data/local/aconf_download /data/local/aconf_versions /data/local/aconf_mac2name /system/bin/a???s.sh /system/bin/cosmog.sh /system/bin/a???s_new.sh /system/bin/cosmog_new.sh /system/bin/a???s_monitor.sh /system/bin/cosmog_monitor.sh /system/etc/init/55a???s.rc /system/etc/init/55cosmog.rc /system/etc/init/a???s_monitor.rc /system/etc/init/cosmog_monitor.rc /system/etc/init.d/55a???s /system/etc/init.d/55cosmog /sdcard/*_monitor.log /sdcard/aconf.log /sdcard/not_licensed && sync ; mount -o remount,ro / && pgrep -f -L9 /system/bin/ATVdetailsSender.sh && pgrep -f -L9 /system/bin/a???s_monitor.sh'
+su -c 'mount -o remount,rw / && rm -f /data/local/aconf_download /data/local/aconf_versions /data/local/aconf_mac2name /system/bin/{a???s,cosmog,gc}.sh /system/bin/{a???s,cosmog,gc}_new.sh /system/bin/{a???s,cosmog,gc}_monitor.sh /system/etc/init/55{a???s,cosmog,gc}.rc /system/etc/init/55{a???s,cosmog,gc}_monitor.rc /system/etc/init.d/55{a???s,cosmog,gc} /sdcard/*_monitor.log /sdcard/aconf.log /sdcard/not_licensed && sync ; mount -o remount,ro / && pgrep -f -L9 /system/bin/ATVdetailsSender.sh && pgrep -f -L9 /system/bin/{a???s,cosmog,gc}_monitor.sh'
 ```
 
 ### Logs
@@ -95,6 +108,7 @@ flush privileges;
 2. Prepare aconf settings and start sender:
 - Adjust versions file settings for atvdetails sender
 - Execute /system/bin/atlas.sh to update to latest version, add webhook sender and start it
+- Don't use Magisk Modules which alter grep, awk and other binaries - this will cause problems with the DetailsSenders.
 
 3. Grafana Installation:
 - To visualize the ATV information sent from aconf, set up Grafana.
@@ -105,4 +119,4 @@ Default port is 3000 and you can expose Grafana to the web for easy access.
 
 - In Grafana web interface, create a data source on your stats database (make sure your user can access the database). Click on “Save & test” to check connection.
 
-- Finally, you can import the dashboards (20_atlas_atv_performance.json.default,21_atlas_atvdetails_overview.json.default,22_atlas_device_overview.json.default), they can be found at <https://github.com/dkmur/rdmStats/tree/master/default_files>. You can do this by selecting, in the Grafana sidebar, `Dashboards -> + Import`. Select, one at a time, the three dashboards to import to Grafana.
+- Finally, you can import the dashboards from the grafana folder in this repo. You can do this by selecting, in the Grafana sidebar, `Dashboards -> + Import`. Select, one at a time, the three dashboards to import to Grafana.

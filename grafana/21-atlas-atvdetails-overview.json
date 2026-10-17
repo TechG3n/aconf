@@ -1,0 +1,1617 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "target": {
+            "limit": 100,
+            "matchAny": false,
+            "tags": [],
+            "type": "dashboard"
+          },
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 164,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+      {
+        "datasource": {
+          "type": "mysql",
+          "uid": "CYLKR-VHz"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto",
+              "filterable": false,
+              "inspect": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "rom"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 83
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "architecture"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 147
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "time"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 167
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "date"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 93
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Architecture"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 94
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Rom"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 74
+                },
+                {
+                  "id": "custom.displayMode",
+                  "value": "json-view"
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "datetime"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 149
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "vmscript"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 75
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "madRom"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 85
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "55vmapper"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 94
+                },
+                {
+                  "id": "custom.displayMode",
+                  "value": "json-view"
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "mitm"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 91
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "42vmapper"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 89
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Productmodel"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 115
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "#devices"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 108
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "42vm"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 57
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "55vm"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 56
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "wh"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 75
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "atlas.sh"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 69
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "55atlas"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 66
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "wh_sender"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 84
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "monitor"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 67
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 17,
+          "x": 0,
+          "y": 0
+        },
+        "id": 2,
+        "options": {
+          "footer": {
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "frameIndex": 0,
+          "showHeader": true,
+          "sortBy": []
+        },
+        "pluginVersion": "9.0.5",
+        "targets": [
+          {
+            "datasource": {
+              "type": "mysql",
+              "uid": "CYLKR-VHz"
+            },
+            "format": "table",
+            "group": [],
+            "hide": false,
+            "metricColumn": "none",
+            "rawQuery": true,
+            "rawSql": "SELECT\nifnull(arch,'no_data') as 'Architecture',\nifnull(productmodel,'nodata') as 'Productmodel',\nifnull(MITMSh,'no_data') as 'atlas.sh',\nifnull(55MITM,'no_data') as '55atlas',\nifnull(whversion,'no_data') as 'wh_sender',\nifnull(monitor,'no_data') as 'monitor',\ncount(deviceName) as '#devices'\nfrom ATVsummary\nwhere timestamp > now() - interval 1 day\nGROUP BY arch,productmodel,MITMSh,55MITM,whversion,monitor\n",
+            "refId": "A",
+            "select": [
+              [
+                {
+                  "params": [
+                    "value"
+                  ],
+                  "type": "column"
+                }
+              ]
+            ],
+            "timeColumn": "time",
+            "where": [
+              {
+                "name": "$__timeFilter",
+                "params": [],
+                "type": "macro"
+              }
+            ]
+          }
+        ],
+        "title": "ATV general",
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "mysql",
+          "uid": "CYLKR-VHz"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto",
+              "filterable": false,
+              "inspect": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Magisk"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 66
+                },
+                {
+                  "id": "custom.displayMode",
+                  "value": "json-view"
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "date"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 96
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "datetime"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 150
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Modules loaded"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 469
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "#devices"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 80
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 10,
+          "x": 0,
+          "y": 6
+        },
+        "id": 8,
+        "options": {
+          "footer": {
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "showHeader": true,
+          "sortBy": []
+        },
+        "pluginVersion": "9.0.5",
+        "targets": [
+          {
+            "datasource": {
+              "type": "mysql",
+              "uid": "CYLKR-VHz"
+            },
+            "format": "table",
+            "group": [],
+            "metricColumn": "none",
+            "rawQuery": true,
+            "rawSql": "SELECT\nifnull(magisk,'no_data') as 'Magisk',\nifnull(magisk_modules,'no_data') as 'Modules loaded',\ncount(deviceName) as '#devices'\nfrom ATVsummary\nwhere timestamp > now() - interval 1 day\nGROUP BY magisk, magisk_modules\n",
+            "refId": "A",
+            "select": [
+              [
+                {
+                  "params": [
+                    "value"
+                  ],
+                  "type": "column"
+                }
+              ]
+            ],
+            "timeColumn": "time",
+            "where": [
+              {
+                "name": "$__timeFilter",
+                "params": [],
+                "type": "macro"
+              }
+            ]
+          }
+        ],
+        "title": "Magisk / modules",
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "mysql",
+          "uid": "CYLKR-VHz"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto",
+              "filterable": false,
+              "inspect": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "date"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 89
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "PoGo"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 93
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "datetime"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 148
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "RGC"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 69
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "PD"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 69
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "VMapper"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 80
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Atlas"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 88
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 7,
+          "x": 10,
+          "y": 6
+        },
+        "id": 6,
+        "options": {
+          "footer": {
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "showHeader": true,
+          "sortBy": []
+        },
+        "pluginVersion": "9.0.5",
+        "targets": [
+          {
+            "datasource": {
+              "type": "mysql",
+              "uid": "CYLKR-VHz"
+            },
+            "format": "table",
+            "group": [],
+            "metricColumn": "none",
+            "rawQuery": true,
+            "rawSql": "SELECT\nifnull(pogo,'no_data') as 'PoGo',\nifnull(MITMsh,'no_data') as 'Atlas',\ncount(deviceName) as '#devices'\nfrom ATVsummary\nwhere timestamp > now() - interval 1 day\nGROUP BY pogo,MITMsh\n",
+            "refId": "A",
+            "select": [
+              [
+                {
+                  "params": [
+                    "value"
+                  ],
+                  "type": "column"
+                }
+              ]
+            ],
+            "timeColumn": "time",
+            "where": [
+              {
+                "name": "$__timeFilter",
+                "params": [],
+                "type": "macro"
+              }
+            ]
+          }
+        ],
+        "title": "Versions",
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "mysql",
+          "uid": "CYLKR-VHz"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto",
+              "filterable": false,
+              "inspect": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "sendRawProto"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 107
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "date      "
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 92
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "popLastSend"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 99
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "fullDaemon"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 90
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "enMock"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 70
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "defMapMode"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 99
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "setEnforce"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 86
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "en_MockLoc"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 98
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "dis_PogoFreeze"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 121
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "datetime"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 141
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "vmapper"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 72
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "injector"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 295
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "script"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 63
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "daemon"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 68
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "bootdelay"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 81
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "gzip"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 47
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "betamode"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 84
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "selinux"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 62
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "destination"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 253
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "authid"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 119
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "openLucky"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 85
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "rebootminutes"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 112
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "deviceid"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 73
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "#devices"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 186
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "mockgps"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 80
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "newvhook"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 87
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "websocketurl"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 256
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "raw_destination"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 316
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "rdmUrl"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 239
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "authBearer"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 97
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "deviceAuthToken"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 285
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "email"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 169
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "runOnBoot"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 85
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 17,
+          "x": 0,
+          "y": 11
+        },
+        "id": 25,
+        "options": {
+          "footer": {
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "showHeader": true,
+          "sortBy": []
+        },
+        "pluginVersion": "9.0.5",
+        "targets": [
+          {
+            "datasource": {
+              "type": "mysql",
+              "uid": "CYLKR-VHz"
+            },
+            "format": "table",
+            "group": [],
+            "metricColumn": "none",
+            "rawQuery": true,
+            "rawSql": "SELECT\nifnull(rdmUrl, 'no_data') as 'rdmUrl',\nifnull(authBearer, 'no_data') as 'authBearer',\nifnull(token, 'no_data') as 'deviceAuthToken',\nifnull(email, 'no_data') as 'email',\nifnull(onBoot, 'no_data') as 'runOnBoot',\ncount(deviceName) as '#devices'\nfrom ATVsummary\nwhere timestamp > now() - interval 1 day\nGROUP BY rdmUrl,authBearer,token,email,onBoot",
+            "refId": "A",
+            "select": [
+              [
+                {
+                  "params": [
+                    "value"
+                  ],
+                  "type": "column"
+                }
+              ]
+            ],
+            "timeColumn": "time",
+            "where": [
+              {
+                "name": "$__timeFilter",
+                "params": [],
+                "type": "macro"
+              }
+            ]
+          }
+        ],
+        "title": "Atlas settings",
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "mysql",
+          "uid": "CYLKR-VHz"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto",
+              "filterable": false,
+              "inspect": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "minTemp"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 77
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "maxTemp"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 82
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "avgTemp"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 78
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 7,
+          "x": 0,
+          "y": 17
+        },
+        "id": 22,
+        "options": {
+          "footer": {
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "showHeader": true,
+          "sortBy": []
+        },
+        "pluginVersion": "9.0.5",
+        "targets": [
+          {
+            "datasource": {
+              "type": "mysql",
+              "uid": "CYLKR-VHz"
+            },
+            "format": "table",
+            "group": [],
+            "metricColumn": "none",
+            "rawQuery": true,
+            "rawSql": "SELECT\nmin(temperature) as 'minTemp',\navg(temperature) as 'avgTemp',\nmax(temperature) as 'maxTemp'\nfrom ATVsummary\nwhere timestamp > now() - interval 1 day",
+            "refId": "A",
+            "select": [
+              [
+                {
+                  "params": [
+                    "value"
+                  ],
+                  "type": "column"
+                }
+              ]
+            ],
+            "timeColumn": "time",
+            "where": [
+              {
+                "name": "$__timeFilter",
+                "params": [],
+                "type": "macro"
+              }
+            ]
+          }
+        ],
+        "title": "Temperature",
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "mysql",
+          "uid": "CYLKR-VHz"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto",
+              "filterable": false,
+              "inspect": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "minTemp"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 77
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "maxTemp"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 77
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "avgTemp"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 78
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Origin"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 140
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 5,
+          "x": 7,
+          "y": 17
+        },
+        "id": 23,
+        "options": {
+          "footer": {
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "showHeader": true,
+          "sortBy": []
+        },
+        "pluginVersion": "9.0.5",
+        "targets": [
+          {
+            "datasource": {
+              "type": "mysql",
+              "uid": "CYLKR-VHz"
+            },
+            "format": "table",
+            "group": [],
+            "metricColumn": "none",
+            "rawQuery": true,
+            "rawSql": "SELECT\ndeviceName,\nTemperature\nfrom ATVsummary\nwhere timestamp > now() - interval 1 day\norder by temperature DESC\nlimit 5\n",
+            "refId": "A",
+            "select": [
+              [
+                {
+                  "params": [
+                    "value"
+                  ],
+                  "type": "column"
+                }
+              ]
+            ],
+            "timeColumn": "time",
+            "where": [
+              {
+                "name": "$__timeFilter",
+                "params": [],
+                "type": "macro"
+              }
+            ]
+          }
+        ],
+        "title": "Temperature (Top 5)",
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "mysql",
+          "uid": "CYLKR-VHz"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto",
+              "filterable": false,
+              "inspect": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "minTemp"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 77
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "maxTemp"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 77
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "avgTemp"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 78
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Origin"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 140
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 5,
+          "x": 12,
+          "y": 17
+        },
+        "id": 24,
+        "options": {
+          "footer": {
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "showHeader": true,
+          "sortBy": []
+        },
+        "pluginVersion": "9.0.5",
+        "targets": [
+          {
+            "datasource": {
+              "type": "mysql",
+              "uid": "CYLKR-VHz"
+            },
+            "format": "table",
+            "group": [],
+            "metricColumn": "none",
+            "rawQuery": true,
+            "rawSql": "SELECT\ndeviceName,\nTemperature\nfrom ATVsummary\nwhere timestamp > now() - interval 1 day\norder by temperature ASC\nlimit 5\n",
+            "refId": "A",
+            "select": [
+              [
+                {
+                  "params": [
+                    "value"
+                  ],
+                  "type": "column"
+                }
+              ]
+            ],
+            "timeColumn": "time",
+            "where": [
+              {
+                "name": "$__timeFilter",
+                "params": [],
+                "type": "macro"
+              }
+            ]
+          }
+        ],
+        "title": "Temperature (Lowest 5)",
+        "type": "table"
+      }
+    ],
+    "refresh": false,
+    "schemaVersion": 36,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "timepicker": {
+      "hidden": true,
+      "refresh_intervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ]
+    },
+    "timezone": "",
+    "title": "21. Atlas atvdetails overview",
+    "uid": "YBmfNzFGz",
+    "version": 4,
+    "weekStart": ""
+  }
