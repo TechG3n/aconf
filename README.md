@@ -80,10 +80,11 @@ For other MITMs you need to download and place the apk files with the right name
 Your ATVs will fetch the updates automatically.  
 
 ### Remove aconf
-To remove aconf from an ATV - just use this command via ADB:
+To remove aconf from an ATV - just use this command via ADB.  
+It stops the aconf monitor/sender first and then removes all aconf files. The MITM itself (apps, `/data/local/tmp/cos`, configs) and the PIF module stay on the device - reboot afterwards to stop the running MITM.
 
 ```
-su -c 'mount -o remount,rw / && rm -f /data/local/aconf_download /data/local/aconf_versions /data/local/aconf_mac2name /system/bin/{a???s,cosmog,gc}.sh /system/bin/{a???s,cosmog,gc}_new.sh /system/bin/{a???s,cosmog,gc}_monitor.sh /system/etc/init/55{a???s,cosmog,gc}.rc /system/etc/init/55{a???s,cosmog,gc}_monitor.rc /system/etc/init.d/55{a???s,cosmog,gc} /sdcard/*_monitor.log /sdcard/aconf.log /sdcard/not_licensed && sync ; mount -o remount,ro / && pgrep -f -L9 /system/bin/ATVdetailsSender.sh && pgrep -f -L9 /system/bin/{a???s,cosmog,gc}_monitor.sh'
+su -c 'pkill -9 -f "^[^ ]*sh /system/bin/[^ ]*_monitor"; pkill -9 -f "^[^ ]*sh /system/bin/[^ ]*DetailsSender"; pkill -9 -f "^[^ ]*sh /data/local/tmp/aconf-cj"; mount -o remount,rw /; for m in atlas aegis cosmog gc; do rm -f /system/bin/$m.sh /system/bin/${m}_new.sh /system/bin/${m}_monitor.sh /system/etc/init.d/01${m}bootstrap /system/etc/init.d/42$m /system/etc/init.d/55$m /system/etc/init/55$m.rc /system/etc/init/${m}_monitor.rc /sdcard/${m}_monitor.log; done; rm -f /system/bin/AtlasDetailsSender.sh /system/bin/AegisDetailsSender.sh /system/bin/CosmogDetailsSender.sh /system/bin/GcDetailsSender.sh /system/bin/ATVdetailsSender.sh /data/local/aconf_download /data/local/aconf_versions /data/local/aconf_mac2name /data/local/tmp/aconf-cj.sh /data/local/tmp/fingerprint.version /sdcard/aconf.log /sdcard/not_licensed /sdcard/new_install /sdcard/useAconfDevelop; sync; mount -o remount,ro /; echo "aconf removed - reboot to stop the running MITM"'
 ```
 
 ### Logs
