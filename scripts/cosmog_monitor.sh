@@ -1,12 +1,15 @@
 #!/system/bin/sh
-# version 4.0.5
+# version 4.0.6
 #set -x
 
 # Monitor by Oldmole && bbdoc
 
 logfile="/sdcard/cosmog_monitor.log"
 aconf="/data/local/tmp/cos/config.toml"
-origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $2 }')
+get_origin() {
+	sed -n 's/^[[:space:]]*device_name[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' $aconf | head -n1
+}
+origin=$(get_origin)
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 cosmogdead=0
 pogodead=0
@@ -75,7 +78,7 @@ do
 		sleep 60
 	done
 
-	[[ -z $origin ]] && origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
+	[[ -z $origin ]] && origin=$(get_origin)
 
         updatecheck=$(($updatecheck+1))
         if [[ $updatecheck -gt $update_check ]] ;then

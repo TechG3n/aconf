@@ -1,12 +1,13 @@
 #!/system/bin/sh
-# version 2.0.0
+# version 2.0.1
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
 
 #Configs
-cosmog_conf="/data/local/tmp/cos/cosmog.json"
-cosmog_log="/data/local/tmp/cos/cosmog.log"
+cosmog_conf="/data/local/tmp/cos/config.toml"
+cosmog_log="/data/local/tmp/cos/logs/cosmog.log"
+[ -f "$cosmog_log" ] || cosmog_log="/data/local/tmp/cos/cosmog.log"
 aconf_log="/sdcard/aconf.log"
 monitor_log="/sdcard/cosmog_monitor.log"
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
@@ -26,7 +27,7 @@ while true
 # generic
     MITM="cosmog2"
     RPL=$(($atvdetails_interval/60))
-    deviceName=$(cat $cosmog_conf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
+    deviceName=$(sed -n 's/^[[:space:]]*device_name[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' $cosmog_conf | head -n1)
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
     MITMSh=$(head -2 /system/bin/cosmog.sh | grep '# version' | awk '{ print $NF }')
@@ -57,12 +58,12 @@ while true
     numPogo=$(ls -l /sbin/.magisk/mirror/data/app/ | grep com.nianticlabs.pokemongo | wc -l)
 # aconf.log
     reboot=$(grep 'Device rebooted' $aconf_log | wc -l)
-# cosmog config
-    authBearer=$(cat $cosmog_conf | tr , '\n' | grep -w 'authBearer' | awk -F ":" '{ print $2 }' | tr -d \"})
-    token=$(cat $cosmog_conf | tr , '\n' | grep -w 'deviceAuthToken' | awk -F ":" '{ print $2 }' | tr -d \"})
-    email=$(cat $cosmog_conf | tr , '\n' | grep -w 'email' | awk -F ":" '{ print $2 }' | tr -d \"})
-    rdmUrl=$(cat $cosmog_conf | tr , '\n' | grep -w 'rdmUrl' | awk -F "\"" '{ print $4 }')
-    onBoot=$(cat $cosmog_conf | tr , '\n' | grep -w 'runOnBoot' | awk -F ":" '{ print $2 }' | tr -d \"})
+# cosmog config (config.toml has no authBearer/token/email/runOnBoot; secrets are not sent)
+    authBearer=""
+    token=""
+    email=""
+    rdmUrl=$(sed -n 's/^[[:space:]]*rotom_worker_endpoint[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' $cosmog_conf | head -n1)
+    onBoot=""
 # cosmog.log
     a_pogoStarted=$(grep 'Launched Pokemon Go' $cosmog_log | wc -l)
     a_injection=$(grep 'Injected successfully' $cosmog_log | wc -l)

@@ -1,11 +1,11 @@
 #!/system/bin/sh
-# version 3.0.14
+# version 3.0.15
 
 #Version checks
 Ver42cosmog="1.6"
 Ver55cosmog="1.2"
-VerMonitor="4.0.5"
-VerATVsender="2.0.0"
+VerMonitor="4.0.6"
+VerATVsender="2.0.1"
 
 android_version=`getprop ro.build.version.release | sed -e 's/\..*//'`
 
@@ -27,8 +27,8 @@ if [[ -z $discord_webhook ]] ;then
 fi
 
 if [[ -f /data/local/tmp/cos/config.toml ]] ;then
-# origin=$(grep -w 'deviceName' $aconf | awk -F "\"" '{ print $4 }')
-  origin=$(cat $aconf | tr , '\n' | grep -w 'device_name' | awk -F "\"" '{ print $4 }')
+  # config.toml: device_name = "NAME"
+  origin=$(sed -n 's/^[[:space:]]*device_name[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' $aconf | head -n1)
 else
   echo "`date +%Y-%m-%d_%T` cosmog.sh: cannot find origin, that can't be right" >> $logfile
 fi
@@ -284,13 +284,18 @@ update_cosmog_config(){
   fi
 }
 
+# version of the downloaded pogo lib, taken from /data/local/tmp/libNianticLabsPlugin.so_<version>
+installed_lib_ver(){
+  find /data/local/tmp/ -maxdepth 1 -type f -name "libNianticLabsPlugin.so_*" | head -n1 | sed 's/.*libNianticLabsPlugin\.so_//'
+}
+
 pogo_lib(){
   vLibVer=$(grep 'pogo_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
   mkdir -p /data/local/tmp/cos/lib
   mkdir -p /data/local/tmp/cos/files
   if [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
     logger "Pogo Lib not found, downloading it"
-    rm -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so_*
+    rm -f /data/local/tmp/libNianticLabsPlugin.so_*
     rm -f /sdcard/Download/pogo_*.apk
     until $download /data/local/tmp/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer || { echo "`date +%Y-%m-%d_%T` $download /data/local/tmp/cos/libNianticLabsPlugin.so_$vLibVer $url/modules/libNianticLabsPlugin.so_$vLibVer" >> $logfile ; logger "download cosmog libNianticLabsPlugin file failed, exit script" ; exit 1; } ;do
       sleep 2
@@ -309,7 +314,7 @@ pogo_lib(){
     cp /sdcard/Download/pogo_base.apk /data/local/tmp/cos/files/base.apk
     cp /sdcard/Download/pogo_split.apk /data/local/tmp/cos/files/split_config.arm64_v8a.apk
   else
-    iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
+    iLibVer=$(installed_lib_ver)
     if [[ $vLibVer != $iLibVer ]] ;then
       logger "Pogo Lib too old, downloading new version $iLibVer -> $vLibVer"
       rm -f /data/local/tmp/libNianticLabsPlugin.so_*
@@ -401,7 +406,9 @@ send_logs(){
     # monitor log
     [[ -f /sdcard/cosmog_monitor.log ]] && curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"cosmog_monitor.log for $origin\"}" -F "file1=@/sdcard/cosmog_monitor.log" $webhook &>/dev/null
     # cosmog log
-    cp /data/local/tmp/cos/cosmog.log /sdcard/cosmog.log
+    cosmog_log="/data/local/tmp/cos/logs/cosmog.log"
+    [ -f "$cosmog_log" ] || cosmog_log="/data/local/tmp/cos/cosmog.log"
+    cp $cosmog_log /sdcard/cosmog.log
     curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"aconf log sender\", \"content\": \"cosmog.log for $origin\"}" -F "file1=@/sdcard/cosmog.log" $webhook &>/dev/null
     rm /sdcard/cosmog.log
     #logcat
@@ -490,15 +497,18 @@ until $download $aconf_mac2name $url/mac2name || { echo "`date +%Y-%m-%d_%T` $do
 done
 dos2unix $aconf_mac2name
 echo "`date +%Y-%m-%d_%T` cosmog.sh: downloaded latest mac2name file"  >> $logfile
-if [[ $origin = "" ]] ;then
+if [[ $origin == "" ]] ;then
   mac=$(ifconfig wlan0 2>/dev/null | grep 'HWaddr' | awk '{print $5}' | cut -d ' ' -f1 && ifconfig eth0 2>/dev/null | grep 'HWaddr' | awk '{print $5}')
-  origin=$(grep -m 1 -i $mac $aconf_mac2name | cut -d ';' -f2)
+  # check wlan and eth mac one by one
+  for m in $mac ;do
+    origin=$(grep -i -m 1 "^$m;" $aconf_mac2name 2>/dev/null | cut -d ';' -f2)
+    [[ ! -z $origin ]] && break
+  done
   hostname=$origin
   if [[ $origin != "" ]] ;then
     echo "`date +%Y-%m-%d_%T` cosmog.sh: got origin name $origin from mac2name file"  >> $logfile
   else
-    mac=$(ifconfig wlan0 2>/dev/null | grep 'HWaddr' | awk '{print $5}' | cut -d ' ' -f1 && ifconfig eth0 2>/dev/null | grep 'HWaddr' | awk '{print $5}')
-    logger "no origin name found in mac2name file, add it with mac $mac"
+    logger "no origin name found in mac2name file, add it with mac $(echo "$mac" | tr '\n' ' ' | sed 's/ *$//; s/ / or /g')"
   fi
 fi
 
@@ -755,7 +765,7 @@ fi
 
 # check Pogo Lib ver
 vLibVer=$(grep 'pogo_libVerion' $aconf_versions | awk -F "=" '{ print $NF }' | sed 's/\"//g')
-iLibVer=$(find /data/local/tmp/ -type f -name "libNianticLabsPlugin.so_*" | cut -d '_' -f 2)
+iLibVer=$(installed_lib_ver)
 if [[ -d /data/local/tmp/cos/lib ]] ;then
   if [[ $vLibVer != $iLibVer ]] || [[ ! -f /data/local/tmp/cos/lib/libNianticLabsPlugin.so ]] ;then
     logger "Pogo Lib not matched, downloading new version $iLibVer -> $vLibVer"
